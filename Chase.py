@@ -1,12 +1,11 @@
-import gspread
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
 from decimal import Decimal
 import time
-from datetime import date, datetime
+from datetime import datetime
 import csv
 from piecash import Transaction, Split
 import os
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance
+from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
@@ -34,13 +33,15 @@ driver.find_element_by_xpath("//*[@id='downloadActivityIcon']").click()
 time.sleep(2)
 # click Download
 driver.find_element_by_id("download").click()
+# get current date
+today = datetime.today()
+year = today.year
+month = today.month
+
 # # IMPORT TRANSACTIONS
 review_trans = ""
-today = date.today()
 day = today.strftime('%d')
-month = today.month
 monthto = today.strftime('%m')
-year = today.year
 if month == 1:
     monthfrom = "12"
     yearto = str(year)
@@ -103,7 +104,6 @@ with open(filename) as csv_file:
                                      ])
                 book.save()
                 book.flush()
-chase_gnu = getGnuCashBalance(mybook, 'Chase')
 book.close()
 # Back to Accounts page
 driver.find_element_by_id("backToAccounts").click()
@@ -121,56 +121,15 @@ except NoSuchElementException:
     exception = "caught"
 except ElementClickInterceptedException:
     exception = "caught"
-# open Checking Balance Sheet
-json_creds = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\creds.json"
-sheet = gspread.service_account(filename=json_creds).open("Checking Balance")
-# convert balance from currency (string) to negative amount
-balance_str = (chase.strip('$'))
-balance_num = float(balance_str)
-balance = balance_num * -1
-# get current m1_date
-today = date.today()
-year = today.year
-month = today.month
+
+chase_gnu = getGnuCashBalance(mybook, 'Chase')
+# switch worksheets if running in December (to next year's worksheet)
 if month == 12:
     year = year + 1
-worksheet = sheet.worksheet(str(year))
-if month == 1:
-    worksheet.update('F8', balance)
-    worksheet.update('N8', balance)
-elif month == 2:
-    worksheet.update('S8', balance)
-    worksheet.update('V8', balance)
-elif month == 3:
-    worksheet.update('C43', balance)
-    worksheet.update('F43', balance)
-elif month == 4:
-    worksheet.update('K43', balance)
-    worksheet.update('N43', balance)
-elif month == 5:
-    worksheet.update('S43', balance)
-    worksheet.update('V43', balance)
-elif month == 6:
-    worksheet.update('C78', balance)
-    worksheet.update('F78', balance)
-elif month == 7:
-    worksheet.update('K78', balance)
-    worksheet.update('N78', balance)
-elif month == 8:
-    worksheet.update('S78', balance)
-    worksheet.update('V78', balance)
-elif month == 9:
-    worksheet.update('C113', balance)
-    worksheet.update('F113', balance)
-elif month == 10:
-    worksheet.update('K113', balance)
-    worksheet.update('N113', balance)
-elif month == 11:
-    worksheet.update('S113', balance)
-    worksheet.update('V113', balance)
-else:
-    worksheet.update('C8', balance)
-    worksheet.update('F8', balance)
+chase_neg = float(chase.strip('$')) * -1
+updateSpreadsheet(directory, 'Checking Balance', year, 'Chase', month, chase_neg)
+updateSpreadsheet(directory, 'Checking Balance', year, 'Chase', month, chase_neg, True)
+
 # Display Checking Balance spreadsheet
 driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1684fQ-gW5A0uOf7s45p9tC4GiEE5s5_fjO5E7dgVI1s/edit#gid=914927265');")
 # Open GnuCash if there are transactions to review

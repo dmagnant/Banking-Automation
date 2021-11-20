@@ -1,14 +1,13 @@
-import gspread
 import pyautogui
 from selenium.common.exceptions import NoSuchElementException
-from datetime import date, datetime
+from datetime import datetime
 import time
 from decimal import Decimal
 import csv
 from piecash import Transaction, Split
 import os
 from ahk import AHK
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance
+from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
@@ -105,9 +104,7 @@ amex_gnu = getGnuCashBalance(mybook, 'Amex')
 driver.find_element_by_xpath("/html/body/div[1]/div[1]/div/div[2]/div/div/div[4]/div/div[2]/div/div/header/div/div/div/div/div/div/div[1]/div/div[1]/div/ul/li[5]/a/span").click()
 time.sleep(10)
 rewards = driver.find_element_by_xpath("/html/body/div[1]/div[1]/div/div[2]/div/div[3]/div/div[3]/div/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div").text.replace("$","")
-
 ahk = AHK()
-
 # click on Redeem for Statement Credit
 driver.find_element_by_xpath("/html/body/div[1]/div[1]/div/div[2]/div/div[3]/div/div[3]/div/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[3]/a").click()
 try:
@@ -131,66 +128,21 @@ try:
     driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div/div/div[2]/div/div/div/div/div/form/div[2]/input[3]").click()
 except NoSuchElementException:
     exception = "caught"
-# open Checking Balance Sheet
-json_creds = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\creds.json"
-sheet = gspread.service_account(filename=json_creds).open("Checking Balance")
-# convert balance from currency (string) to negative amount
-balance_str = (amex.strip('$'))
-balance_num = float(balance_str)
-balance = balance_num * -1
-# get current m1_date
-today = date.today()
+# get current date
+today = datetime.today()
 year = today.year
 month = today.month
 # switch worksheets if running in December (to next year's worksheet)
 if month == 12:
     year = year + 1
-worksheet = sheet.worksheet(str(year))
-# update appropriate month's information
-if month == 1:
-    worksheet.update('K7', balance)
-    worksheet.update('N7', balance)
-elif month == 2:
-    worksheet.update('S7', balance)
-    worksheet.update('V7', balance)
-elif month == 3:
-    worksheet.update('C42', balance)
-    worksheet.update('F42', balance)
-elif month == 4:
-    worksheet.update('K42', balance)
-    worksheet.update('N42', balance)
-elif month == 5:
-    worksheet.update('S42', balance)
-    worksheet.update('V42', balance)
-elif month == 6:
-    worksheet.update('C77', balance)
-    worksheet.update('F77', balance)
-elif month == 7:
-    worksheet.update('K77', balance)
-    worksheet.update('N77', balance)
-elif month == 8:
-    worksheet.update('S77', balance)
-    worksheet.update('V77', balance)
-elif month == 9:
-    worksheet.update('C112', balance)
-    worksheet.update('F112', balance)
-elif month == 10:
-    worksheet.update('K112', balance)
-    worksheet.update('N112', balance)
-elif month == 11:
-    worksheet.update('S112', balance)
-    worksheet.update('V112', balance)
-else:
-    worksheet.update('C7', balance)
-    worksheet.update('F7', balance)
-
+amex_neg = float(amex.strip('$')) * -1
+updateSpreadsheet(directory, 'Checking Balance', year, 'Amex', month, amex_neg)
+updateSpreadsheet(directory, 'Checking Balance', year, 'Amex', month, amex_neg, True)
 # Display Checking Balance spreadsheet
 driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1684fQ-gW5A0uOf7s45p9tC4GiEE5s5_fjO5E7dgVI1s/edit#gid=914927265');")
 # Open GnuCash if there are transactions to review
 if review_trans:
     os.startfile(directory + r"\Finances\Personal Finances\Finance.gnucash")
-
 # Display Balance
 showMessage("Balances + Review", f'Amex Balance: {amex} \n' f'GnuCash Amex Balance: {amex_gnu} \n \n' f'Review transactions:\n{review_trans}')
-
 driver.quit()

@@ -1,12 +1,11 @@
 from selenium.common.exceptions import NoSuchElementException
-import gspread
-from datetime import date, datetime
+from datetime import datetime
 import time
 from decimal import Decimal
 import csv
 import os
 from piecash import Transaction, Split
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance
+from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
@@ -68,9 +67,11 @@ driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div[1]/div/div[4]/div
 driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div[1]/div/div[4]/div[2]/div[2]/div/div[3]/div/div[3]/div[1]/select").send_keys("m")
 # click Download Transactions
 driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div[1]/div/div[4]/div[2]/div[2]/div/div[3]/div/div[4]/div[2]/a/span").click()
-# modify file for import
-today = date.today()
+# get current date
+today = datetime.today()
 year = today.year
+month = today.month
+# modify file for import
 stmtmonth = today.strftime("%B")
 stmtyear = str(year)
 filename = os.path.join(r"C:\Users\dmagn\Downloads", stmtmonth + stmtyear + "_8955.csv")
@@ -279,61 +280,14 @@ with open(filename) as csv_file:
                                     ])
                 book.save()
                 book.flush()
-BoAjoint_gnu = getGnuCashBalance(mybook, 'BoA-joint')
 book.close()
-
-# open Home Spreadsheet
-json_creds = directory + r"\Projects\Coding\creds.json"
-sheet = gspread.service_account(filename=json_creds).open("Home")
-# convert balance from currency (string) to negative amount
-balance_str = (BoAjoint.replace("$", "").replace(",", ""))
-balance_num = float(balance_str)
-balance = balance_num * -1
-# get current date
-today = date.today()
-year = today.year
-month = today.month
+BoAjoint_gnu = getGnuCashBalance(mybook, 'BoA-joint')
 # switch worksheets if running in December (to next year's worksheet)
 if month == 12:
     year = year + 1
-worksheet = sheet.worksheet(str(year) + " Balance")
-# update appropriate month's information
-if month == 1:
-    worksheet.update('K16', balance)
-    worksheet.update('N16', balance)
-elif month == 2:
-    worksheet.update('S16', balance)
-    worksheet.update('V16', balance)
-elif month == 3:
-    worksheet.update('C52', balance)
-    worksheet.update('F52', balance)
-elif month == 4:
-    worksheet.update('K52', balance)
-    worksheet.update('N52', balance)
-elif month == 5:
-    worksheet.update('S52', balance)
-    worksheet.update('V52', balance)
-elif month == 6:
-    worksheet.update('C88', balance)
-    worksheet.update('F88', balance)
-elif month == 7:
-    worksheet.update('K88', balance)
-    worksheet.update('N88', balance)
-elif month == 8:
-    worksheet.update('S88', balance)
-    worksheet.update('V88', balance)
-elif month == 9:
-    worksheet.update('C124', balance)
-    worksheet.update('F124', balance)
-elif month == 10:
-    worksheet.update('K124', balance)
-    worksheet.update('N124', balance)
-elif month == 11:
-    worksheet.update('S124', balance)
-    worksheet.update('V124', balance)
-else:
-    worksheet.update('C16', balance)
-    worksheet.update('F16', balance)
+BoAjoint_neg = float(BoAjoint.strip('$')) * -1
+updateSpreadsheet(directory, 'Home', year, 'BoA-joint', month, BoAjoint_neg)
+updateSpreadsheet(directory, 'Home', year, 'BoA-joint', month, BoAjoint_neg, True)
 # Display Home spreadsheet
 driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1oP3U7y8qywvXG9U_zYXgjFfqHrCyPtUDl4zPDftFCdM/edit#gid=460564976');")
 # Open GnuCash if there are transactions to review

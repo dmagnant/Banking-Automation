@@ -1,13 +1,12 @@
 from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException
 from selenium.webdriver.common.keys import Keys
-import gspread
-from datetime import date, datetime
+from datetime import datetime
 import time
 from decimal import Decimal
 import csv
 import os
 from piecash import Transaction, Split
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance
+from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
@@ -69,9 +68,10 @@ driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div[1]/div/div[4]/div
 driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div[1]/div/div[4]/div[2]/div[2]/div/div[3]/div/div[3]/div[1]/select").send_keys("m")
 # click Download Transactions
 driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div[1]/div/div[4]/div[2]/div[2]/div/div[3]/div/div[4]/div[2]/a/span").click()
-# modify file for import
-today = date.today()
+# get current date
+today = datetime.today()
 year = today.year
+month = today.month
 stmtmonth = today.strftime("%B")
 stmtyear = str(year)
 filename = os.path.join(r"C:\Users\dmagn\Downloads", stmtmonth + stmtyear + "_8549.csv")
@@ -163,58 +163,14 @@ try:
     driver.find_element_by_xpath("/html/body/div[1]/div/div/div[3]/button[1]").click()
 except ElementNotInteractableException:
     exception = "caught"
-# open Checking Balance Sheet
-json_creds = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\creds.json"
-sheet = gspread.service_account(filename=json_creds).open("Checking Balance")
-# convert balance from currency (string) to negative amount
-balance_str = (BoA.replace("$", ""))
-balance_num = float(balance_str)
-balance = balance_num * -1
-# get current m1_date
-today = date.today()
-year = today.year
-month = today.month
+
 # switch worksheets if running in December (to next year's worksheet)
 if month == 12:
     year = year + 1
-worksheet = sheet.worksheet(str(year))
-# update appropriate month's information
-if month == 1:
-    worksheet.update('K5', balance)
-    worksheet.update('N5', balance)
-elif month == 2:
-    worksheet.update('S5', balance)
-    worksheet.update('V5', balance)
-elif month == 3:
-    worksheet.update('C40', balance)
-    worksheet.update('F40', balance)
-elif month == 4:
-    worksheet.update('K40', balance)
-    worksheet.update('N40', balance)
-elif month == 5:
-    worksheet.update('S40', balance)
-    worksheet.update('V40', balance)
-elif month == 6:
-    worksheet.update('C75', balance)
-    worksheet.update('F75', balance)
-elif month == 7:
-    worksheet.update('K75', balance)
-    worksheet.update('N75', balance)
-elif month == 8:
-    worksheet.update('S75', balance)
-    worksheet.update('V75', balance)
-elif month == 9:
-    worksheet.update('C110', balance)
-    worksheet.update('F110', balance)
-elif month == 10:
-    worksheet.update('K110', balance)
-    worksheet.update('N110', balance)
-elif month == 11:
-    worksheet.update('S110', balance)
-    worksheet.update('V110', balance)
-else:
-    worksheet.update('C5', balance)
-    worksheet.update('F5', balance)
+BoA_neg = float(BoA.strip('$')) * -1
+updateSpreadsheet(directory, 'Checking Balance', year, 'BoA', month, BoA_neg)
+updateSpreadsheet(directory, 'Checking Balance', year, 'BoA', month, BoA_neg, True)
+
 # Display Checking Balance spreadsheet
 driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1684fQ-gW5A0uOf7s45p9tC4GiEE5s5_fjO5E7dgVI1s/edit#gid=914927265');")
 # Open GnuCash if there are transactions to review

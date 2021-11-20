@@ -1,16 +1,15 @@
 from ahk import AHK
 import ctypes
-from datetime import date
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
-from datetime import date, datetime
+from datetime import datetime
 import time
-import gspread
 from decimal import Decimal
 from piecash import Transaction, Split
 import pyotp
 import pyautogui
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance
+from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, getStartAndEndOfPreviousMonth
+
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
@@ -95,47 +94,12 @@ worthy_old_bal = float(mybook.accounts(fullname="Assets:Liquid Assets:Worthy Bon
 # Calculate Interest
 constant_interest = Decimal(constant_balance - constant_old_bal)
 worthy_interest = Decimal(worthy_balance - worthy_old_bal)
-# Get current m1_date
+# Get current date
 today = datetime.today()
 year = today.year
 month = today.month
-# Change m1_date to last m1_date of last month
-if month == 1:
-    startdate = today.replace(month=12, day=1, year=year - 1)
-    postdate = today.replace(month=12, day=31, year=year - 1)
-elif month == 2:
-    startdate = today.replace(month=1, day=1)
-    postdate = today.replace(month=1, day=31)
-elif month == 3:
-    startdate = today.replace(month=2, day=1)
-    postdate = today.replace(month=2, day=28)
-elif month == 4:
-    startdate = today.replace(month=3, day=1)
-    postdate = today.replace(month=3, day=31)
-elif month == 5:
-    startdate = today.replace(month=4, day=1)
-    postdate = today.replace(month=4, day=30)
-elif month == 6:
-    startdate = today.replace(month=5, day=1)
-    postdate = today.replace(month=5, day=31)
-elif month == 7:
-    startdate = today.replace(month=6, day=1)
-    postdate = today.replace(month=6, day=30)
-elif month == 8:
-    startdate = today.replace(month=7, day=1)
-    postdate = today.replace(month=7, day=31)
-elif month == 9:
-    startdate = today.replace(month=8, day=1)
-    postdate = today.replace(month=8, day=31)
-elif month == 10:
-    startdate = today.replace(month=9, day=1)
-    postdate = today.replace(month=9, day=30)
-elif month == 11:
-    startdate = today.replace(month=10, day=1)
-    postdate = today.replace(month=10, day=31)
-else:
-    startdate = today.replace(month=11, day=1)
-    postdate = today.replace(month=11, day=30)
+
+lastmonth = getStartAndEndOfPreviousMonth(today, month, year)
 
 # Add Interest Transactions
 with mybook as book:
@@ -144,7 +108,7 @@ with mybook as book:
     to_account = "Assets:Liquid Assets:My Constant"
     amount = round(constant_interest, 2)
     from_account = "Income:Investments:Interest"
-    trans1 = Transaction(post_date=postdate.date(),
+    trans1 = Transaction(post_date=lastmonth[1].date(),
                          currency=USD,
                          description="Interest",
                          splits=[
@@ -155,7 +119,7 @@ with mybook as book:
     to_account = "Assets:Liquid Assets:Worthy Bonds"
     amount = round(worthy_interest, 2)
     from_account = "Income:Investments:Interest"
-    trans2 = Transaction(post_date=postdate.date(),
+    trans2 = Transaction(post_date=lastmonth[1].date(),
                          currency=USD,
                          description="Interest",
                          splits=[
@@ -210,14 +174,14 @@ while num < 10:
     driver.find_element_by_id("startDate").click()
     driver.find_element_by_id("startDate").send_keys(Keys.BACKSPACE)
     num += 1
-driver.find_element_by_id("startDate").send_keys(datetime.strftime(startdate, '%m/%d/%Y'))
+driver.find_element_by_id("startDate").send_keys(datetime.strftime(lastmonth[0], '%m/%d/%Y'))
 # enter End Date
 num = 0
 while num < 10:
     driver.find_element_by_id("endDate").click()
     driver.find_element_by_id("endDate").send_keys(Keys.BACKSPACE)
     num += 1
-driver.find_element_by_id("endDate").send_keys(datetime.strftime(postdate, '%m/%d/%Y'))
+driver.find_element_by_id("endDate").send_keys(datetime.strftime(lastmonth[1], '%m/%d/%Y'))
 # click Refresh
 driver.find_element_by_id("fundPerformanceRefresh").click()
 # Capture Dividends
@@ -240,7 +204,7 @@ with mybook as book:
     USD = mybook.currencies(mnemonic="USD")
     # Add Interest Transaction to My Constant
     to_account = "Assets:Non-Liquid Assets:HSA"
-    trans1 = Transaction(post_date=postdate.date(),
+    trans1 = Transaction(post_date=lastmonth[1].date(),
                          currency=USD,
                          description="HSA Statement",
                          splits=[
@@ -251,79 +215,10 @@ with mybook as book:
     book.save()
     book.flush()
 book.close()
-
-# add to Asset Allocation spreadsheet
-HE_hsa_balance = str(HE_hsa_balance)
-# open Asset Allocation Sheet
-json_creds = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\creds.json"
-sheet = gspread.service_account(filename=json_creds).open("Asset Allocation")
-today = date.today()
-year = today.year
-month = today.month
-worksheet = sheet.worksheet(str(year))
-# update appropriate month's information
-if month == 1:
-    worksheet.update('F4', bond_balance)
-    worksheet.update('B4', liq_assets)
-    worksheet.update('B6', vanguard401kbal)
-    worksheet.update('B14', HE_hsa_balance)
-elif month == 2:
-    worksheet.update('M4', bond_balance)
-    worksheet.update('I4', liq_assets)
-    worksheet.update('I6', vanguard401kbal)
-    worksheet.update('I14', HE_hsa_balance)
-elif month == 3:
-    worksheet.update('T4', bond_balance)
-    worksheet.update('P4', liq_assets)
-    worksheet.update('P6', vanguard401kbal)
-    worksheet.update('P14', HE_hsa_balance)
-elif month == 4:
-    worksheet.update('F26', bond_balance)
-    worksheet.update('B26', liq_assets)
-    worksheet.update('B28', vanguard401kbal)
-    worksheet.update('B36', HE_hsa_balance)
-elif month == 5:
-    worksheet.update('M26', bond_balance)
-    worksheet.update('I26', liq_assets)
-    worksheet.update('I28', vanguard401kbal)
-    worksheet.update('I36', HE_hsa_balance)
-elif month == 6:
-    worksheet.update('T26', bond_balance)
-    worksheet.update('P26', liq_assets)
-    worksheet.update('P28', vanguard401kbal)
-    worksheet.update('P36', HE_hsa_balance)
-elif month == 7:
-    worksheet.update('F48', bond_balance)
-    worksheet.update('B48', liq_assets)
-    worksheet.update('B50', vanguard401kbal)
-    worksheet.update('B58', HE_hsa_balance)
-elif month == 8:
-    worksheet.update('M48', bond_balance)
-    worksheet.update('I48', liq_assets)
-    worksheet.update('I50', vanguard401kbal)
-    worksheet.update('I58', HE_hsa_balance)
-elif month == 9:
-    worksheet.update('T48', bond_balance)
-    worksheet.update('P48', liq_assets)
-    worksheet.update('P50', vanguard401kbal)
-    worksheet.update('P58', HE_hsa_balance)
-elif month == 10:
-    worksheet.update('F70', bond_balance)
-    worksheet.update('B70', liq_assets)
-    worksheet.update('B72', vanguard401kbal)
-    worksheet.update('B80', HE_hsa_balance)
-elif month == 11:
-    worksheet.update('M70', bond_balance)
-    worksheet.update('I70', liq_assets)
-    worksheet.update('I72', vanguard401kbal)
-    worksheet.update('I80', HE_hsa_balance)
-else:
-    worksheet.update('T70', bond_balance)
-    worksheet.update('P70', liq_assets)
-    worksheet.update('P72', vanguard401kbal)
-    worksheet.update('P80', HE_hsa_balance)
-# Display Asset Allocation spreadsheet
+updateSpreadsheet(directory, 'Asset Allocation', year, 'Bonds', month, bond_balance)
+updateSpreadsheet(directory, 'Asset Allocation', year, 'HE_HSA', month, HE_hsa_balance)
+updateSpreadsheet(directory, 'Asset Allocation', year, 'Liquid Assets', month, liq_assets)
+updateSpreadsheet(directory, 'Asset Allocation', year, 'Vanguard401k', month, vanguard401kbal)
 driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1sWJuxtYI-fJ6bUHBWHZTQwcggd30RcOSTMlqIzd1BBo/edit#gid=953264104');")
-# display Balances
 showMessage("Balances + Review", f'MyConstant: {constant_balance} \n' f'Worthy: {worthy_balance} \n' f'Liquid Assets: {liq_assets} \n' f'401k: {vanguard401kbal}')
 driver.quit()

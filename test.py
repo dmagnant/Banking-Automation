@@ -1,18 +1,24 @@
 import time
 from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
+import gspread
+from datetime import datetime, timedelta
+from decimal import Decimal
+
 from Ally import runAlly
-from Functions import setDirectory, chromeDriverAsUser, closeExpressVPN, getPassword
+from Functions import setDirectory, chromeDriverAsUser, closeExpressVPN, getPassword, updateSpreadsheet, getCell
+
 directory = setDirectory()
-driver = chromeDriverAsUser(directory)
-driver.implicitly_wait(5)
-driver.get("https://secure.ally.com/")
-driver.maximize_window()
-time.sleep(1)
-# login
-# enter password
-driver.find_element_by_xpath("/html/body/div/div[1]/main/div/div/div/div/div[1]/form/div[2]/div/input").send_keys(getPassword(directory, 'Ally Bank'))
-# click Log In
-driver.find_element_by_xpath("/html/body/div/div[1]/main/div/div/div/div/div[1]/form/div[3]/button/span").click()
-time.sleep(4)
-# click Joint Checking link
-driver.find_element_by_partial_link_text("Joint Checking").click()
+type = "Asset Allocation"
+today = datetime.today()
+year = today.year
+month = 1
+value = float(999.99)
+account = 'HE_HSA'
+
+# updateSpreadsheet(directory, type, year, account, month, value)
+
+# amex = '$100.25'
+# # convert balance from currency (string) to negative amount
+# amex_neg = float(amex.strip('$')) * -1
+
+# print(amex_neg)

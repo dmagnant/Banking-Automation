@@ -1,14 +1,13 @@
 from ahk import AHK
-from datetime import date, datetime, time
+from datetime import datetime, time
 import time
 from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException
-import gspread
 from decimal import Decimal
 import csv
 from piecash import Transaction, Split
 import os
 import pyautogui
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance
+from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
@@ -62,13 +61,14 @@ driver.find_element_by_id("radio4").click()
 driver.find_element_by_id("submitDownload").click()
 # Click Close
 driver.find_element_by_xpath("/html/body/div[1]/main/div[5]/div/form/div/div[4]/a[1]").click()
-# # IMPORT TRANSACTIONS
-review_trans = ""
+# get current date
 today = datetime.today()
 year = today.year
+month = today.month
+# # IMPORT TRANSACTIONS
+review_trans = ""
 stmtyear = str(year)
 stmtmonth = today.strftime('%m')
-
 filename = r"C:\Users\dmagn\Downloads\Discover-Statement-" + stmtyear + stmtmonth + "12.csv"
 # Set Gnucash Book
 mybook = openGnuCashBook(directory, 'Finance', False, False)
@@ -119,7 +119,6 @@ with open(filename) as csv_file:
                                      ])
                 book.save()
                 book.flush()
-discover_gnu = getGnuCashBalance(mybook, 'Discover')
 book.close()
 # # Redeem Rewards
 # Click Rewards
@@ -143,56 +142,15 @@ try:
     driver.find_element_by_xpath("/html/body/div[1]/div[1]/main/div/div/section/div[2]/div/div/div/div[1]/div/div/div[2]/div/button[1]").click()
 except NoSuchElementException:
     exception = "caught"
-# open Checking Balance Sheet
-json_creds = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\creds.json"
-sheet = gspread.service_account(filename=json_creds).open("Checking Balance")
-# convert balance from currency (string) to negative amount
-balance_str = (discover.strip('$'))
-balance_num = float(balance_str)
-balance = balance_num * -1
-# get current m1_date
-today = date.today()
-year = today.year
-month = today.month
+
+discover_gnu = getGnuCashBalance(mybook, 'Discover')
+# switch worksheets if running in December (to next year's worksheet)
 if month == 12:
     year = year + 1
-worksheet = sheet.worksheet(str(year))
-if month == 1:
-    worksheet.update('K6', balance)
-    worksheet.update('N6', balance)
-elif month == 2:
-    worksheet.update('S6', balance)
-    worksheet.update('V6', balance)
-elif month == 3:
-    worksheet.update('C41', balance)
-    worksheet.update('F41', balance)
-elif month == 4:
-    worksheet.update('K41', balance)
-    worksheet.update('N41', balance)
-elif month == 5:
-    worksheet.update('S41', balance)
-    worksheet.update('V41', balance)
-elif month == 6:
-    worksheet.update('C76', balance)
-    worksheet.update('F76', balance)
-elif month == 7:
-    worksheet.update('K76', balance)
-    worksheet.update('N76', balance)
-elif month == 8:
-    worksheet.update('S76', balance)
-    worksheet.update('V76', balance)
-elif month == 9:
-    worksheet.update('C111', balance)
-    worksheet.update('F111', balance)
-elif month == 10:
-    worksheet.update('K111', balance)
-    worksheet.update('N111', balance)
-elif month == 11:
-    worksheet.update('S111', balance)
-    worksheet.update('V111', balance)
-else:
-    worksheet.update('C6', balance)
-    worksheet.update('F6', balance)
+discover_neg = float(discover.strip('$')) * -1
+updateSpreadsheet(directory, 'Checking Balance', year, 'Discover', month, discover_neg)
+updateSpreadsheet(directory, 'Checking Balance', year, 'Discover', month, discover_neg, True)
+
 # Display Checking Balance spreadsheet
 driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1684fQ-gW5A0uOf7s45p9tC4GiEE5s5_fjO5E7dgVI1s/edit#gid=914927265');")
 # Open GnuCash if there are transactions to review
