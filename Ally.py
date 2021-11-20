@@ -29,6 +29,7 @@ def runAlly(directory, driver):
     year = today.year
     month = today.month
 
+    
     # Gather last 3 days worth of transactions
     inside_date_range = True
     current_date = datetime.today().date()
