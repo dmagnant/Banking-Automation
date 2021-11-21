@@ -28,7 +28,7 @@ def runM1(directory, driver):
         # click Spend
         driver.find_element_by_xpath("//*[@id='root']/div/div/div/div[1]/div[2]/div/div[1]/nav/a[2]/div/div/span").click()
 
-    m1_balance = driver.find_element_by_xpath("//*[@id='root']/div/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/h1").text.replace("$", "").replace(",", "")
+    m1 = driver.find_element_by_xpath("//*[@id='root']/div/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/h1").text.replace("$", "").replace(",", "")
     # get current date
     today = datetime.today()
     year = today.year
@@ -49,11 +49,11 @@ def runM1(directory, driver):
     column = 1
     element = "//*[@id='root']/div/div/div/div[2]/div/div[2]/div/div[3]/a[" + str(transaction) + "]/div[" + str(column) + "]"
     inside_date_range = True
-    m1 = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\m1.csv"
-    gnu_m1 = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\gnu_m1.csv"
-    with open(m1, 'w', newline='') as file:
+    m1_activity = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\m1.csv"
+    gnu_m1_activity = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\gnu_m1.csv"
+    with open(m1_activity, 'w', newline='') as file:
         file.truncate()
-    with open(gnu_m1, 'w', newline='') as file:
+    with open(gnu_m1_activity, 'w', newline='') as file:
         file.truncate()
     # Set Gnucash Book
     mybook = openGnuCashBook(directory, 'Finance', False, False)
@@ -165,16 +165,16 @@ def runM1(directory, driver):
                     csv_writer = csv.writer(file)
                     csv_writer.writerow(rows)
     review_trans = ""
-    with open(gnu_m1, 'r') as t1, open(m1, 'r') as t2:
+    with open(gnu_m1_activity, 'r') as t1, open(m1, 'r') as t2:
         fileone = t1.readlines()
         filetwo = t2.readlines()
         line_count = 0
     for line in filetwo:
         line_count += 1
         if line not in fileone:
-            csv_reader = csv.reader(gnu_m1, delimiter=',')
+            csv_reader = csv.reader(gnu_m1_activity, delimiter=',')
             row_count = 0
-            with open(m1) as file:
+            with open(m1_activity) as file:
                 csv_reader = csv.reader(file, delimiter=',')
                 for row in csv_reader:
                     row_count += 1
@@ -271,4 +271,4 @@ def runM1(directory, driver):
                                 book.save()
                                 book.flush()
                         book.close()
-    return [m1_balance, review_trans]
+    return [m1, review_trans]

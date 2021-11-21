@@ -22,14 +22,13 @@ def runAlly(directory, driver):
     driver.find_element_by_partial_link_text("Joint Checking").click()
     time.sleep(2)
     # capture balance
-    ally_balance = driver.find_element_by_xpath("/html/body/div[2]/div/div/div[1]/div[1]/div/main/section/div/div/div[1]/section[2]/section/div/div/dl/div[2]/dd").text.replace("$", "").replace(",", "")
+    ally = driver.find_element_by_xpath("/html/body/div[2]/div/div/div[1]/div[1]/div/main/section/div/div/div[1]/section[2]/section/div/div/dl/div[2]/dd").text.replace("$", "").replace(",", "")
 
     # get current date
     today = datetime.today()
     year = today.year
     month = today.month
 
-    
     # Gather last 3 days worth of transactions
     inside_date_range = True
     current_date = datetime.today().date()
@@ -46,11 +45,11 @@ def runAlly(directory, driver):
     column = 1
     element = "//*[@id='form-elements-section']/section/section/table[" + str(table) + "]/tbody/tr[" + str(transaction) + "]/td[" + str(column) + "]"
 
-    ally = directory + r"\Projects\Coding\Python\Banking\Resources\ally.csv"
-    gnu_ally = directory + r"\Projects\Coding\Python\Banking\Resources\gnu_ally.csv"
-    with open(ally, 'w', newline='') as file:
+    ally_activity = directory + r"\Projects\Coding\Python\Banking\Resources\ally.csv"
+    gnu_ally_activity = directory + r"\Projects\Coding\Python\Banking\Resources\gnu_ally.csv"
+    with open(ally_activity, 'w', newline='') as file:
         file.truncate()
-    with open(gnu_ally, 'w', newline='') as file:
+    with open(gnu_ally_activity, 'w', newline='') as file:
         file.truncate()
     clicked_next = False
     inside_date_range = True
@@ -78,7 +77,7 @@ def runAlly(directory, driver):
                     description = "Mortgage Payment"
                 row = str(mod_date), description, amount
                 # Write to csv file
-                with open(ally, 'a', newline='') as file:
+                with open(ally_activity, 'a', newline='') as file:
                     csv_writer = csv.writer(file)
                     csv_writer.writerow(row)
                     transaction += 2
@@ -107,21 +106,21 @@ def runAlly(directory, driver):
             if spl.account.fullname == account:
                 # open CSV file at the given path
                 rows = date, description, amount
-                with open(gnu_ally, 'a', newline='') as file:
+                with open(gnu_ally_activity, 'a', newline='') as file:
                     csv_writer = csv.writer(file)
                     csv_writer.writerow(rows)
     review_trans = ""
     square_window = "no"
-    with open(gnu_ally, 'r') as t1, open(ally, 'r') as t2:
+    with open(gnu_ally_activity, 'r') as t1, open(ally, 'r') as t2:
         fileone = t1.readlines()
         filetwo = t2.readlines()
         line_count = 0
     for line in filetwo:
         line_count += 1
         if line not in fileone:
-            csv_reader = csv.reader(gnu_ally, delimiter=',')
+            csv_reader = csv.reader(gnu_ally_activity, delimiter=',')
             row_count = 0
-            with open(ally) as file:
+            with open(ally_activity) as file:
                 csv_reader = csv.reader(file, delimiter=',')
                 for row in csv_reader:
                     row_count += 1
@@ -159,4 +158,4 @@ def runAlly(directory, driver):
                             book.flush()
                         book.close()
         startExpressVPN()
-        return [ally_balance, review_trans]
+        return [ally, review_trans]
