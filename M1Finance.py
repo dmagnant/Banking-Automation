@@ -161,7 +161,7 @@ def runM1(directory, driver):
             if spl.account.fullname == account:
                 # open CSV file at the given path
                 rows = m1_date, description, amount
-                with open(gnu_m1, 'a', newline='') as file:
+                with open(gnu_m1_activity, 'a', newline='') as file:
                     csv_writer = csv.writer(file)
                     csv_writer.writerow(rows)
     review_trans = ""
