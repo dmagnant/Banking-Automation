@@ -1,4 +1,4 @@
-# Banking-Automation
+# Financial-Aggregator
 
 PROBLEM: 
 
