@@ -17,13 +17,7 @@ def showMessage(header, body):
     MessageBox(None, body, header, 0)
 
 def setDirectory():
-    #get computer name
-    computer = socket.gethostname()
-    # computer-specific file paths
-    if computer == "Big-Bertha":
-        return r"C:\Users\dmagn\Google Drive"
-    elif computer == "Black-Betty":
-        return r"D:\Google Drive"
+    return os.environ.get('StorageDirectory')
 
 def getUsername(directory, name):
     keepass_file = directory + r"\Other\KeePass.kdbx"
