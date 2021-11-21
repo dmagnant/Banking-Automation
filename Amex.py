@@ -19,6 +19,7 @@ driver.find_element_by_xpath("/html/body/div[1]/div/div/header/div[2]/div[1]/div
 driver.find_element_by_id("eliloUserID").send_keys(getUsername(directory, 'Amex'))
 driver.find_element_by_id("eliloPassword").send_keys(getPassword(directory, 'Amex'))
 driver.find_element_by_id("loginSubmit").click()
+
 # handle pop-up
 try:
     driver.find_element_by_xpath("/html/body/div[1]/div[5]/div/div/div/div/div/div[2]/div/div/div/div/div[1]/div/a/span/span").click()
