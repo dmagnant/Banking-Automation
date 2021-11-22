@@ -6,7 +6,7 @@ from decimal import Decimal
 import csv
 from piecash import Transaction, Split
 import os
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet
+from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, setToAccount
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
@@ -102,36 +102,11 @@ with open(filename) as csv_file:
         else:
             # Skip payment (already captured in Checking Balance script)
             if "Payment Received" in row[1]:
-                skip = "yes"
-            elif "SPECTRUM" in row[1]:
-                to_account = "Expenses:Housing:Internet"
-            elif "google fi" in row[1].lower():
-                to_account = "Expenses:Cell Phone"
-            elif "CAT DOCTOR" in row[1]:
-                to_account = "Expenses:Medical:Vet"
-            elif "PARKING" in row[1]:
-                to_account = "Expenses:Transportation:Parking"
-            elif "PICK N SAVE" in row[1]:
-                to_account = "Expenses:Groceries"
-            elif "KETTLE RANGE" in row[1]:
-                to_account = "Expenses:Groceries"
-            elif "KOPPA" in row[1]:
-                to_account = "Expenses:Groceries"
-            elif "AMZN" in row[1]:
-                to_account = "Expenses:Amazon"
-            elif "Amazon" in row[1]:
-                to_account = "Expenses:Amazon"
-            elif "STEAMGAMES" in row[1]:
-                to_account = "Expenses:Entertainment"
-            elif "STEAM PURCHASE" in row[1]:
-                to_account = "Expenses:Entertainment"
-            elif "PROGRESSIVE" in row[1]:
-                to_account = "Expenses:Transportation:Car Insurance"
-            elif "UBER" in row[1]:
-                to_account = "Expenses:Transportation:Ride Services"
-            else:
-                to_account = "Expenses:Other"
-                review_trans = review_trans + row[0] + ", " + row[1] + ", " + row[3] + "\n"
+                continue
+            else: 
+                to_account = setToAccount('Barclays', row)
+                if to_account == "Expenses:Other":
+                    review_trans = review_trans + row[0] + ", " + row[1] + ", " + "\n"
             amount = Decimal(row[3])
             from_account = "Liabilities:Credit Cards:BarclayCard CashForward"
             postdate = datetime.strptime(row[0], '%m/%d/%Y')

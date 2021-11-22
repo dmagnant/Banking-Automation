@@ -5,7 +5,7 @@ from datetime import datetime
 import csv
 from piecash import Transaction, Split
 import os
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet
+from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, setToAccount
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
@@ -70,25 +70,10 @@ with open(filename) as csv_file:
             # Skip payment (already captured in Checking Balance script
             if "AUTOMATIC PAYMENT" in row[2]:
                 continue
-            elif "Amazon" in row[2]:
-                to_account = "Expenses:Amazon"
-            elif "AMZN" in row[2]:
-                to_account = "Expenses:Amazon"
-            elif "REDEMPTION CREDIT" in row[2]:
-                to_account = "Income:Credit Card Rewards"
-            elif "SPECTRUM" in row[2]:
-                to_account = "Expenses:Housing:Internet"
-            elif "google fi" in row[2].lower():
-                to_account = "Expenses:Cell Phone"
-            elif row[3] == "Groceries":
-                to_account = "Expenses:Groceries"
-            elif row[3] == "Gas":
-                to_account = "Expenses:Transportation:Gas (Vehicle)"
-            elif row[3] == "Food & Drink":
-                to_account = "Expenses:Bars & Restaurants"
             else:
-                to_account = "Expenses:Other"
-                review_trans = review_trans + row[1] + ", " + row[2] + ", " + row[5] + "\n"
+                to_account = setToAccount('Chase', row)
+                if to_account == "Expenses:Other":
+                    review_trans = review_trans + row[0] + ", " + row[1] + ", " + "\n"
             amount = Decimal(row[5])
             from_account = "Liabilities:Credit Cards:Chase Freedom"
             postdate = datetime.strptime(row[1], '%m/%d/%Y')

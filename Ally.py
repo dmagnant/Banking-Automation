@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import time
 from piecash import Transaction, Split
 import csv
-from Functions import getPassword, startExpressVPN, closeExpressVPN, openGnuCashBook, getDateRange
+from Functions import getPassword, startExpressVPN, closeExpressVPN, openGnuCashBook, getDateRange, modifyTransactionDescription, setToAccount
 
 def runAlly(directory, driver):
     closeExpressVPN()
@@ -53,16 +53,7 @@ def runAlly(directory, driver):
                 column += 1
                 element = "//*[@id='form-elements-section']/section/section/table[" + str(table) + "]/tbody/tr[" + str(transaction) + "]/td[" + str(column) + "]"
                 amount = driver.find_element_by_xpath(element).text.replace("$", "").replace(",", "")
-                if "Internet transfer from Online Savings account XXXXXX9703" in description:
-                    description = "Tessa Deposit"
-                elif "City of Milwauke B2P*MilwWa" in description:
-                    description = "Water Bill"
-                elif "Requested transfer from DAN S MAGNANT" in description:
-                    description = "Dan Deposit"
-                elif "BK OF AMER VISA ONLINE PMT" in description:
-                    description = "BoA CC"
-                elif "DOVENMUEHLE MTG MORTG PYMT" in description:
-                    description = "Mortgage Payment"
+                description = modifyTransactionDescription(description)
                 row = str(mod_date), description, amount
                 # Write to csv file
                 with open(ally_activity, 'a', newline='') as file:
@@ -112,21 +103,23 @@ def runAlly(directory, driver):
                 for row in csv_reader:
                     row_count += 1
                     if line_count == row_count:
-                        if "BoA CC" in row[1]:
-                            to_account = "Liabilities:BoA Credit Card"
-                        elif "Tessa Deposit" in row[1]:
-                            to_account = "Tessa's Contributions"
-                        elif "Water Bill" in row[1]:
-                            to_account = "Expenses:Utilities:Water"
-                        elif "Dan Deposit" in row[1]:
-                            to_account = "Dan's Contributions"
-                        elif "Interest Paid" in row[1]:
-                            to_account = "Income:Interest"
-                        elif "Mortgage Payment" in row[1]:
-                            to_account = "Liabilities:Mortgage Loan"
-                        else:
-                            to_account = "Expenses:Other"
-                            review_trans = review_trans + row[0] + ", " + row[1] + ", " + row[2] + "\n"
+                        to_account = setToAccount('Ally', row)
+                        if to_account == "Expenses:Other":
+                            review_trans = review_trans + row[0] + ", " + row[1] + ", " + "\n"
+                        # if "BoA CC" in row[1]:
+                        #     to_account = "Liabilities:BoA Credit Card"
+                        # elif "Tessa Deposit" in row[1]:
+                        #     to_account = "Tessa's Contributions"
+                        # elif "Water Bill" in row[1]:
+                        #     to_account = "Expenses:Utilities:Water"
+                        # elif "Dan Deposit" in row[1]:
+                        #     to_account = "Dan's Contributions"
+                        # elif "Interest Paid" in row[1]:
+                        #     to_account = "Income:Interest"
+                        # elif "Mortgage Payment" in row[1]:
+                        #     to_account = "Liabilities:Mortgage Loan"
+                        # else:
+                        #     to_account = "Expenses:Other"
                         amount = Decimal(row[2])
                         from_account = "Assets:Ally Checking Account"
                         postdate = datetime.strptime(row[0], '%Y-%m-%d')

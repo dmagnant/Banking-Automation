@@ -6,7 +6,7 @@ from decimal import Decimal
 import csv
 import os
 from piecash import Transaction, Split
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet
+from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, setToAccount
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
@@ -91,31 +91,10 @@ with open(filename) as csv_file:
             # Skip payment (already captured in Checking Balance script
             if "BA ELECTRONIC PAYMENT" in row[2]:
                 continue
-            elif "CASH REWARDS" in row[2]:
-                to_account = "Income:Credit Card Rewards"
-            elif "MCDONALD" in row[2]:
-                to_account = "Expenses:Bars & Restaurants"
-            elif "OAKLAND GYRO" in row[2]:
-                to_account = "Expenses:Bars & Restaurants"
-            elif "GRUBHUB" in row[2]:
-                to_account = "Expenses:Bars & Restaurants"
-            elif "JIMMY JOHN" in row[2]:
-                to_account = "Expenses:Bars & Restaurants"
-            elif "LA MASA" in row[2]:
-                to_account = "Expenses:Bars & Restaurants"
-            elif "GOOD LAND" in row[2]:
-                to_account = "Expenses:Bars & Restaurants"
-            elif "CROSSROADS COLLECTIVE" in row[2]:
-                to_account = "Expenses:Bars & Restaurants"
-            elif "BP#" in row[2]:
-                to_account = "Expenses:Transportation:Gas (Vehicle)"
-            elif "AMAZON" in row[2]:
-                to_account = "Expenses:Amazon"
-            elif "AMZN" in row[2]:
-                to_account = "Expenses:Amazon"
             else:
-                to_account = "Expenses:Other"
-                review_trans = review_trans + row[0] + ", " + row[3] + ", " + row[4] + "\n"
+                to_account = setToAccount('BoA', row)
+                if to_account == "Expenses:Other":
+                    review_trans = review_trans + row[0] + ", " + row[1] + ", " + "\n"
             amount = Decimal(row[4])
             from_account = "Liabilities:Credit Cards:BankAmericard Cash Rewards"
             postdate = datetime.strptime(row[0], '%m/%d/%Y')

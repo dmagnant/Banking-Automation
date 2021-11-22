@@ -7,7 +7,7 @@ import csv
 from piecash import Transaction, Split
 import os
 import pyautogui
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet
+from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, setToAccount
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
@@ -83,27 +83,10 @@ with open(filename) as csv_file:
             # Skip payment (already captured in Checking Balance script
             if "DIRECTPAY FULL BALANCE" in row[2]:
                 continue
-            elif "PICK N SAVE" in row[2]:
-                to_account = "Expenses:Groceries"
-            elif "KETTLE RANGE" in row[2]:
-                to_account = "Expenses:Groceries"
-            elif "KOPPA's FULBELI" in row[2]:
-                to_account = "Expenses:Groceries"
-            elif "WHOLEFDS" in row[2]:
-                to_account = "Expenses:Groceries"
-            elif "COLECTIVO" in row[2]:
-                to_account = "Expenses:Bars & Restaurants"
-            elif "AMAZON" in row[2]:
-                to_account = "Expenses:Amazon"
-            elif "AMZN" in row[2]:
-                to_account = "Expenses:Amazon"
-            elif row[4] == "Restaurants":
-                to_account = "Expenses:Bars & Restaurants"
-            elif row[4] == "Gasoline":
-                to_account = "Expenses:Transportation:Gas (Vehicle)"
             else:
-                to_account = "Expenses:Other"
-                review_trans = review_trans + row[1] + ", " + row[2] + ", " + row[3] + "\n"
+                to_account = setToAccount('Discover', row)
+                if to_account == "Expenses:Other":
+                    review_trans = review_trans + row[0] + ", " + row[1] + ", " + "\n"
             amount = Decimal(row[3])
             from_account = "Liabilities:Credit Cards:Discover It"
             postdate = datetime.strptime(row[1], '%m/%d/%Y')

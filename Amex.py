@@ -7,7 +7,7 @@ import csv
 from piecash import Transaction, Split
 import os
 from ahk import AHK
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet
+from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, setToAccount
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
@@ -66,21 +66,10 @@ with open(r'C:\Users\dmagn\Downloads\activity.csv') as csv_file:
         else:
             if "AUTOPAY PAYMENT" in row[1]:
                 continue
-            elif "PICK N SAVE" in row[1]:
-                to_account = "Expenses:Groceries"
-            elif "KOPPA" in row[1]:
-                to_account = "Expenses:Groceries"
-            elif "KETTLE RANGE MEAT" in row[1]:
-                to_account = "Expenses:Groceries"
-            elif "BP#" in row[1]:
-                to_account = "Expenses:Transportation:Gas (Vehicle)"
-            elif "WHOLE FOODS" in row[1]:
-                to_account = "Expenses:Groceries"
-            elif "YOUR CASH REWARD" in row[1]:
-                to_account = "Income:Credit Card Rewards"
-            else:
-                to_account = "Expenses:Other"
-                review_trans = review_trans + row[0] + ", " + row[1] + ", " + row[2] + "\n"
+            else: 
+                to_account = setToAccount('Amex', row)
+                if to_account == "Expenses:Other":
+                    review_trans = review_trans + row[0] + ", " + row[1] + ", " + "\n"
             amount = Decimal(row[2])
             from_account = "Liabilities:Credit Cards:Amex BlueCash Everyday"
             postdate = datetime.strptime(row[0], '%m/%d/%Y')

@@ -5,7 +5,7 @@ from decimal import Decimal
 import csv
 import os
 from piecash import Transaction, Split
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet
+from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, setToAccount
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
@@ -92,55 +92,10 @@ with open(filename) as csv_file:
             # Skip payment (already captured in Checking Balance script
             if "BA ELECTRONIC PAYMENT" in row[2]:
                 continue
-            elif "SPECTRUM" in row[2]:
-                to_account = "Expenses:Utilities:Internet"
-            elif "MCDONALD'S" in row[2]:
-                to_account = "Expenses:Bars & Restaurants"
-            elif "JIMMY JOHNS" in row[2]:
-                to_account = "Expenses:Bars & Restaurants"
-            elif "EATSTREET" in row[2]:
-                to_account = "Expenses:Bars & Restaurants"
-            elif "GRUBHUB" in row[2]:
-                to_account = "Expenses:Bars & Restaurants"
-            elif "LAKEFRONT BREWERY" in row[2]:
-                to_account = "Expenses:Bars & Restaurants"
-            elif "CAFE CORAZON" in row [2]:
-                to_account = "Expenses:Bars & Restaurants"
-            elif "CAFE CORAZON" in row [2]:
-                to_account = "Expenses:Bars & Restaurants"               
-            elif "THE HOME DEPOT" in row[2]:
-                to_account = "Expenses:Home Depot"
-            elif "HOMEDEPOT.COM" in row[2]:
-                to_account = "Expenses:Home Depot"
-            elif "PICK N SAVE" in row[2]:
-                to_account = "Expenses:Groceries"
-            elif "TARGET" in row[2]:
-                to_account = "Expenses:Groceries"
-            elif "KETTLE RANGE" in row[2]:
-                to_account = "Expenses:Groceries"
-            elif "GOOGLE FI" in row[2].upper():
-                to_account = "Expenses:Utilities:Phone"
-            elif "AMZN Mktp" in row[2]:
-                to_account = "Expenses:Amazon"
-            elif "AMAZON" in row[2]:
-                to_account = "Expenses:Amazon"
-            elif "Amazon" in row[2]:
-                to_account = "Expenses:Amazon"
-            elif "UBER" in row[2]:
-                to_account = "Expenses:Travel:Ride Services"
-            elif "WAYFAIR" in row[2]:
-                to_account = "Expenses:Home Furnishings"
-            elif "TRAVELLING BEER GARDEN" in row[2]:
-                to_account = "Expenses:Bars & Restaurants"
-            elif "MILW COUNTY PARKS" in row[2]:
-                to_account = "Expenses:Bars & Restaurants"
-            elif "BOTANAS" in row[2]:
-                to_account = "Expenses:Bars & Restaurants"
-            elif "CHEWY" in row[2]:
-                to_account = "Expenses:Pet"
             else:
-                to_account = "Expenses:Other"
-                review_trans = review_trans + row[0] + ", " + row[2] + ", " + row[4] + "\n"
+                to_account = setToAccount('BoA-joint', row)
+                if to_account == "Expenses:Other":
+                    review_trans = review_trans + row[0] + ", " + row[1] + ", " + "\n"
             amount = Decimal(row[4])
             from_account = "Liabilities:BoA Credit Card"
             postdate = datetime.strptime(row[0], '%m/%d/%Y')

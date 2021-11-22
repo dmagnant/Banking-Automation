@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import time
 from piecash import Transaction, Split
 import csv
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getDateRange
+from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getDateRange, modifyTransactionDescription, setToAccount
 
 def runM1(directory, driver):
     driver.get("https://dashboard.m1finance.com/login")
@@ -75,44 +75,7 @@ def runM1(directory, driver):
                 column += 2
                 element = "//*[@id='root']/div/div/div/div[2]/div/div[2]/div/div[3]/a[" + str(transaction) + "]/div[" + str(column) + "]"
                 amount = driver.find_element_by_xpath(element).text.replace("$", "").replace(",", "")
-                if "Transfer to M1 Invest" in description:
-                    description = "IRA Transfer"
-                elif "Interest paid to M1 Spend Plus" in description:
-                    description = "Interest paid"
-                elif "NORTHWESTERN MUT" in description:
-                    description = "NM Paycheck"
-                elif "PAYPAL" in description and "10.00" in amount:
-                    description = "Swagbucks"  
-                elif "PAYPAL" in description:
-                    description = "Paypal"
-                elif "LENDING CLUB" in description:
-                    description = "Lending Club"
-                elif "NIELSEN" in description and "3.00" in amount:
-                    description = "Pinecone Research"
-                elif "VENMO" in description:
-                    description = "Venmo"
-                elif "TIAA" in description:
-                    description = "TIAA Transfer"
-                elif "Transfer from linked bank" in description:
-                    description = "TIAA Transfer"
-                elif "AMEX EPAYMENT" in description:
-                    description = "Amex CC"
-                elif "CHASE CREDIT CRD RWRD" in description:
-                    description = "Chase CC Rewards"
-                elif "CHASE CREDIT CRD AUTOPAY" in description:
-                    description = "Chase CC"
-                elif "DISCOVER E-PAYMENT" in description:
-                    description = "Discover CC"
-                elif "DISCOVER CASH AWARD" in description:
-                    description = "Discover CC Rewards"
-                elif "BARCLAYCARD US CREDITCARD" in description:
-                    description = "Barclays CC"
-                elif "BARCLAYCARD US ACH REWARD" in description:
-                    description = "Barclays CC rewards"
-                elif "BK OF AMER VISA ONLINE PMT" in description:
-                    description = "BoA CC"
-                elif "ALLY BANK $TRANSFER" in description:
-                    description = "Ally Transfer"
+                description = modifyTransactionDescription(description, amount)
                 amount = amount.replace("+", "")
                 row = m1_date, description, amount
                 # Write to csv file
@@ -169,43 +132,45 @@ def runM1(directory, driver):
                 for row in csv_reader:
                     row_count += 1
                     if line_count == row_count:
-                        if "Swagbucks" in row[1]:
-                            to_account = "Income:Market Research"
-                        elif "Interest paid" in row[1]:
-                            to_account = "Income:Investments:Interest"
-                        elif "NM Paycheck" in row[1]:
-                            to_account = "Income:Salary"
-                        elif "TIAA Transfer" in row[1]:
-                            to_account = "Assets:Liquid Assets:TIAA"
-                        elif "coinbase" in row[1].lower():
-                            to_account = "Assets:Non-Liquid Assets:CryptoCurrency"
-                        elif "Pinecone Research" in row[1]:
-                            to_account = "Income:Market Research"
-                        elif "IRA Transfer" in row[1]:
-                            to_account = "Assets:Non-Liquid Assets:Roth IRA"
-                        elif "Lending Club" in row[1]:
-                            to_account = "Assets:Non-Liquid Assets:MicroLoans"
-                        elif "Chase CC Rewards" in row[1]:
-                            to_account = "Income:Credit Card Rewards"
-                        elif "Chase CC" in row[1]:
-                            to_account = "Liabilities:Credit Cards:Chase Freedom"
-                        elif "Discover CC Rewards" in row[1]:
-                            to_account = "Income:Credit Card Rewards"
-                        elif "Discover CC" in row[1]:
-                            to_account = "Liabilities:Credit Cards:Discover It"
-                        elif "Amex CC" in row[1]:
-                            to_account = "Liabilities:Credit Cards:Amex BlueCash Everyday"
-                        elif "BoA CC" in row[1]:
-                            to_account = "Liabilities:Credit Cards:BankAmericard Cash Rewards"
-                        elif "Barclays CC Rewards" in row[1]:
-                            to_account = "Income:Credit Card Rewards"
-                        elif "Barclays CC" in row[1]:
-                            to_account = "Liabilities:Credit Cards:BarclayCard CashForward"
-                        elif "Ally Transfer" in row[1]:
-                            to_account = "Expenses:Joint Expenses"
-                        else:
-                            to_account = "Expenses:Other"
-                            review_trans = review_trans + row[0] + ", " + row[1] + ", " + row[2] + "\n"
+                        to_account = setToAccount('M1', row)
+                        if to_account == "Expenses:Other":
+                            review_trans = review_trans + row[0] + ", " + row[1] + ", " + "\n"
+                        # if "Swagbucks" in row[1]:
+                        #     to_account = "Income:Market Research"
+                        # elif "Interest paid" in row[1]:
+                        #     to_account = "Income:Investments:Interest"
+                        # elif "NM Paycheck" in row[1]:
+                        #     to_account = "Income:Salary"
+                        # elif "TIAA Transfer" in row[1]:
+                        #     to_account = "Assets:Liquid Assets:TIAA"
+                        # elif "coinbase" in row[1].lower():
+                        #     to_account = "Assets:Non-Liquid Assets:CryptoCurrency"
+                        # elif "Pinecone Research" in row[1]:
+                        #     to_account = "Income:Market Research"
+                        # elif "IRA Transfer" in row[1]:
+                        #     to_account = "Assets:Non-Liquid Assets:Roth IRA"
+                        # elif "Lending Club" in row[1]:
+                        #     to_account = "Assets:Non-Liquid Assets:MicroLoans"
+                        # elif "Chase CC Rewards" in row[1]:
+                        #     to_account = "Income:Credit Card Rewards"
+                        # elif "Chase CC" in row[1]:
+                        #     to_account = "Liabilities:Credit Cards:Chase Freedom"
+                        # elif "Discover CC Rewards" in row[1]:
+                        #     to_account = "Income:Credit Card Rewards"
+                        # elif "Discover CC" in row[1]:
+                        #     to_account = "Liabilities:Credit Cards:Discover It"
+                        # elif "Amex CC" in row[1]:
+                        #     to_account = "Liabilities:Credit Cards:Amex BlueCash Everyday"
+                        # elif "BoA CC" in row[1]:
+                        #     to_account = "Liabilities:Credit Cards:BankAmericard Cash Rewards"
+                        # elif "Barclays CC Rewards" in row[1]:
+                        #     to_account = "Income:Credit Card Rewards"
+                        # elif "Barclays CC" in row[1]:
+                        #     to_account = "Liabilities:Credit Cards:BarclayCard CashForward"
+                        # elif "Ally Transfer" in row[1]:
+                        #     to_account = "Expenses:Joint Expenses"
+                        # else:
+                        #     to_account = "Expenses:Other"
                         amount = Decimal(row[2])
                         from_account = "Assets:Liquid Assets:M1 Spend"
                         postdate = datetime.strptime(row[0], '%Y-%m-%d')
