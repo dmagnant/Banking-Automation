@@ -1,7 +1,5 @@
-from sys import setswitchinterval
 import gspread
 from selenium import webdriver
-import socket
 from pykeepass import PyKeePass
 import os
 import psutil
