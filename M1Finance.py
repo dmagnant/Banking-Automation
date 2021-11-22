@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import time
 from piecash import Transaction, Split
 import csv
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage
+from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getDateRange
 
 def runM1(directory, driver):
     driver.get("https://dashboard.m1finance.com/login")
@@ -32,18 +32,8 @@ def runM1(directory, driver):
     # get current date
     today = datetime.today()
     year = today.year
-    month = today.month
 
-    # Gather last 3 days worth of transactions
-    inside_date_range = True
-    current_date = datetime.today().date()
-    date_range = str(current_date)
-    date_range_length_in_days = 3
-    day = 1
-    while day <= date_range_length_in_days:
-        day_before = (current_date - timedelta(days=day)).isoformat()
-        date_range = date_range + day_before
-        day += 1
+    date_range = getDateRange(today, 3)
 
     transaction = 1
     column = 1
@@ -126,7 +116,7 @@ def runM1(directory, driver):
                 amount = amount.replace("+", "")
                 row = m1_date, description, amount
                 # Write to csv file
-                with open(m1, 'a', newline='') as file:
+                with open(m1_activity, 'a', newline='') as file:
                     csv_writer = csv.writer(file)
                     csv_writer.writerow(row)
                     transaction += 1
@@ -165,7 +155,7 @@ def runM1(directory, driver):
                     csv_writer = csv.writer(file)
                     csv_writer.writerow(rows)
     review_trans = ""
-    with open(gnu_m1_activity, 'r') as t1, open(m1, 'r') as t2:
+    with open(gnu_m1_activity, 'r') as t1, open(m1_activity, 'r') as t2:
         fileone = t1.readlines()
         filetwo = t2.readlines()
         line_count = 0

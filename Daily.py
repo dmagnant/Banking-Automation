@@ -1,7 +1,7 @@
 import os
 import os.path
 from Ally import runAlly
-from Functions import setDirectory, chromeDriverAsUser, openGnuCashBook, getGnuCashBalance, showMessage
+from Functions import setDirectory, chromeDriverAsUser, openGnuCashBook, getGnuCashBalance, showMessage, startExpressVPN
 from M1Finance import runM1
 from TIAA import runTIAA
 
@@ -29,3 +29,5 @@ if ally[1]:
     os.startfile(directory + r"\Stuff\Home\Finances\Home.gnucash")
 showMessage("Balances + Review", f'Ally Balance: {ally[0]} \n'f'GnuCash Balance: {ally_gnu} \n \n'f'Review transactions:\n {ally[1]}')
 driver.quit()
+startExpressVPN()
+

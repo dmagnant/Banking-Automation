@@ -7,6 +7,7 @@ import psutil
 import time
 import ctypes
 import pygetwindow
+from datetime import timedelta
 import pyautogui
 import gspread
 import piecash
@@ -15,9 +16,6 @@ from piecash import GnucashException
 def showMessage(header, body): 
     MessageBox = ctypes.windll.user32.MessageBoxW
     MessageBox(None, body, header, 0)
-
-def setDirectory():
-    return os.environ.get('StorageDirectory')
 
 def getUsername(directory, name):
     keepass_file = directory + r"\Other\KeePass.kdbx"
@@ -98,6 +96,9 @@ def getGnuCashBalance(mybook, account):
         balance = gnuCashAccount.get_balance()
         book.close()
         return balance
+
+def setDirectory():
+    return os.environ.get('StorageDirectory')
 
 def chromeDriverAsUser(directory):
     chromedriver = directory + r"\Projects\Coding\webdrivers\chromedriver.exe"
@@ -420,3 +421,14 @@ def getStartAndEndOfPreviousMonth(today, month, year):
         startdate = today.replace(month=month - 1, day=1)
         enddate = today.replace(month=month - 1, day=31)
     return [startdate, enddate]
+
+def getDateRange(today, num_days):
+    # Gather last 3 days worth of transactions
+    current_date = today.date()    
+    date_range = current_date.isoformat()
+    day = 1
+    while day <= num_days:
+        day_before = (current_date - timedelta(days=day)).isoformat()
+        date_range = date_range + day_before
+        day += 1
+    return date_range

@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import time
 from piecash import Transaction, Split
 import csv
-from Functions import getPassword, startExpressVPN, closeExpressVPN, openGnuCashBook
+from Functions import getPassword, startExpressVPN, closeExpressVPN, openGnuCashBook, getDateRange
 
 def runAlly(directory, driver):
     closeExpressVPN()
@@ -18,40 +18,28 @@ def runAlly(directory, driver):
     # click Log In
     driver.find_element_by_xpath("/html/body/div/div[1]/main/div/div/div/div/div[1]/form/div[3]/button/span").click()
     time.sleep(4)
+    # capture balance
+    ally = driver.find_element_by_xpath("/html/body/div[1]/div[1]/main/div/div/div/div[2]/div/div[2]/div/table/tbody/tr/td[2]/div").text.replace("$", "").replace(",", "")
     # click Joint Checking link
     driver.find_element_by_partial_link_text("Joint Checking").click()
-    time.sleep(2)
-    # capture balance
-    ally = driver.find_element_by_xpath("/html/body/div[2]/div/div/div[1]/div[1]/div/main/section/div/div/div[1]/section[2]/section/div/div/dl/div[2]/dd").text.replace("$", "").replace(",", "")
 
     # get current date
     today = datetime.today()
     year = today.year
-    month = today.month
 
-    # Gather last 3 days worth of transactions
-    inside_date_range = True
-    current_date = datetime.today().date()
-    date_range = str(current_date)
-    date_range_length_in_days = 5
-    day = 1
-    while day <= date_range_length_in_days:
-        day_before = (current_date - timedelta(days=day)).isoformat()
-        date_range = date_range + day_before
-        day += 1
+    date_range = getDateRange(today, 5)
 
     table = 2
     transaction = 1
     column = 1
     element = "//*[@id='form-elements-section']/section/section/table[" + str(table) + "]/tbody/tr[" + str(transaction) + "]/td[" + str(column) + "]"
 
-    ally_activity = directory + r"\Projects\Coding\Python\Banking\Resources\ally.csv"
-    gnu_ally_activity = directory + r"\Projects\Coding\Python\Banking\Resources\gnu_ally.csv"
+    ally_activity = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\ally.csv"
+    gnu_ally_activity = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\gnu_ally.csv"
     with open(ally_activity, 'w', newline='') as file:
         file.truncate()
     with open(gnu_ally_activity, 'w', newline='') as file:
         file.truncate()
-    clicked_next = False
     inside_date_range = True
     while inside_date_range:
         try:
@@ -110,8 +98,7 @@ def runAlly(directory, driver):
                     csv_writer = csv.writer(file)
                     csv_writer.writerow(rows)
     review_trans = ""
-    square_window = "no"
-    with open(gnu_ally_activity, 'r') as t1, open(ally, 'r') as t2:
+    with open(gnu_ally_activity, 'r') as t1, open(ally_activity, 'r') as t2:
         fileone = t1.readlines()
         filetwo = t2.readlines()
         line_count = 0
@@ -157,5 +144,4 @@ def runAlly(directory, driver):
                             book.save()
                             book.flush()
                         book.close()
-        startExpressVPN()
-        return [ally, review_trans]
+    return [ally, review_trans]
