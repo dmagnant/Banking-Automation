@@ -7,7 +7,7 @@ import csv
 from piecash import Transaction, Split
 import os
 import pyautogui
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, setToAccount
+from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, setToAccount, importGnuTransaction
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
@@ -65,45 +65,17 @@ driver.find_element_by_xpath("/html/body/div[1]/main/div[5]/div/form/div/div[4]/
 today = datetime.today()
 year = today.year
 month = today.month
-# # IMPORT TRANSACTIONS
-review_trans = ""
-stmtyear = str(year)
-stmtmonth = today.strftime('%m')
-filename = r"C:\Users\dmagn\Downloads\Discover-Statement-" + stmtyear + stmtmonth + "12.csv"
 # Set Gnucash Book
 mybook = openGnuCashBook(directory, 'Finance', False, False)
-with open(filename) as csv_file:
-    csv_reader = csv.reader(csv_file, delimiter=',')
-    line_count = 0
-    for row in csv_reader:
-        # skip header line
-        if line_count == 0:
-            line_count += 1
-        else:
-            # Skip payment (already captured in Checking Balance script
-            if "DIRECTPAY FULL BALANCE" in row[2]:
-                continue
-            else:
-                to_account = setToAccount('Discover', row)
-                if to_account == "Expenses:Other":
-                    review_trans = review_trans + row[0] + ", " + row[1] + ", " + "\n"
-            amount = Decimal(row[3])
-            from_account = "Liabilities:Credit Cards:Discover It"
-            postdate = datetime.strptime(row[1], '%m/%d/%Y')
-            with mybook as book:
-                USD = mybook.currencies(mnemonic="USD")
-                # create transaction with core objects in one step
-                trans = Transaction(post_date=postdate.date(),
-                                    currency=USD,
-                                    description=row[2],
-                                    splits=[
-                                         Split(value=amount, memo="scripted", account=mybook.accounts(fullname=to_account)),
-                                         Split(value=-amount, memo="scripted", account=mybook.accounts(fullname=from_account)),
-                                     ])
-                book.save()
-                book.flush()
-book.close()
-# # Redeem Rewards
+
+# # IMPORT TRANSACTIONS
+stmtyear = str(year)
+stmtmonth = today.strftime('%m')
+transactions_csv = r"C:\Users\dmagn\Downloads\Discover-Statement-" + stmtyear + stmtmonth + "12.csv"
+
+review_trans = importGnuTransaction('Discover', transactions_csv, mybook, today)
+
+# Redeem Rewards
 # Click Rewards
 driver.find_element_by_xpath("/html/body/div[1]/header/div/div/div[3]/div[1]/ul/li[4]/a").click()
 # Click "Redeem Cashback Bonus"

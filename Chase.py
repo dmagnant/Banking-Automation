@@ -5,7 +5,7 @@ from datetime import datetime
 import csv
 from piecash import Transaction, Split
 import os
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, setToAccount
+from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, setToAccount, importGnuTransaction
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)

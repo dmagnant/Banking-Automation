@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import time
 from piecash import Transaction, Split
 import csv
-from Functions import getPassword, startExpressVPN, closeExpressVPN, openGnuCashBook, getDateRange, modifyTransactionDescription, setToAccount
+from Functions import getPassword, startExpressVPN, closeExpressVPN, openGnuCashBook, getDateRange, modifyTransactionDescription, setToAccount, importGnuTransaction
 
 def runAlly(directory, driver):
     closeExpressVPN()
@@ -106,20 +106,6 @@ def runAlly(directory, driver):
                         to_account = setToAccount('Ally', row)
                         if to_account == "Expenses:Other":
                             review_trans = review_trans + row[0] + ", " + row[1] + ", " + "\n"
-                        # if "BoA CC" in row[1]:
-                        #     to_account = "Liabilities:BoA Credit Card"
-                        # elif "Tessa Deposit" in row[1]:
-                        #     to_account = "Tessa's Contributions"
-                        # elif "Water Bill" in row[1]:
-                        #     to_account = "Expenses:Utilities:Water"
-                        # elif "Dan Deposit" in row[1]:
-                        #     to_account = "Dan's Contributions"
-                        # elif "Interest Paid" in row[1]:
-                        #     to_account = "Income:Interest"
-                        # elif "Mortgage Payment" in row[1]:
-                        #     to_account = "Liabilities:Mortgage Loan"
-                        # else:
-                        #     to_account = "Expenses:Other"
                         amount = Decimal(row[2])
                         from_account = "Assets:Ally Checking Account"
                         postdate = datetime.strptime(row[0], '%Y-%m-%d')

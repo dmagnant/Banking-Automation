@@ -1,11 +1,10 @@
 
 from selenium.common.exceptions import NoSuchElementException
 from decimal import Decimal
-from datetime import datetime, timedelta
+from datetime import datetime
 import time
-from piecash import Transaction, Split
 import csv
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getDateRange, modifyTransactionDescription, setToAccount
+from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getDateRange, modifyTransactionDescription, importGnuTransaction
 
 def runM1(directory, driver):
     driver.get("https://dashboard.m1finance.com/login")
@@ -122,108 +121,10 @@ def runM1(directory, driver):
         fileone = t1.readlines()
         filetwo = t2.readlines()
         line_count = 0
+        row_count = 0
     for line in filetwo:
         line_count += 1
         if line not in fileone:
-            csv_reader = csv.reader(gnu_m1_activity, delimiter=',')
-            row_count = 0
-            with open(m1_activity) as file:
-                csv_reader = csv.reader(file, delimiter=',')
-                for row in csv_reader:
-                    row_count += 1
-                    if line_count == row_count:
-                        to_account = setToAccount('M1', row)
-                        if to_account == "Expenses:Other":
-                            review_trans = review_trans + row[0] + ", " + row[1] + ", " + "\n"
-                        # if "Swagbucks" in row[1]:
-                        #     to_account = "Income:Market Research"
-                        # elif "Interest paid" in row[1]:
-                        #     to_account = "Income:Investments:Interest"
-                        # elif "NM Paycheck" in row[1]:
-                        #     to_account = "Income:Salary"
-                        # elif "TIAA Transfer" in row[1]:
-                        #     to_account = "Assets:Liquid Assets:TIAA"
-                        # elif "coinbase" in row[1].lower():
-                        #     to_account = "Assets:Non-Liquid Assets:CryptoCurrency"
-                        # elif "Pinecone Research" in row[1]:
-                        #     to_account = "Income:Market Research"
-                        # elif "IRA Transfer" in row[1]:
-                        #     to_account = "Assets:Non-Liquid Assets:Roth IRA"
-                        # elif "Lending Club" in row[1]:
-                        #     to_account = "Assets:Non-Liquid Assets:MicroLoans"
-                        # elif "Chase CC Rewards" in row[1]:
-                        #     to_account = "Income:Credit Card Rewards"
-                        # elif "Chase CC" in row[1]:
-                        #     to_account = "Liabilities:Credit Cards:Chase Freedom"
-                        # elif "Discover CC Rewards" in row[1]:
-                        #     to_account = "Income:Credit Card Rewards"
-                        # elif "Discover CC" in row[1]:
-                        #     to_account = "Liabilities:Credit Cards:Discover It"
-                        # elif "Amex CC" in row[1]:
-                        #     to_account = "Liabilities:Credit Cards:Amex BlueCash Everyday"
-                        # elif "BoA CC" in row[1]:
-                        #     to_account = "Liabilities:Credit Cards:BankAmericard Cash Rewards"
-                        # elif "Barclays CC Rewards" in row[1]:
-                        #     to_account = "Income:Credit Card Rewards"
-                        # elif "Barclays CC" in row[1]:
-                        #     to_account = "Liabilities:Credit Cards:BarclayCard CashForward"
-                        # elif "Ally Transfer" in row[1]:
-                        #     to_account = "Expenses:Joint Expenses"
-                        # else:
-                        #     to_account = "Expenses:Other"
-                        amount = Decimal(row[2])
-                        from_account = "Assets:Liquid Assets:M1 Spend"
-                        postdate = datetime.strptime(row[0], '%Y-%m-%d')
-                        with mybook as book:
-                            USD = mybook.currencies(mnemonic="USD")
-                            if "NM Paycheck" in row[1]:
-                                review_trans = review_trans + row[0] + ", " + row[1] + ", " + row[2] + "\n"
-                                entry = Transaction(post_date=postdate.date(),
-                                                    currency=USD,
-                                                    description=row[1],
-                                                    splits=[
-                                                        Split(value=round(Decimal(1871.40), 2), memo="scripted",
-                                                            account=mybook.accounts(fullname=from_account)),
-                                                        Split(value=round(Decimal(173.36), 2), memo="scripted",
-                                                            account=mybook.accounts(
-                                                                fullname="Assets:Non-Liquid Assets:401k")),
-                                                        Split(value=round(Decimal(5.49), 2), memo="scripted",
-                                                            account=mybook.accounts(fullname="Expenses:Medical:Dental")),
-                                                        Split(value=round(Decimal(36.22), 2), memo="scripted",
-                                                            account=mybook.accounts(fullname="Expenses:Medical:Health")),
-                                                        Split(value=round(Decimal(2.67), 2), memo="scripted",
-                                                            account=mybook.accounts(fullname="Expenses:Medical:Vision")),
-                                                        Split(value=round(Decimal(168.54), 2), memo="scripted",
-                                                            account=mybook.accounts(
-                                                                fullname="Expenses:Income Taxes:Social Security")),
-                                                        Split(value=round(Decimal(39.42), 2), memo="scripted",
-                                                            account=mybook.accounts(
-                                                                fullname="Expenses:Income Taxes:Medicare")),
-                                                        Split(value=round(Decimal(305.08), 2), memo="scripted",
-                                                            account=mybook.accounts(
-                                                                fullname="Expenses:Income Taxes:Federal Tax")),
-                                                        Split(value=round(Decimal(157.03), 2), memo="scripted",
-                                                            account=mybook.accounts(
-                                                                fullname="Expenses:Income Taxes:State Tax")),
-                                                        Split(value=round(Decimal(130.00), 2), memo="scripted",
-                                                            account=mybook.accounts(
-                                                                fullname="Assets:Non-Liquid Assets:HSA")),
-                                                        Split(value=-round(Decimal(2889.21), 2), memo="scripted",
-                                                            account=mybook.accounts(fullname=to_account)),
-                                                    ])
-                                book.save()
-                                book.flush()
-                            else:
-                                entry = Transaction(post_date=postdate.date(),
-                                                    currency=USD,
-                                                    description=row[1],
-                                                    splits=[
-                                                        Split(value=-amount, memo="scripted",
-                                                            account=mybook.accounts(fullname=to_account)),
-                                                        Split(value=amount, memo="scripted",
-                                                            account=mybook.accounts(fullname=from_account)),
-                                                    ])
-                                book.save()
-                                book.flush()
-                        book.close()
+            review_trans = importGnuTransaction('M1', m1_activity, mybook, today, 0, line_count)
+
     return [m1, review_trans]

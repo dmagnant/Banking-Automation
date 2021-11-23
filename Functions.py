@@ -1,16 +1,16 @@
 import gspread
 from selenium import webdriver
 from pykeepass import PyKeePass
+from datetime import datetime, timedelta, time
 import os
 import psutil
-import time
 import ctypes
 import pygetwindow
-from datetime import timedelta
 import pyautogui
-import gspread
+from decimal import Decimal
+import csv
 import piecash
-from piecash import GnucashException
+from piecash import Transaction, Split, GnucashException
 
 def showMessage(header, body): 
     MessageBox = ctypes.windll.user32.MessageBoxW
@@ -72,11 +72,7 @@ def openGnuCashBook(directory, type, readOnly, openIfLocked):
 def getGnuCashBalance(mybook, account):
     # Get GnuCash Balances
     with mybook as book:
-        if account == 'M1':
-            gnuCashAccount = mybook.accounts(fullname="Assets:Liquid Assets:M1 Spend")
-        elif account == 'TIAA':
-            gnuCashAccount = mybook.accounts(fullname="Assets:Liquid Assets:TIAA")
-        elif account == 'Ally':
+        if account == 'Ally':
             gnuCashAccount = mybook.accounts(fullname="Assets:Ally Checking Account")
         elif account == 'Amex':
             gnuCashAccount = mybook.accounts(fullname="Liabilities:Credit Cards:Amex BlueCash Everyday")
@@ -90,6 +86,10 @@ def getGnuCashBalance(mybook, account):
             gnuCashAccount = mybook.accounts(fullname="Liabilities:Credit Cards:Chase Freedom")
         elif account == 'Discover':
             gnuCashAccount = mybook.accounts(fullname="Liabilities:Credit Cards:Discover It")
+        elif account == 'M1':
+            gnuCashAccount = mybook.accounts(fullname="Assets:Liquid Assets:M1 Spend")
+        elif account == 'TIAA':
+            gnuCashAccount = mybook.accounts(fullname="Assets:Liquid Assets:TIAA")
         elif account == 'VanguardPension':
             gnuCashAccount = mybook.accounts(fullname="Assets:Non-Liquid Assets:Pension")
         balance = gnuCashAccount.get_balance()
@@ -311,7 +311,7 @@ def setToAccount(account, row):
             if row[3] == "Groceries":
                 to_account = "Expenses:Groceries"
         elif account == "Discover":
-            if row[4] == "Groceries":
+            if row[4] == "Supermarkets":
                 to_account = "Expenses:Groceries"
         if not to_account:
             for i in ['PICK N SAVE', 'KOPPA', 'KETTLE RANGE', 'WHOLE FOODS', 'WHOLEFDS', 'TARGET']:
@@ -333,3 +333,131 @@ def setToAccount(account, row):
     if not to_account:
             to_account = "Expenses:Other"
     return to_account
+
+def formatTransactionVariables(account, row):
+    cc_payment = False
+    if account == 'Ally':
+        postdate = datetime.strptime(row[0], '%Y-%m-%d')
+        description = row[1]
+        amount = Decimal(row[2])
+        from_account = "Assets:Ally Checking Account"
+        review_trans = row[0] + ", " + row[1] + ", " + row[2] + "\n"
+    elif account == 'Amex':
+        postdate = datetime.strptime(row[0], '%m/%d/%Y')
+        description = row[1]
+        amount = -Decimal(row[2])
+        if "AUTOPAY PAYMENT" in row[1]:
+            cc_payment = True
+        from_account = "Liabilities:Credit Cards:Amex BlueCash Everyday"
+        review_trans = row[0] + ", " + row[1] + ", " + row[2] + "\n"
+    elif account == 'Barclays':
+        postdate = datetime.strptime(row[0], '%m/%d/%Y')
+        description = row[1]
+        amount = -Decimal(row[3])
+        if "Payment Received" in row[1]:
+            cc_payment = True
+        from_account = "Liabilities:Credit Cards:BarclayCard CashForward"
+        review_trans = row[0] + ", " + row[1] + ", " + row[3] + "\n"
+    elif account == 'BoA':
+        postdate = datetime.strptime(row[0], '%m/%d/%Y')
+        description = row[2]
+        amount = -Decimal(row[4])
+        if "BA ELECTRONIC PAYMENT" in row[2]:
+            cc_payment = True
+        from_account = "Liabilities:Credit Cards:BankAmericard Cash Rewards"
+        review_trans = row[0] + ", " + row[2] + ", " + row[4] + "\n"
+    elif account == 'BoA-joint':
+        postdate = datetime.strptime(row[0], '%m/%d/%Y')
+        description = row[2]
+        amount = -Decimal(row[4])
+        if "BA ELECTRONIC PAYMENT" in row[2]:
+            cc_payment = True
+        from_account = "Liabilities:BoA Credit Card"
+        review_trans = row[0] + ", " + row[2] + ", " + row[4] + "\n"
+    elif account == 'Chase':
+        postdate = datetime.strptime(row[1], '%m/%d/%Y')
+        description = row[2]
+        amount = -Decimal(row[5])
+        if "AUTOMATIC PAYMENT" in row[2]:
+            cc_payment = True
+        from_account = "Liabilities:Credit Cards:Chase Freedom"
+        review_trans = row[1] + ", " + row[2] + ", " + row[5] + "\n"
+    elif account == 'Discover':
+        postdate = datetime.strptime(row[1], '%m/%d/%Y')
+        description = row[2]
+        amount = -Decimal(row[3])
+        if "DIRECTPAY FULL BALANCE" in row[2]:
+            cc_payment = True
+        from_account = "Liabilities:Credit Cards:Discover It"
+        review_trans = row[1] + ", " + row[2] + ", " + row[3] + "\n"
+    elif account == 'M1':
+        postdate = datetime.strptime(row[0], '%Y-%m-%d')
+        description = row[1]
+        amount = Decimal(row[2])
+        from_account = "Assets:Liquid Assets:M1 Spend"
+        review_trans = row[0] + ", " + row[1] + ", " + row[2] + "\n"
+    return [postdate, description, amount, cc_payment, from_account, review_trans]
+
+
+def importGnuTransaction(account, transactions_csv, mybook, today, line_start=1, line_count=0):
+    review_trans = ""
+    with open(transactions_csv) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        row_count = 0
+        for row in csv_reader:
+            row_count += 1
+            # skip header line
+            if line_count < line_start:
+                line_count += 1
+            else:
+                transaction_variables = formatTransactionVariables(account, row)
+                # Skip credit card payments from CC bills (already captured through Checking accounts)
+                if transaction_variables[3]:
+                    continue
+                else:
+                    if account in ['M1', 'Ally']:
+                        if line_count != row_count:
+                            continue
+                    to_account = setToAccount(account, row)
+                    if to_account == "Expenses:Other":
+                        review_trans = review_trans + transaction_variables[5]
+                    amount = transaction_variables[2]
+                    from_account = transaction_variables[4]
+                    postdate = transaction_variables[0]
+                    description = transaction_variables[1]
+                    with mybook as book:
+                        if "NM Paycheck" in description:
+                            review_trans = review_trans + row[0] + transaction_variables[5]
+                            split = [Split(value=round(Decimal(1871.40), 2), memo="scripted",
+                                        account=mybook.accounts(fullname=from_account)),
+                                    Split(value=round(Decimal(173.36), 2), memo="scripted",
+                                        account=mybook.accounts(fullname="Assets:Non-Liquid Assets:401k")),
+                                    Split(value=round(Decimal(5.49), 2), memo="scripted",
+                                        account=mybook.accounts(fullname="Expenses:Medical:Dental")),
+                                    Split(value=round(Decimal(36.22), 2), memo="scripted",
+                                        account=mybook.accounts(fullname="Expenses:Medical:Health")),
+                                    Split(value=round(Decimal(2.67), 2), memo="scripted",
+                                        account=mybook.accounts(fullname="Expenses:Medical:Vision")),
+                                    Split(value=round(Decimal(168.54), 2), memo="scripted",
+                                        account=mybook.accounts(fullname="Expenses:Income Taxes:Social Security")),
+                                    Split(value=round(Decimal(39.42), 2), memo="scripted",
+                                        account=mybook.accounts(fullname="Expenses:Income Taxes:Medicare")),
+                                    Split(value=round(Decimal(305.08), 2), memo="scripted",
+                                        account=mybook.accounts(fullname="Expenses:Income Taxes:Federal Tax")),
+                                    Split(value=round(Decimal(157.03), 2), memo="scripted",
+                                        account=mybook.accounts(fullname="Expenses:Income Taxes:State Tax")),
+                                    Split(value=round(Decimal(130.00), 2), memo="scripted",
+                                        account=mybook.accounts(fullname="Assets:Non-Liquid Assets:HSA")),
+                                    Split(value=-round(Decimal(2889.21), 2), memo="scripted",
+                                        account=mybook.accounts(fullname=to_account))]
+                        else:
+                            split = [Split(value=-amount, memo="scripted", account=mybook.accounts(fullname=to_account)),
+                                    Split(value=amount, memo="scripted", account=mybook.accounts(fullname=from_account)),]
+                        Transaction(post_date=postdate.date(),
+                                            currency=mybook.currencies(mnemonic="USD"),
+                                            description=description,
+                                            splits=split)
+                        book.save()
+                        book.flush()
+        book.close()
+    return review_trans
