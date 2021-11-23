@@ -74,44 +74,47 @@ year = today.year
 month = today.month
 stmtmonth = today.strftime("%B")
 stmtyear = str(year)
-filename = os.path.join(r"C:\Users\dmagn\Downloads", stmtmonth + stmtyear + "_8549.csv")
+transactions_csv = os.path.join(r"C:\Users\dmagn\Downloads", stmtmonth + stmtyear + "_8549.csv")
 time.sleep(2)
 review_trans = ""
 # Set Gnucash Book
 mybook = openGnuCashBook(directory, 'Finance', False, False)
-# open CSV file at the given path
-with open(filename) as csv_file:
-    csv_reader = csv.reader(csv_file, delimiter=',')
-    line_count = 0
-    for row in csv_reader:
-        # skip header line
-        if line_count == 0:
-            line_count += 1
-        else:
-            # Skip payment (already captured in Checking Balance script
-            if "BA ELECTRONIC PAYMENT" in row[2]:
-                continue
-            else:
-                to_account = setToAccount('BoA', row)
-                if to_account == "Expenses:Other":
-                    review_trans = review_trans + row[0] + ", " + row[1] + ", " + "\n"
-            amount = Decimal(row[4])
-            from_account = "Liabilities:Credit Cards:BankAmericard Cash Rewards"
-            postdate = datetime.strptime(row[0], '%m/%d/%Y')
-            with mybook as book:
-                USD = mybook.currencies(mnemonic="USD")
-                # create transaction with core objects in one step
-                trans = Transaction(post_date=postdate.date(),
-                                    currency=USD,
-                                    description=row[2],
-                                    splits=[
-                                         Split(value=-amount, memo="scripted", account=mybook.accounts(fullname=to_account)),
-                                         Split(value=amount, memo="scripted", account=mybook.accounts(fullname=from_account)),
-                                     ])
-                book.save()
-                book.flush()
+
+review_trans = importGnuTransaction('BoA', transactions_csv, mybook, driver)
+
+# # open CSV file at the given path
+# with open(transactions_csv) as csv_file:
+#     csv_reader = csv.reader(csv_file, delimiter=',')
+#     line_count = 0
+#     for row in csv_reader:
+#         # skip header line
+#         if line_count == 0:
+#             line_count += 1
+#         else:
+#             # Skip payment (already captured in Checking Balance script
+#             if "BA ELECTRONIC PAYMENT" in row[2]:
+#                 continue
+#             else:
+#                 to_account = setToAccount('BoA', row)
+#                 if to_account == "Expenses:Other":
+#                     review_trans = review_trans + row[0] + ", " + row[1] + ", " + "\n"
+#             amount = Decimal(row[4])
+#             from_account = "Liabilities:Credit Cards:BankAmericard Cash Rewards"
+#             postdate = datetime.strptime(row[0], '%m/%d/%Y')
+#             with mybook as book:
+#                 USD = mybook.currencies(mnemonic="USD")
+#                 # create transaction with core objects in one step
+#                 trans = Transaction(post_date=postdate.date(),
+#                                     currency=USD,
+#                                     description=row[2],
+#                                     splits=[
+#                                          Split(value=-amount, memo="scripted", account=mybook.accounts(fullname=to_account)),
+#                                          Split(value=amount, memo="scripted", account=mybook.accounts(fullname=from_account)),
+#                                      ])
+#                 book.save()
+#                 book.flush()
+# book.close()
 BoA_gnu = getGnuCashBalance(mybook, 'BoA')
-book.close()
 # # REDEEM REWARDS
 # click on View/Redeem menu
 driver.find_element_by_xpath("/html/body/div[1]/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[4]/div[3]/a").click()

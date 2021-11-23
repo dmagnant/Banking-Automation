@@ -74,14 +74,15 @@ month = today.month
 # modify file for import
 stmtmonth = today.strftime("%B")
 stmtyear = str(year)
-filename = os.path.join(r"C:\Users\dmagn\Downloads", stmtmonth + stmtyear + "_8955.csv")
+transactions_csv = os.path.join(r"C:\Users\dmagn\Downloads", stmtmonth + stmtyear + "_8955.csv")
 time.sleep(2)
 review_trans = ""
 energy_bill_num = 0
 # Set Gnucash Book
 mybook = openGnuCashBook(directory, 'Home', False, False)
+
 # open CSV file at the given path
-with open(filename) as csv_file:
+with open(transactions_csv) as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
     line_count = 0
     for row in csv_reader:

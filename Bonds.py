@@ -8,7 +8,7 @@ from decimal import Decimal
 from piecash import Transaction, Split
 import pyotp
 import pyautogui
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, getStartAndEndOfPreviousMonth
+from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, getStartAndEndOfPreviousMonth, writeGnuTransaction
 
 
 directory = setDirectory()
@@ -101,37 +101,41 @@ month = today.month
 
 lastmonth = getStartAndEndOfPreviousMonth(today, month, year)
 
-# Add Interest Transactions
 with mybook as book:
-    USD = mybook.currencies(mnemonic="USD")
     # Add Interest Transaction to My Constant
-    to_account = "Assets:Liquid Assets:My Constant"
-    amount = round(constant_interest, 2)
-    from_account = "Income:Investments:Interest"
-    trans1 = Transaction(post_date=lastmonth[1].date(),
-                         currency=USD,
-                         description="Interest",
-                         splits=[
-                            Split(value=amount, account=mybook.accounts(fullname=to_account)),
-                            Split(value=-amount, account=mybook.accounts(fullname=from_account)),
-                        ])
+    writeGnuTransaction(book, "Interest", lastmonth[1].date(), -round(constant_interest, 2), "Income:Investments:Interest", "Assets:Liquid Assets:My Constant", '')
     # Add Interest Transaction to Worthy Bonds
-    to_account = "Assets:Liquid Assets:Worthy Bonds"
-    amount = round(worthy_interest, 2)
-    from_account = "Income:Investments:Interest"
-    trans2 = Transaction(post_date=lastmonth[1].date(),
-                         currency=USD,
-                         description="Interest",
-                         splits=[
-                             Split(value=amount, account=mybook.accounts(fullname=to_account)),
-                             Split(value=-amount, account=mybook.accounts(fullname=from_account)),
-                         ])
-    book.save()
-    book.flush()
-book.close()
+    writeGnuTransaction(book, "Interest", lastmonth[1].date(), -round(worthy_interest, 2), "Income:Investments:Interest", "Assets:Liquid Assets:Worthy Bonds", '')
+
+# # Add Interest Transactions
+# with mybook as book:
+#     # Add Interest Transaction to My Constant
+#     to_account = "Assets:Liquid Assets:My Constant"
+#     amount = round(constant_interest, 2)
+#     from_account = "Income:Investments:Interest"
+#     trans1 = Transaction(post_date=lastmonth[1].date(),
+#                          currency=mybook.currencies(mnemonic="USD"),
+#                          description="Interest",
+#                          splits=[
+#                             Split(value=amount, account=mybook.accounts(fullname=to_account)),
+#                             Split(value=-amount, account=mybook.accounts(fullname=from_account)),
+#                         ])
+#     # Add Interest Transaction to Worthy Bonds
+#     to_account = "Assets:Liquid Assets:Worthy Bonds"
+#     amount = round(worthy_interest, 2)
+#     from_account = "Income:Investments:Interest"
+#     trans2 = Transaction(post_date=lastmonth[1].date(),
+#                          currency=mybook.currencies(mnemonic="USD"),
+#                          description="Interest",
+#                          splits=[
+#                              Split(value=amount, account=mybook.accounts(fullname=to_account)),
+#                              Split(value=-amount, account=mybook.accounts(fullname=from_account)),
+#                          ])
+#     book.save()
+#     book.flush()
+# book.close()
 # get Liquid Asset Balance from GnuCash
-account = mybook.accounts(fullname="Assets:Liquid Assets")
-liq_assets = float(account.get_balance())
+liq_assets = getGnuCashBalance(mybook, 'Liquid Assets')
 
 # # # Health Equity HSA
 driver.execute_script("window.open('https://member.my.healthequity.com/hsa/21895515-010');")
@@ -188,8 +192,7 @@ driver.find_element_by_id("fundPerformanceRefresh").click()
 HE_hsa_dividends = Decimal(driver.find_element_by_xpath("//*[@id='EditPortfolioTab-panel']/member-portfolio-edit-display/member-overall-portfolio-performance-display/div[1]/div/div[3]/div/span").text.replace('$', '').replace(',', ''))
 
 # capture GnuCash HSA Balance
-account = mybook.accounts(fullname="Assets:Non-Liquid Assets:HSA")
-HSA_gnu_balance = float(account.get_balance())
+HSA_gnu_balance = getGnuCashBalance(mybook, 'Liquid Assets')
 
 # Capture HSA change
 HE_hsa_change = Decimal(HE_hsa_balance - HSA_gnu_balance)
@@ -201,19 +204,21 @@ HE_hsa_mkt_change = round(HE_hsa_mkt_change, 2)
 
 # Add HSA Transactions
 with mybook as book:
-    USD = mybook.currencies(mnemonic="USD")
-    # Add Interest Transaction to My Constant
-    to_account = "Assets:Non-Liquid Assets:HSA"
-    trans1 = Transaction(post_date=lastmonth[1].date(),
-                         currency=USD,
-                         description="HSA Statement",
-                         splits=[
-                            Split(value=HE_hsa_change, account=mybook.accounts(fullname=to_account)),
-                            Split(value=-HE_hsa_dividends, account=mybook.accounts(fullname="Income:Investments:Dividends")),
-                            Split(value=-HE_hsa_mkt_change, account=mybook.accounts(fullname="Income:Investments:Market Change")),
-                        ])
-    book.save()
-    book.flush()
+    writeGnuTransaction(mybook, "HSA Statement", lastmonth[1].date(), [HE_hsa_change, -HE_hsa_dividends, -HE_hsa_mkt_change], ["Income:Investments:Dividends", "Income:Investments:Market Change"], "Assets:Non-Liquid Assets:HSA", '')
+
+    # USD = mybook.currencies(mnemonic="USD")
+    # # Add Interest Transaction to My Constant
+    # to_account = "Assets:Non-Liquid Assets:HSA"
+    # trans1 = Transaction(post_date=lastmonth[1].date(),
+    #                      currency=USD,
+    #                      description="HSA Statement",
+    #                      splits=[
+    #                         Split(value=HE_hsa_change, account=mybook.accounts(fullname=to_account)),
+    #                         Split(value=-HE_hsa_dividends, account=mybook.accounts(fullname="Income:Investments:Dividends")),
+    #                         Split(value=-HE_hsa_mkt_change, account=mybook.accounts(fullname="Income:Investments:Market Change")),
+    #                     ])
+    # book.save()
+    # book.flush()
 book.close()
 updateSpreadsheet(directory, 'Asset Allocation', year, 'Bonds', month, bond_balance)
 updateSpreadsheet(directory, 'Asset Allocation', year, 'HE_HSA', month, HE_hsa_balance)

@@ -5,7 +5,7 @@ import time
 from piecash import Transaction, Split
 import os
 import pyautogui
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, getStartAndEndOfPreviousMonth
+from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, getStartAndEndOfPreviousMonth, writeGnuTransaction 
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
@@ -51,11 +51,10 @@ interest_amount = 0
 # Set Gnucash Book
 mybook = openGnuCashBook(directory, 'Finance', False, False)
 pension = getGnuCashBalance(mybook, 'VanguardPension')
+pension_acct = "Assets:Non-Liquid Assets:Pension"
+interest_acct = "Income:Investments:Interest"
 with mybook as book:
-    USD = mybook.currencies(mnemonic="USD")
     # # GNUCASH
-    pension_acct = "Assets:Non-Liquid Assets:Pension"
-    interest_acct = "Income:Investments:Interest"
     # retrieve transactions from GnuCash
     transactions = [tr for tr in mybook.transactions
                     if str(tr.post_date.strftime('%Y')) == str(year)
@@ -71,19 +70,20 @@ with mybook as book:
     account_change = Decimal(vanguard) - pension
     emp_contribution = account_change - interest
     from_account = "Assets:Non-Liquid Assets:Pension"
-    entry = Transaction(post_date=lastmonth[1].date(),
-                        currency=USD,
-                        description="Contribution + Interest",
-                        splits=[
-                            Split(value=-interest, memo="scripted",
-                                  account=mybook.accounts(fullname="Income:Investments:Interest")),
-                            Split(value=-emp_contribution, memo="scripted",
-                                  account=mybook.accounts(fullname="Income:Employer Pension Contributions")),
-                            Split(value=account_change, memo="scripted",
-                                  account=mybook.accounts(fullname=from_account)),
-                        ])
-    book.save()
-    book.flush()
+    writeGnuTransaction(mybook, "Contribution + Interest", lastmonth[1].date(), [-interest, -emp_contribution, account_change], from_account)   
+    # Transaction(post_date=lastmonth[1].date(),
+    #                 currency=mybook.currencies(mnemonic="USD"),
+    #                 description="Contribution + Interest",
+    #                 splits=[
+    #                     Split(value=-interest, memo="scripted",
+    #                             account=mybook.accounts(fullname="Income:Investments:Interest")),
+    #                     Split(value=-emp_contribution, memo="scripted",
+    #                             account=mybook.accounts(fullname="Income:Employer Pension Contributions")),
+    #                     Split(value=account_change, memo="scripted",
+    #                             account=mybook.accounts(fullname=from_account)),
+    #                 ])
+    # book.save()
+    # book.flush()
 book.close()
 vanguard_gnu = getGnuCashBalance(mybook, 'VanguardPension')
 updateSpreadsheet(directory, 'Asset Allocation', year, 'VanguardPension', month, vanguard)

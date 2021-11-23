@@ -55,37 +55,40 @@ time.sleep(3)
 
 # Set Gnucash Book
 mybook = openGnuCashBook(directory, 'Finance', False, False)
+transactions_csv = r'C:\Users\dmagn\Downloads\activity.csv'
 
-with open(r'C:\Users\dmagn\Downloads\activity.csv') as csv_file:
-    csv_reader = csv.reader(csv_file, delimiter=',')
-    line_count = 0
-    for row in csv_reader:
-        # skip header line
-        if line_count == 0:
-            line_count += 1
-        else:
-            if "AUTOPAY PAYMENT" in row[1]:
-                continue
-            else: 
-                to_account = setToAccount('Amex', row)
-                if to_account == "Expenses:Other":
-                    review_trans = review_trans + row[0] + ", " + row[1] + ", " + "\n"
-            amount = Decimal(row[2])
-            from_account = "Liabilities:Credit Cards:Amex BlueCash Everyday"
-            postdate = datetime.strptime(row[0], '%m/%d/%Y')
-            with mybook as book:
-                USD = mybook.currencies(mnemonic="USD")
-                # create transaction with core objects in one step
-                trans = Transaction(post_date=postdate.date(),
-                                    currency=USD,
-                                    description=row[1],
-                                    splits=[
-                                         Split(value=amount, memo="scripted", account=mybook.accounts(fullname=to_account)),
-                                         Split(value=-amount, memo="scripted", account=mybook.accounts(fullname=from_account)),
-                                     ])
-                book.save()
-                book.flush()
-                book.close()
+review_trans = importGnuTransaction('Amex', transactions_csv, mybook, driver)
+
+# with open(r'C:\Users\dmagn\Downloads\activity.csv') as csv_file:
+#     csv_reader = csv.reader(csv_file, delimiter=',')
+#     line_count = 0
+#     for row in csv_reader:
+#         # skip header line
+#         if line_count == 0:
+#             line_count += 1
+#         else:
+#             if "AUTOPAY PAYMENT" in row[1]:
+#                 continue
+#             else: 
+#                 to_account = setToAccount('Amex', row)
+#                 if to_account == "Expenses:Other":
+#                     review_trans = review_trans + row[0] + ", " + row[1] + ", " + "\n"
+#             amount = Decimal(row[2])
+#             from_account = "Liabilities:Credit Cards:Amex BlueCash Everyday"
+#             postdate = datetime.strptime(row[0], '%m/%d/%Y')
+#             with mybook as book:
+#                 USD = mybook.currencies(mnemonic="USD")
+#                 # create transaction with core objects in one step
+#                 trans = Transaction(post_date=postdate.date(),
+#                                     currency=USD,
+#                                     description=row[1],
+#                                     splits=[
+#                                          Split(value=amount, memo="scripted", account=mybook.accounts(fullname=to_account)),
+#                                          Split(value=-amount, memo="scripted", account=mybook.accounts(fullname=from_account)),
+#                                      ])
+#                 book.save()
+#                 book.flush()
+# book.close()
 
 amex_gnu = getGnuCashBalance(mybook, 'Amex')
 # # REDEEM REWARDS

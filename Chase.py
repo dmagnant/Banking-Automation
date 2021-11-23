@@ -54,42 +54,44 @@ else:
 fromdate = yearfrom + monthfrom + "07_"
 todate = yearto + monthto + "06_"
 currentdate = yearto + monthto + day
-filename = r'C:\Users\dmagn\Downloads\Chase2715_Activity' + fromdate + todate + currentdate + '.csv'
+transactions_csv = r'C:\Users\dmagn\Downloads\Chase2715_Activity' + fromdate + todate + currentdate + '.csv'
 time.sleep(2)
 # Set Gnucash Book
 mybook = openGnuCashBook(directory, 'Finance', False, False)
+
+importGnuTransaction('Chase', transactions_csv, mybook, driver)
 # open CSV file at the given path
-with open(filename) as csv_file:
-    csv_reader = csv.reader(csv_file, delimiter=',')
-    line_count = 0
-    for row in csv_reader:
-        # skip header line
-        if line_count == 0:
-            line_count += 1
-        else:
-            # Skip payment (already captured in Checking Balance script
-            if "AUTOMATIC PAYMENT" in row[2]:
-                continue
-            else:
-                to_account = setToAccount('Chase', row)
-                if to_account == "Expenses:Other":
-                    review_trans = review_trans + row[0] + ", " + row[1] + ", " + "\n"
-            amount = Decimal(row[5])
-            from_account = "Liabilities:Credit Cards:Chase Freedom"
-            postdate = datetime.strptime(row[1], '%m/%d/%Y')
-            with mybook as book:
-                USD = mybook.currencies(mnemonic="USD")
-                # create transaction with core objects in one step
-                trans = Transaction(post_date=postdate.date(),
-                                    currency=USD,
-                                    description=row[2],
-                                    splits=[
-                                         Split(value=-amount, memo="scripted", account=mybook.accounts(fullname=to_account)),
-                                         Split(value=amount, memo="scripted", account=mybook.accounts(fullname=from_account)),
-                                     ])
-                book.save()
-                book.flush()
-book.close()
+# with open(transactions_csv) as csv_file:
+#     csv_reader = csv.reader(csv_file, delimiter=',')
+#     line_count = 0
+#     for row in csv_reader:
+#         # skip header line
+#         if line_count == 0:
+#             line_count += 1
+#         else:
+#             # Skip payment (already captured in Checking Balance script
+#             if "AUTOMATIC PAYMENT" in row[2]:
+#                 continue
+#             else:
+#                 to_account = setToAccount('Chase', row)
+#                 if to_account == "Expenses:Other":
+#                     review_trans = review_trans + row[0] + ", " + row[1] + ", " + "\n"
+#             amount = Decimal(row[5])
+#             from_account = "Liabilities:Credit Cards:Chase Freedom"
+#             postdate = datetime.strptime(row[1], '%m/%d/%Y')
+#             with mybook as book:
+#                 USD = mybook.currencies(mnemonic="USD")
+#                 # create transaction with core objects in one step
+#                 trans = Transaction(post_date=postdate.date(),
+#                                     currency=USD,
+#                                     description=row[2],
+#                                     splits=[
+#                                          Split(value=-amount, memo="scripted", account=mybook.accounts(fullname=to_account)),
+#                                          Split(value=amount, memo="scripted", account=mybook.accounts(fullname=from_account)),
+#                                      ])
+#                 book.save()
+#                 book.flush()
+# book.close()
 # Back to Accounts page
 driver.find_element_by_id("backToAccounts").click()
 # # REDEEM REWARDS

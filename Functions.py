@@ -1,7 +1,8 @@
 import gspread
 from selenium import webdriver
 from pykeepass import PyKeePass
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta
+import time
 import os
 import psutil
 import ctypes
@@ -86,6 +87,10 @@ def getGnuCashBalance(mybook, account):
             gnuCashAccount = mybook.accounts(fullname="Liabilities:Credit Cards:Chase Freedom")
         elif account == 'Discover':
             gnuCashAccount = mybook.accounts(fullname="Liabilities:Credit Cards:Discover It")
+        elif account == 'HSA':
+            gnuCashAccount = mybook.accounts(fullname="Assets:Non-Liquid Assets:HSA")  
+        elif account == 'Liquid Assets':
+            gnuCashAccount = mybook.accounts(fullname="Assets:Liquid Assets")            
         elif account == 'M1':
             gnuCashAccount = mybook.accounts(fullname="Assets:Liquid Assets:M1 Spend")
         elif account == 'TIAA':
@@ -353,7 +358,7 @@ def formatTransactionVariables(account, row):
     elif account == 'Barclays':
         postdate = datetime.strptime(row[0], '%m/%d/%Y')
         description = row[1]
-        amount = -Decimal(row[3])
+        amount = Decimal(row[3])
         if "Payment Received" in row[1]:
             cc_payment = True
         from_account = "Liabilities:Credit Cards:BarclayCard CashForward"
@@ -361,7 +366,7 @@ def formatTransactionVariables(account, row):
     elif account == 'BoA':
         postdate = datetime.strptime(row[0], '%m/%d/%Y')
         description = row[2]
-        amount = -Decimal(row[4])
+        amount = Decimal(row[4])
         if "BA ELECTRONIC PAYMENT" in row[2]:
             cc_payment = True
         from_account = "Liabilities:Credit Cards:BankAmericard Cash Rewards"
@@ -369,7 +374,7 @@ def formatTransactionVariables(account, row):
     elif account == 'BoA-joint':
         postdate = datetime.strptime(row[0], '%m/%d/%Y')
         description = row[2]
-        amount = -Decimal(row[4])
+        amount = Decimal(row[4])
         if "BA ELECTRONIC PAYMENT" in row[2]:
             cc_payment = True
         from_account = "Liabilities:BoA Credit Card"
@@ -377,7 +382,7 @@ def formatTransactionVariables(account, row):
     elif account == 'Chase':
         postdate = datetime.strptime(row[1], '%m/%d/%Y')
         description = row[2]
-        amount = -Decimal(row[5])
+        amount = Decimal(row[5])
         if "AUTOMATIC PAYMENT" in row[2]:
             cc_payment = True
         from_account = "Liabilities:Credit Cards:Chase Freedom"
@@ -399,8 +404,9 @@ def formatTransactionVariables(account, row):
     return [postdate, description, amount, cc_payment, from_account, review_trans]
 
 
-def importGnuTransaction(account, transactions_csv, mybook, today, line_start=1, line_count=0):
+def importGnuTransaction(account, transactions_csv, mybook, driver, line_start=1):
     review_trans = ""
+    line_count = 0
     with open(transactions_csv) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         row_count = 0
@@ -426,38 +432,53 @@ def importGnuTransaction(account, transactions_csv, mybook, today, line_start=1,
                     postdate = transaction_variables[0]
                     description = transaction_variables[1]
                     with mybook as book:
-                        if "NM Paycheck" in description:
-                            review_trans = review_trans + row[0] + transaction_variables[5]
-                            split = [Split(value=round(Decimal(1871.40), 2), memo="scripted",
-                                        account=mybook.accounts(fullname=from_account)),
-                                    Split(value=round(Decimal(173.36), 2), memo="scripted",
-                                        account=mybook.accounts(fullname="Assets:Non-Liquid Assets:401k")),
-                                    Split(value=round(Decimal(5.49), 2), memo="scripted",
-                                        account=mybook.accounts(fullname="Expenses:Medical:Dental")),
-                                    Split(value=round(Decimal(36.22), 2), memo="scripted",
-                                        account=mybook.accounts(fullname="Expenses:Medical:Health")),
-                                    Split(value=round(Decimal(2.67), 2), memo="scripted",
-                                        account=mybook.accounts(fullname="Expenses:Medical:Vision")),
-                                    Split(value=round(Decimal(168.54), 2), memo="scripted",
-                                        account=mybook.accounts(fullname="Expenses:Income Taxes:Social Security")),
-                                    Split(value=round(Decimal(39.42), 2), memo="scripted",
-                                        account=mybook.accounts(fullname="Expenses:Income Taxes:Medicare")),
-                                    Split(value=round(Decimal(305.08), 2), memo="scripted",
-                                        account=mybook.accounts(fullname="Expenses:Income Taxes:Federal Tax")),
-                                    Split(value=round(Decimal(157.03), 2), memo="scripted",
-                                        account=mybook.accounts(fullname="Expenses:Income Taxes:State Tax")),
-                                    Split(value=round(Decimal(130.00), 2), memo="scripted",
-                                        account=mybook.accounts(fullname="Assets:Non-Liquid Assets:HSA")),
-                                    Split(value=-round(Decimal(2889.21), 2), memo="scripted",
-                                        account=mybook.accounts(fullname=to_account))]
-                        else:
-                            split = [Split(value=-amount, memo="scripted", account=mybook.accounts(fullname=to_account)),
-                                    Split(value=amount, memo="scripted", account=mybook.accounts(fullname=from_account)),]
-                        Transaction(post_date=postdate.date(),
-                                            currency=mybook.currencies(mnemonic="USD"),
-                                            description=description,
-                                            splits=split)
-                        book.save()
-                        book.flush()
-        book.close()
+                        writeGnuTransaction(book, description, postdate, amount, from_account, to_account, review_trans)
+    book.close()
     return review_trans
+
+def writeGnuTransaction(mybook, description, postdate, amount, from_account, to_account='', review_trans=''):
+    with mybook as book:
+        if "Contribution + Interest" in description:
+            split = [Split(value=amount[0], memo="scripted", 
+                        account=mybook.accounts(fullname="Income:Investments:Interest")),
+                    Split(value=amount[1], memo="scripted",
+                        account=mybook.accounts(fullname="Income:Employer Pension Contributions")),
+                    Split(value=amount[2], memo="scripted",
+                        account=mybook.accounts(fullname=from_account))]
+        elif "HSA Statement" in description:
+            split = [Split(value=amount[0], account=mybook.accounts(fullname=to_account)),
+                    Split(value=amount[1], account=mybook.accounts(fullname=to_account[0])),
+                    Split(value=amount[2], account=mybook.accounts(fullname=to_account[1]))]
+        elif "NM Paycheck" in description:
+            review_trans = review_trans + postdate + ', ' + description + ', ' + amount + '\n'
+            split = [Split(value=round(Decimal(1871.40), 2), memo="scripted",
+                        account=mybook.accounts(fullname=from_account)),
+                    Split(value=round(Decimal(173.36), 2), memo="scripted",
+                        account=mybook.accounts(fullname="Assets:Non-Liquid Assets:401k")),
+                    Split(value=round(Decimal(5.49), 2), memo="scripted",
+                        account=mybook.accounts(fullname="Expenses:Medical:Dental")),
+                    Split(value=round(Decimal(36.22), 2), memo="scripted",
+                        account=mybook.accounts(fullname="Expenses:Medical:Health")),
+                    Split(value=round(Decimal(2.67), 2), memo="scripted",
+                        account=mybook.accounts(fullname="Expenses:Medical:Vision")),
+                    Split(value=round(Decimal(168.54), 2), memo="scripted",
+                        account=mybook.accounts(fullname="Expenses:Income Taxes:Social Security")),
+                    Split(value=round(Decimal(39.42), 2), memo="scripted",
+                        account=mybook.accounts(fullname="Expenses:Income Taxes:Medicare")),
+                    Split(value=round(Decimal(305.08), 2), memo="scripted",
+                        account=mybook.accounts(fullname="Expenses:Income Taxes:Federal Tax")),
+                    Split(value=round(Decimal(157.03), 2), memo="scripted",
+                        account=mybook.accounts(fullname="Expenses:Income Taxes:State Tax")),
+                    Split(value=round(Decimal(130.00), 2), memo="scripted",
+                        account=mybook.accounts(fullname="Assets:Non-Liquid Assets:HSA")),
+                    Split(value=-round(Decimal(2889.21), 2), memo="scripted",
+                        account=mybook.accounts(fullname=to_account))]
+        else:
+            split = [Split(value=-amount, memo="scripted", account=mybook.accounts(fullname=to_account)),
+                    Split(value=amount, memo="scripted", account=mybook.accounts(fullname=from_account))]
+        Transaction(post_date=postdate.date(),
+                            currency=mybook.currencies(mnemonic="USD"),
+                            description=description,
+                            splits=split)
+        book.save()
+        book.flush()

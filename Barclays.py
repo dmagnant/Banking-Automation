@@ -80,7 +80,7 @@ else:
     yearfrom = yearto
 fromdate = monthfrom + "/11/" + yrfrom
 todate = monthto + "/10/" + yrto
-filename = r"C:\Users\dmagn\Downloads\CreditCard_" + yearfrom + monthfrom + "11_" + yearto + monthto + "10.csv"
+transactions_csv = r"C:\Users\dmagn\Downloads\CreditCard_" + yearfrom + monthfrom + "11_" + yearto + monthto + "10.csv"
 # enter date_range
 driver.find_element_by_id("downloadFromDate_input").send_keys(fromdate)
 driver.find_element_by_id("downloadToDate_input").send_keys(todate)
@@ -92,40 +92,43 @@ review_trans = ""
 time.sleep(2)
 # Set Gnucash Book
 mybook = openGnuCashBook(directory, 'Finance', False, False)
-with open(filename) as csv_file:
-    csv_reader = csv.reader(csv_file, delimiter=',')
-    line_count = 0
-    for row in csv_reader:
-        # skip header line
-        if line_count < 5:
-            line_count += 1
-        else:
-            # Skip payment (already captured in Checking Balance script)
-            if "Payment Received" in row[1]:
-                continue
-            else: 
-                to_account = setToAccount('Barclays', row)
-                if to_account == "Expenses:Other":
-                    review_trans = review_trans + row[0] + ", " + row[1] + ", " + "\n"
-            amount = Decimal(row[3])
-            from_account = "Liabilities:Credit Cards:BarclayCard CashForward"
-            postdate = datetime.strptime(row[0], '%m/%d/%Y')
+review_trans = importGnuTransaction('Barclays', transactions_csv, mybook, driver, 5)
+
+# with open(transactions_csv) as csv_file:
+#     csv_reader = csv.reader(csv_file, delimiter=',')
+#     line_count = 0
+#     for row in csv_reader:
+#         # skip header line
+#         if line_count < 5:
+#             line_count += 1
+#         else:
+#             # Skip payment (already captured in Checking Balance script)
+#             if "Payment Received" in row[1]:
+#                 continue
+#             else: 
+#                 to_account = setToAccount('Barclays', row)
+#                 if to_account == "Expenses:Other":
+#                     review_trans = review_trans + row[0] + ", " + row[1] + ", " + "\n"
+#             amount = Decimal(row[3])
+#             from_account = "Liabilities:Credit Cards:BarclayCard CashForward"
+#             postdate = datetime.strptime(row[0], '%m/%d/%Y')
             
-            with mybook as book:
-                USD = mybook.currencies(mnemonic="USD")
-                # create transaction with core objects in one step
-                if "Payment Received" in row[1]:
-                    continue
-                else:
-                    trans = Transaction(post_date=postdate.date(),
-                                        currency=USD,
-                                        description=row[1],
-                                        splits=[
-                                            Split(value=-amount, memo="scripted", account=mybook.accounts(fullname=to_account)),
-                                            Split(value=amount, memo="scripted", account=mybook.accounts(fullname=from_account)),
-                                        ])
-                book.save()
-                book.flush()
+#             with mybook as book:
+#                 USD = mybook.currencies(mnemonic="USD")
+#                 # create transaction with core objects in one step
+#                 if "Payment Received" in row[1]:
+#                     continue
+#                 else:
+#                     trans = Transaction(post_date=postdate.date(),
+#                                         currency=USD,
+#                                         description=row[1],
+#                                         splits=[
+#                                             Split(value=-amount, memo="scripted", account=mybook.accounts(fullname=to_account)),
+#                                             Split(value=amount, memo="scripted", account=mybook.accounts(fullname=from_account)),
+#                                         ])
+#                 book.save()
+#                 book.flush()
+# book.close()
 barclays_gnu = getGnuCashBalance(mybook, 'Barclays')
 if float(rewards_balance) > 50:
     # # REDEEM REWARDS

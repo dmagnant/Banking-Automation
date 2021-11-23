@@ -30,4 +30,3 @@ if ally[1]:
 showMessage("Balances + Review", f'Ally Balance: {ally[0]} \n'f'GnuCash Balance: {ally_gnu} \n \n'f'Review transactions:\n {ally[1]}')
 driver.quit()
 startExpressVPN()
-

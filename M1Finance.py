@@ -121,10 +121,9 @@ def runM1(directory, driver):
         fileone = t1.readlines()
         filetwo = t2.readlines()
         line_count = 0
-        row_count = 0
     for line in filetwo:
         line_count += 1
         if line not in fileone:
-            review_trans = importGnuTransaction('M1', m1_activity, mybook, today, 0, line_count)
+            review_trans = importGnuTransaction('M1', m1_activity, mybook, driver, 0)
 
     return [m1, review_trans]
