@@ -6,7 +6,7 @@ from Functions import getPassword, closeExpressVPN, openGnuCashBook, getDateRang
 
 def runAlly(directory, driver):
     closeExpressVPN()
-    driver.implicitly_wait(10)
+    driver.implicitly_wait(3)
     driver.get("https://secure.ally.com/")
     driver.maximize_window()
     time.sleep(1)
@@ -66,5 +66,6 @@ def runAlly(directory, driver):
 
     # Set Gnucash Book
     mybook = openGnuCashBook(directory, 'Home', False, False)
+    # Compare against existing transactions in GnuCash and import new ones
     review_trans = compileGnuTransactions('Ally', ally_activity, gnu_ally_activity, mybook, driver, directory, date_range, 0)
     return [ally, review_trans]

@@ -2,7 +2,6 @@ from selenium.common.exceptions import NoSuchElementException
 from decimal import Decimal
 from datetime import datetime
 import time
-from piecash import Transaction, Split
 import os
 import pyautogui
 from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, getStartAndEndOfPreviousMonth, writeGnuTransaction 
@@ -50,6 +49,7 @@ interest_amount = 0
 
 # Set Gnucash Book
 mybook = openGnuCashBook(directory, 'Finance', False, False)
+
 pension = getGnuCashBalance(mybook, 'VanguardPension')
 pension_acct = "Assets:Non-Liquid Assets:Pension"
 interest_acct = "Income:Investments:Interest"

@@ -2,11 +2,8 @@ from datetime import datetime
 import time
 from typing import KeysView
 from selenium.common.exceptions import NoSuchElementException
-from decimal import Decimal
-import csv
-from piecash import Transaction, Split
 import os
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, setToAccount, importGnuTransaction
+from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, importGnuTransaction
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
