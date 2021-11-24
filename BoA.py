@@ -80,7 +80,7 @@ review_trans = ""
 # Set Gnucash Book
 mybook = openGnuCashBook(directory, 'Finance', False, False)
 
-review_trans = importGnuTransaction('BoA', transactions_csv, mybook, driver)
+review_trans = importGnuTransaction('BoA', transactions_csv, mybook, driver, directory)
 
 # # open CSV file at the given path
 # with open(transactions_csv) as csv_file:

@@ -1,5 +1,6 @@
 import gspread
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 from pykeepass import PyKeePass
 from datetime import datetime, timedelta
 import time
@@ -341,12 +342,13 @@ def setToAccount(account, row):
 
 def formatTransactionVariables(account, row):
     cc_payment = False
+    description = row[1]
     if account == 'Ally':
         postdate = datetime.strptime(row[0], '%Y-%m-%d')
         description = row[1]
         amount = Decimal(row[2])
         from_account = "Assets:Ally Checking Account"
-        review_trans = row[0] + ", " + row[1] + ", " + row[2] + "\n"
+        review_trans_path = row[0] + ", " + row[1] + ", " + row[2] + "\n"
     elif account == 'Amex':
         postdate = datetime.strptime(row[0], '%m/%d/%Y')
         description = row[1]
@@ -354,7 +356,7 @@ def formatTransactionVariables(account, row):
         if "AUTOPAY PAYMENT" in row[1]:
             cc_payment = True
         from_account = "Liabilities:Credit Cards:Amex BlueCash Everyday"
-        review_trans = row[0] + ", " + row[1] + ", " + row[2] + "\n"
+        review_trans_path = row[0] + ", " + row[1] + ", " + row[2] + "\n"
     elif account == 'Barclays':
         postdate = datetime.strptime(row[0], '%m/%d/%Y')
         description = row[1]
@@ -362,7 +364,7 @@ def formatTransactionVariables(account, row):
         if "Payment Received" in row[1]:
             cc_payment = True
         from_account = "Liabilities:Credit Cards:BarclayCard CashForward"
-        review_trans = row[0] + ", " + row[1] + ", " + row[3] + "\n"
+        review_trans_path = row[0] + ", " + row[1] + ", " + row[3] + "\n"
     elif account == 'BoA':
         postdate = datetime.strptime(row[0], '%m/%d/%Y')
         description = row[2]
@@ -370,7 +372,7 @@ def formatTransactionVariables(account, row):
         if "BA ELECTRONIC PAYMENT" in row[2]:
             cc_payment = True
         from_account = "Liabilities:Credit Cards:BankAmericard Cash Rewards"
-        review_trans = row[0] + ", " + row[2] + ", " + row[4] + "\n"
+        review_trans_path = row[0] + ", " + row[2] + ", " + row[4] + "\n"
     elif account == 'BoA-joint':
         postdate = datetime.strptime(row[0], '%m/%d/%Y')
         description = row[2]
@@ -378,7 +380,7 @@ def formatTransactionVariables(account, row):
         if "BA ELECTRONIC PAYMENT" in row[2]:
             cc_payment = True
         from_account = "Liabilities:BoA Credit Card"
-        review_trans = row[0] + ", " + row[2] + ", " + row[4] + "\n"
+        review_trans_path = row[0] + ", " + row[2] + ", " + row[4] + "\n"
     elif account == 'Chase':
         postdate = datetime.strptime(row[1], '%m/%d/%Y')
         description = row[2]
@@ -386,7 +388,7 @@ def formatTransactionVariables(account, row):
         if "AUTOMATIC PAYMENT" in row[2]:
             cc_payment = True
         from_account = "Liabilities:Credit Cards:Chase Freedom"
-        review_trans = row[1] + ", " + row[2] + ", " + row[5] + "\n"
+        review_trans_path = row[1] + ", " + row[2] + ", " + row[5] + "\n"
     elif account == 'Discover':
         postdate = datetime.strptime(row[1], '%m/%d/%Y')
         description = row[2]
@@ -394,22 +396,57 @@ def formatTransactionVariables(account, row):
         if "DIRECTPAY FULL BALANCE" in row[2]:
             cc_payment = True
         from_account = "Liabilities:Credit Cards:Discover It"
-        review_trans = row[1] + ", " + row[2] + ", " + row[3] + "\n"
+        review_trans_path = row[1] + ", " + row[2] + ", " + row[3] + "\n"
     elif account == 'M1':
         postdate = datetime.strptime(row[0], '%Y-%m-%d')
         description = row[1]
         amount = Decimal(row[2])
         from_account = "Assets:Liquid Assets:M1 Spend"
-        review_trans = row[0] + ", " + row[1] + ", " + row[2] + "\n"
-    return [postdate, description, amount, cc_payment, from_account, review_trans]
+        review_trans_path = row[0] + ", " + row[1] + ", " + row[2] + "\n"
+    return [postdate, description, amount, cc_payment, from_account, review_trans_path]
 
+def compileGnuTransactions(account, transactions_csv, gnu_csv, mybook, driver, directory, date_range, line_start=1, review_trans=''):
+    import_csv = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\import.csv"
+    with open(import_csv, 'w', newline='') as file:
+        file.truncate()
+    if account in ['Ally', 'M1']:
+        if account == 'Ally':
+            gnu_account = "Assets:Ally Checking Account"
+        elif account == 'M1':
+            gnu_account = "Assets:Liquid Assets:M1 Spend"
+    
+    # retrieve transactions from GnuCash
+    transactions = [tr for tr in mybook.transactions
+                    if str(tr.post_date.strftime('%Y-%m-%d')) in date_range
+                    for spl in tr.splits
+                    if spl.account.fullname == gnu_account]
+    for tr in transactions:
+        date = str(tr.post_date.strftime('%Y-%m-%d'))
+        description = str(tr.description)
+        for spl in tr.splits:
+            amount = format(spl.value, ".2f")
+            if spl.account.fullname == gnu_account:
+                # open CSV file at the given path
+                rows = date, description, amount
+                with open(gnu_csv, 'a', newline='') as file:
+                    csv_writer = csv.writer(file)
+                    csv_writer.writerow(rows)
+    with open(gnu_csv, 'r') as t1, open(transactions_csv, 'r') as t2:
+        reader_gnu = csv.reader(t1, delimiter=',')
+        reader_account = csv.reader(t2, delimiter=',')
+        for row in reader_account:
+            if row not in reader_gnu:
+                with open(import_csv, 'a', newline='') as file:
+                    csv_writer = csv.writer(file)
+                    csv_writer.writerow(row)
+            review_trans = importGnuTransaction(account, import_csv, mybook, driver, directory, line_start)
+    return review_trans
 
-def importGnuTransaction(account, transactions_csv, mybook, driver, line_start=1):
-    review_trans = ""
-    line_count = 0
+def importGnuTransaction(account, transactions_csv, mybook, driver, directory, line_start=1, review_trans=''):
     with open(transactions_csv) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         row_count = 0
+        line_count = 0
         for row in csv_reader:
             row_count += 1
             # skip header line
@@ -421,19 +458,18 @@ def importGnuTransaction(account, transactions_csv, mybook, driver, line_start=1
                 if transaction_variables[3]:
                     continue
                 else:
-                    if account in ['M1', 'Ally']:
-                        if line_count != row_count:
-                            continue
-                    to_account = setToAccount(account, row)
-                    if to_account == "Expenses:Other":
-                        review_trans = review_trans + transaction_variables[5]
-                    amount = transaction_variables[2]
-                    from_account = transaction_variables[4]
-                    postdate = transaction_variables[0]
                     description = transaction_variables[1]
-                    with mybook as book:
-                        writeGnuTransaction(book, description, postdate, amount, from_account, to_account, review_trans)
-    book.close()
+                    postdate = transaction_variables[0]
+                    from_account = transaction_variables[4]
+                    if 'ARCADIA' in description.upper():
+                        amount = getEnergyBillAmounts(driver, directory, transaction_variables[2], energy_bill_num=0)
+                        to_account = ''
+                    else:
+                        amount = transaction_variables[2]
+                        to_account = setToAccount(account, row)
+                        if to_account == "Expenses:Other":
+                            review_trans = review_trans + transaction_variables[5]
+                    writeGnuTransaction(mybook, description, postdate, amount, from_account, to_account, review_trans)
     return review_trans
 
 def writeGnuTransaction(mybook, description, postdate, amount, from_account, to_account='', review_trans=''):
@@ -449,8 +485,14 @@ def writeGnuTransaction(mybook, description, postdate, amount, from_account, to_
             split = [Split(value=amount[0], account=mybook.accounts(fullname=to_account)),
                     Split(value=amount[1], account=mybook.accounts(fullname=to_account[0])),
                     Split(value=amount[2], account=mybook.accounts(fullname=to_account[1]))]
+        elif "ARCADIA" in description:
+            split=[Split(value=amount[0], memo="Arcadia Membership Fee", account=mybook.accounts(fullname="Expenses:Utilities:Arcadia Membership")),
+                    Split(value=amount[1], memo="Solar Rebate", account=mybook.accounts(fullname="Expenses:Utilities:Arcadia Membership")),
+                    Split(value=amount[2], account=mybook.accounts(fullname="Expenses:Utilities:Electricity")),
+                    Split(value=amount[3], account=mybook.accounts(fullname="Expenses:Utilities:Gas")),
+                    Split(value=amount[4], account=mybook.accounts(fullname=from_account))]
         elif "NM Paycheck" in description:
-            review_trans = review_trans + postdate + ', ' + description + ', ' + amount + '\n'
+            review_trans = review_trans + str(postdate) + ', ' + description + ', ' + str(amount) + '\n'
             split = [Split(value=round(Decimal(1871.40), 2), memo="scripted",
                         account=mybook.accounts(fullname=from_account)),
                     Split(value=round(Decimal(173.36), 2), memo="scripted",
@@ -482,3 +524,118 @@ def writeGnuTransaction(mybook, description, postdate, amount, from_account, to_
                             splits=split)
         book.save()
         book.flush()
+    book.close()
+
+def getEnergyBillAmounts(driver, directory, amount, energy_bill_num=0):
+    energy_bill_num += 1
+    if energy_bill_num == 1:
+        # Get balances from Arcadia
+        driver.execute_script("window.open('https://login.arcadia.com/email');")
+        driver.implicitly_wait(5)
+        # make the new window active
+        arcadia_window = driver.window_handles[1]
+        driver.switch_to.window(arcadia_window)
+        # get around bot-prevention by logging in twice
+        num = 1
+        while num <3:
+            try:
+                # click Sign in with email
+                driver.find_element_by_xpath("/html/body/div/main/div[1]/div/div/div[1]/div/a").click()
+                time.sleep(1)
+            except NoSuchElementException:
+                exception = "sign in page loaded already"
+            try:
+                # Login
+                driver.find_element_by_xpath("/html/body/div[1]/main/div[1]/div/form/div[1]/div[1]/input").send_keys(getUsername(directory, 'Arcadia Power'))
+                time.sleep(1)
+                driver.find_element_by_xpath("/html/body/div[1]/main/div[1]/div/form/div[1]/div[2]/input").send_keys(getPassword(directory, 'Arcadia Power'))
+                time.sleep(1)
+                driver.find_element_by_xpath("/html/body/div[1]/main/div[1]/div/form/div[2]/button").click()
+                time.sleep(1)
+                # Get Billing page
+                driver.get("https://home.arcadia.com/billing")
+            except NoSuchElementException:
+                exception = "already signed in"
+            num += 1
+            if not driver.find_element_by_xpath('/html/body/div[1]/div[2]/div/div[1]/h1'):
+                showMessage("Login Check", 'Confirm Login to Arcadia, (manually if necessary) \n' 'Then click OK \n')
+    else:
+        arcadia_window = driver.window_handles[1]
+        driver.switch_to.window(arcadia_window)
+        driver.get("https://home.arcadia.com/billing")
+    statement_row = 1
+    statement_found = "no"                     
+    while statement_found == "no":
+        # Capture statement balance
+        arcadia_balance = driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/div[2]/div[2]/div/div[2]/ul/li[" + str(statement_row) + "]/div/div/p").text.replace('$', '')
+        formatted_amount = "{:.2f}".format(abs(amount))
+        if arcadia_balance == formatted_amount:
+            # click to view statement
+            driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/div[2]/div[2]/div/div[2]/ul/li[" + str(statement_row) + "]/div/div/p").click()
+            statement_found = "yes"
+        else:
+            statement_row += 1
+    # comb through lines of Arcadia Statement for Arcadia Membership (and Free trial rebate), Community Solar lines (3)
+    arcadia_statement_lines_left = True
+    statement_row = 1
+    solar = 0
+    arcadia_membership = 0
+    while arcadia_statement_lines_left:
+        try:
+            # read the header to get transaction description
+            statement_trans = driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/h2").text
+            if statement_trans == "Arcadia Membership":
+                arcadia_membership = Decimal(driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.replace('$',''))
+                arcadiaamt = Decimal(arcadia_membership)
+            elif statement_trans == "Free Trial":
+                arcadia_membership = arcadia_membership + Decimal(driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.replace('$',''))
+            elif statement_trans == "Community Solar":
+                solar = solar + Decimal(driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.replace('$',''))
+            elif statement_trans == "WE Energies Utility":
+                we_bill = driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text
+            statement_row += 1
+        except NoSuchElementException:
+            arcadia_statement_lines_left = False
+    arcadiaamt = Decimal(arcadia_membership)
+    solaramt = Decimal(solar)
+    # Get balances from WE Energies
+    if energy_bill_num == 1:
+        driver.execute_script("window.open('https://www.we-energies.com/secure/auth/l/acct/summary_accounts.aspx');")
+        # make the new window active
+        we_window = driver.window_handles[2]
+        driver.switch_to.window(we_window)
+        try:
+            ## LOGIN
+            driver.find_element_by_xpath("//*[@id='signInName']").send_keys(getUsername(directory, 'WE-Energies (Home)'))
+            driver.find_element_by_xpath("//*[@id='password']").send_keys(getPassword(directory, 'WE-Energies (Home)'))
+            # click Login
+            driver.find_element_by_xpath("//*[@id='next']").click()
+            time.sleep(4)
+            # close out of app notice
+            driver.find_element_by_xpath("//*[@id='notInterested']/a").click
+        except NoSuchElementException:
+            exception = "caught"
+        # Click View bill history
+        driver.find_element_by_xpath("//*[@id='mainContentCopyInner']/ul/li[2]/a").click()
+        time.sleep(4)
+    bill_row = 2
+    bill_column = 7
+    bill_found = "no"
+    # find bill based on comparing amount from Arcadia (we_bill)
+    while bill_found == "no":
+        # capture date
+        we_bill_path = "/html/body/div[1]/div[1]/form/div[5]/div/div/div/div/div[6]/div[2]/div[2]/div/table/tbody/tr[" + str(bill_row) + "]/td[" + str(bill_column) + "]/span/span"
+        we_bill_amount = driver.find_element_by_xpath(we_bill_path).text
+        if we_bill == we_bill_amount:
+            bill_found = "yes"
+        else:
+            bill_row += 1
+    # capture gas charges
+    bill_column -= 2
+    we_amt_path = "/html/body/div[1]/div[1]/form/div[5]/div/div/div/div/div[6]/div[2]/div[2]/div/table/tbody/tr[" + str(bill_row) + "]/td[" + str(bill_column) + "]/span"
+    gasamt = Decimal(driver.find_element_by_xpath(we_amt_path).text.replace('$', ""))
+    # capture electricity charges
+    bill_column -= 2
+    we_amt_path = "/html/body/div[1]/div[1]/form/div[5]/div/div/div/div/div[6]/div[2]/div[2]/div/table/tbody/tr[" + str(bill_row) + "]/td[" + str(bill_column) + "]/span"
+    electricityamt = Decimal(driver.find_element_by_xpath(we_amt_path).text.replace('$', ""))
+    return [arcadiaamt, solaramt, electricityamt, gasamt, amount]

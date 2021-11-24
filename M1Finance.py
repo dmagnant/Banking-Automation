@@ -1,13 +1,13 @@
 
 from selenium.common.exceptions import NoSuchElementException
-from decimal import Decimal
 from datetime import datetime
 import time
 import csv
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getDateRange, modifyTransactionDescription, importGnuTransaction
+from Functions import getUsername, getPassword, openGnuCashBook, showMessage, getDateRange, modifyTransactionDescription, compileGnuTransactions
 
 def runM1(directory, driver):
     driver.get("https://dashboard.m1finance.com/login")
+    driver.implicitly_wait(3)
     driver.maximize_window()
     # login
     # enter email
@@ -32,7 +32,7 @@ def runM1(directory, driver):
     today = datetime.today()
     year = today.year
 
-    date_range = getDateRange(today, 3)
+    date_range = getDateRange(today, 5)
 
     transaction = 1
     column = 1
@@ -81,49 +81,19 @@ def runM1(directory, driver):
                 with open(m1_activity, 'a', newline='') as file:
                     csv_writer = csv.writer(file)
                     csv_writer.writerow(row)
-                    transaction += 1
-                    column = 1
-                    element = "//*[@id='root']/div/div/div/div[2]/div/div[2]/div/div[3]/a[" + str(
-                        transaction) + "]/div[" + str(column) + "]"
+                transaction += 1
+                column = 1
+                element = "//*[@id='root']/div/div/div/div[2]/div/div[2]/div/div[3]/a[" + str(transaction) + "]/div[" + str(column) + "]"
         except NoSuchElementException:
             if not clicked_next:
                 # click Next
-                driver.find_element_by_xpath(
-                    "//*[@id='root']/div/div/div/div[2]/div/div[2]/div/div[2]/div/button[2]/span[2]").click()
+                driver.find_element_by_xpath("//*[@id='root']/div/div/div/div[2]/div/div[2]/div/div[2]/div/button[2]/span[2]").click()
                 transaction = 1
                 column = 1
-                element = "//*[@id='root']/div/div/div/div[2]/div/div[2]/div/div[3]/a[" + str(transaction) + "]/div[" + str(
-                    column) + "]"
+                element = "//*[@id='root']/div/div/div/div[2]/div/div[2]/div/div[3]/a[" + str(transaction) + "]/div[" + str(column) + "]"
                 time.sleep(2)
                 clicked_next = True
             else:
                 inside_date_range = False
-
-    account = "Assets:Liquid Assets:M1 Spend"
-    # retrieve transactions from GnuCash
-    transactions = [tr for tr in mybook.transactions
-                    if str(tr.post_date.strftime('%Y-%m-%d')) in date_range
-                    for spl in tr.splits
-                    if spl.account.fullname == account]
-    for tr in transactions:
-        m1_date = str(tr.post_date.strftime('%Y-%m-%d'))
-        description = str(tr.description)
-        for spl in tr.splits:
-            amount = format(spl.value, ".2f")
-            if spl.account.fullname == account:
-                # open CSV file at the given path
-                rows = m1_date, description, amount
-                with open(gnu_m1_activity, 'a', newline='') as file:
-                    csv_writer = csv.writer(file)
-                    csv_writer.writerow(rows)
-    review_trans = ""
-    with open(gnu_m1_activity, 'r') as t1, open(m1_activity, 'r') as t2:
-        fileone = t1.readlines()
-        filetwo = t2.readlines()
-        line_count = 0
-    for line in filetwo:
-        line_count += 1
-        if line not in fileone:
-            review_trans = importGnuTransaction('M1', m1_activity, mybook, driver, 0)
-
+    review_trans = compileGnuTransactions('M1', m1_activity, gnu_m1_activity, mybook, driver, directory, date_range, 0)
     return [m1, review_trans]

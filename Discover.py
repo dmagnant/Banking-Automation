@@ -73,7 +73,7 @@ stmtyear = str(year)
 stmtmonth = today.strftime('%m')
 transactions_csv = r"C:\Users\dmagn\Downloads\Discover-Statement-" + stmtyear + stmtmonth + "12.csv"
 
-review_trans = importGnuTransaction('Discover', transactions_csv, mybook, driver)
+review_trans = importGnuTransaction('Discover', transactions_csv, mybook, driver, directory)
 
 # Redeem Rewards
 # Click Rewards

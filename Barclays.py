@@ -92,7 +92,7 @@ review_trans = ""
 time.sleep(2)
 # Set Gnucash Book
 mybook = openGnuCashBook(directory, 'Finance', False, False)
-review_trans = importGnuTransaction('Barclays', transactions_csv, mybook, driver, 5)
+review_trans = importGnuTransaction('Barclays', transactions_csv, mybook, driver, directory, 5)
 
 # with open(transactions_csv) as csv_file:
 #     csv_reader = csv.reader(csv_file, delimiter=',')

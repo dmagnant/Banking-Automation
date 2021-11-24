@@ -57,7 +57,7 @@ time.sleep(3)
 mybook = openGnuCashBook(directory, 'Finance', False, False)
 transactions_csv = r'C:\Users\dmagn\Downloads\activity.csv'
 
-review_trans = importGnuTransaction('Amex', transactions_csv, mybook, driver)
+review_trans = importGnuTransaction('Amex', transactions_csv, mybook, driver, directory)
 
 # with open(r'C:\Users\dmagn\Downloads\activity.csv') as csv_file:
 #     csv_reader = csv.reader(csv_file, delimiter=',')

@@ -59,7 +59,7 @@ time.sleep(2)
 # Set Gnucash Book
 mybook = openGnuCashBook(directory, 'Finance', False, False)
 
-importGnuTransaction('Chase', transactions_csv, mybook, driver)
+importGnuTransaction('Chase', transactions_csv, mybook, driver, directory)
 # open CSV file at the given path
 # with open(transactions_csv) as csv_file:
 #     csv_reader = csv.reader(csv_file, delimiter=',')

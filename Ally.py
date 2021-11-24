@@ -1,14 +1,12 @@
 from selenium.common.exceptions import NoSuchElementException
-from decimal import Decimal
-from datetime import datetime, timedelta
+from datetime import datetime
 import time
-from piecash import Transaction, Split
 import csv
-from Functions import getPassword, startExpressVPN, closeExpressVPN, openGnuCashBook, getDateRange, modifyTransactionDescription, setToAccount, importGnuTransaction
+from Functions import getPassword, closeExpressVPN, openGnuCashBook, getDateRange, modifyTransactionDescription, compileGnuTransactions
 
 def runAlly(directory, driver):
     closeExpressVPN()
-    driver.implicitly_wait(5)
+    driver.implicitly_wait(10)
     driver.get("https://secure.ally.com/")
     driver.maximize_window()
     time.sleep(1)
@@ -22,24 +20,22 @@ def runAlly(directory, driver):
     ally = driver.find_element_by_xpath("/html/body/div[1]/div[1]/main/div/div/div/div[2]/div/div[2]/div/table/tbody/tr/td[2]/div").text.replace("$", "").replace(",", "")
     # click Joint Checking link
     driver.find_element_by_partial_link_text("Joint Checking").click()
-
     # get current date
     today = datetime.today()
     year = today.year
 
     date_range = getDateRange(today, 5)
-
     table = 2
     transaction = 1
     column = 1
     element = "//*[@id='form-elements-section']/section/section/table[" + str(table) + "]/tbody/tr[" + str(transaction) + "]/td[" + str(column) + "]"
-
     ally_activity = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\ally.csv"
     gnu_ally_activity = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\gnu_ally.csv"
     with open(ally_activity, 'w', newline='') as file:
         file.truncate()
     with open(gnu_ally_activity, 'w', newline='') as file:
         file.truncate()
+    time.sleep(3)
     inside_date_range = True
     while inside_date_range:
         try:
@@ -70,57 +66,5 @@ def runAlly(directory, driver):
 
     # Set Gnucash Book
     mybook = openGnuCashBook(directory, 'Home', False, False)
-
-    account = "Assets:Ally Checking Account"
-    # retrieve transactions from GnuCash
-    transactions = [tr for tr in mybook.transactions
-                    if str(tr.post_date.strftime('%Y-%m-%d')) in date_range
-                    for spl in tr.splits
-                    if spl.account.fullname == account]
-    for tr in transactions:
-        date = str(tr.post_date.strftime('%Y-%m-%d'))
-        description = str(tr.description)
-        for spl in tr.splits:
-            amount = format(spl.value, ".2f")
-            if spl.account.fullname == account:
-                # open CSV file at the given path
-                rows = date, description, amount
-                with open(gnu_ally_activity, 'a', newline='') as file:
-                    csv_writer = csv.writer(file)
-                    csv_writer.writerow(rows)
-    review_trans = ""
-    with open(gnu_ally_activity, 'r') as t1, open(ally_activity, 'r') as t2:
-        fileone = t1.readlines()
-        filetwo = t2.readlines()
-        line_count = 0
-    for line in filetwo:
-        line_count += 1
-        if line not in fileone:
-            csv_reader = csv.reader(gnu_ally_activity, delimiter=',')
-            row_count = 0
-            with open(ally_activity) as file:
-                csv_reader = csv.reader(file, delimiter=',')
-                for row in csv_reader:
-                    row_count += 1
-                    if line_count == row_count:
-                        to_account = setToAccount('Ally', row)
-                        if to_account == "Expenses:Other":
-                            review_trans = review_trans + row[0] + ", " + row[1] + ", " + "\n"
-                        amount = Decimal(row[2])
-                        from_account = "Assets:Ally Checking Account"
-                        postdate = datetime.strptime(row[0], '%Y-%m-%d')
-                        with mybook as book:
-                            USD = mybook.currencies(mnemonic="USD")
-                            entry = Transaction(post_date=postdate.date(),
-                                                currency=USD,
-                                                description=row[1],
-                                                splits=[
-                                                    Split(value=-amount, memo="scripted",
-                                                        account=mybook.accounts(fullname=to_account)),
-                                                    Split(value=amount, memo="scripted",
-                                                        account=mybook.accounts(fullname=from_account)),
-                                                ])
-                            book.save()
-                            book.flush()
-                        book.close()
+    review_trans = compileGnuTransactions('Ally', ally_activity, gnu_ally_activity, mybook, driver, directory, date_range, 0)
     return [ally, review_trans]
