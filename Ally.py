@@ -6,7 +6,7 @@ from Functions import getPassword, closeExpressVPN, openGnuCashBook, getDateRang
 
 def runAlly(directory, driver):
     closeExpressVPN()
-    driver.implicitly_wait(3)
+    driver.implicitly_wait(5)
     driver.get("https://secure.ally.com/")
     driver.maximize_window()
     time.sleep(1)
@@ -20,11 +20,13 @@ def runAlly(directory, driver):
     ally = driver.find_element_by_xpath("/html/body/div[1]/div[1]/main/div/div/div/div[2]/div/div[2]/div/table/tbody/tr/td[2]/div").text.replace("$", "").replace(",", "")
     # click Joint Checking link
     driver.find_element_by_partial_link_text("Joint Checking").click()
+    time.sleep(3)
+
     # get current date
     today = datetime.today()
     year = today.year
 
-    date_range = getDateRange(today, 5)
+    date_range = getDateRange(today, 8)
     table = 2
     transaction = 1
     column = 1

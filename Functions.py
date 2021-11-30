@@ -99,8 +99,8 @@ def getGnuCashBalance(mybook, account):
         elif account == 'VanguardPension':
             gnuCashAccount = mybook.accounts(fullname="Assets:Non-Liquid Assets:Pension")
         balance = gnuCashAccount.get_balance()
-        book.close()
-        return balance
+    book.close()
+    return balance
 
 def setDirectory():
     return os.environ.get('StorageDirectory')
@@ -235,6 +235,8 @@ def setToAccount(account, row):
             to_account = "Liabilities:BoA Credit Card"
         elif account == 'M1':
             to_account = "Liabilities:Credit Cards:BankAmericard Cash Rewards"
+    elif "ARCADIA" in row[row_num]:
+        to_account = ""
     elif "Tessa Deposit" in row[row_num]:
         to_account = "Tessa's Contributions"
     elif "Water Bill" in row[row_num]:
@@ -405,7 +407,7 @@ def formatTransactionVariables(account, row):
         review_trans_path = row[0] + ", " + row[1] + ", " + row[2] + "\n"
     return [postdate, description, amount, cc_payment, from_account, review_trans_path]
 
-def compileGnuTransactions(account, transactions_csv, gnu_csv, mybook, driver, directory, date_range, line_start=1, review_trans=''):
+def compileGnuTransactions(account, transactions_csv, gnu_csv, mybook, driver, directory, date_range, line_start=1):
     import_csv = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\import.csv"
     with open(import_csv, 'w', newline='') as file:
         file.truncate()
@@ -439,10 +441,11 @@ def compileGnuTransactions(account, transactions_csv, gnu_csv, mybook, driver, d
                 with open(import_csv, 'a', newline='') as file:
                     csv_writer = csv.writer(file)
                     csv_writer.writerow(row)
-            review_trans = importGnuTransaction(account, import_csv, mybook, driver, directory, line_start)
+    review_trans = importGnuTransaction(account, import_csv, mybook, driver, directory, line_start)
     return review_trans
 
-def importGnuTransaction(account, transactions_csv, mybook, driver, directory, line_start=1, review_trans=''):
+def importGnuTransaction(account, transactions_csv, mybook, driver, directory, line_start=1):
+    review_trans = ''
     with open(transactions_csv) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         row_count = 0
@@ -461,18 +464,20 @@ def importGnuTransaction(account, transactions_csv, mybook, driver, directory, l
                     description = transaction_variables[1]
                     postdate = transaction_variables[0]
                     from_account = transaction_variables[4]
+                    amount = transaction_variables[2]
+                    to_account = setToAccount(account, row)
                     if 'ARCADIA' in description.upper():
                         amount = getEnergyBillAmounts(driver, directory, transaction_variables[2], energy_bill_num=0)
-                        to_account = ''
+                    elif 'NM PAYCHECK' in description.upper():
+                        print('it worked')
+                        review_trans = review_trans + transaction_variables[5]
                     else:
-                        amount = transaction_variables[2]
-                        to_account = setToAccount(account, row)
                         if to_account == "Expenses:Other":
                             review_trans = review_trans + transaction_variables[5]
-                    writeGnuTransaction(mybook, description, postdate, amount, from_account, to_account, review_trans)
+                    writeGnuTransaction(mybook, description, postdate, amount, from_account, to_account)
     return review_trans
 
-def writeGnuTransaction(mybook, description, postdate, amount, from_account, to_account='', review_trans=''):
+def writeGnuTransaction(mybook, description, postdate, amount, from_account, to_account=''):
     with mybook as book:
         if "Contribution + Interest" in description:
             split = [Split(value=amount[0], memo="scripted", 
@@ -492,7 +497,7 @@ def writeGnuTransaction(mybook, description, postdate, amount, from_account, to_
                     Split(value=amount[3], account=mybook.accounts(fullname="Expenses:Utilities:Gas")),
                     Split(value=amount[4], account=mybook.accounts(fullname=from_account))]
         elif "NM Paycheck" in description:
-            review_trans = review_trans + str(postdate) + ', ' + description + ', ' + str(amount) + '\n'
+            # review = review + str(postdate) + ', ' + description + ', ' + str(amount) + '\n'
             split = [Split(value=round(Decimal(1871.40), 2), memo="scripted",
                         account=mybook.accounts(fullname=from_account)),
                     Split(value=round(Decimal(173.36), 2), memo="scripted",
