@@ -24,7 +24,6 @@ def runAlly(directory, driver):
 
     # get current date
     today = datetime.today()
-    year = today.year
 
     date_range = getDateRange(today, 8)
     table = 2
@@ -33,10 +32,8 @@ def runAlly(directory, driver):
     element = "//*[@id='form-elements-section']/section/section/table[" + str(table) + "]/tbody/tr[" + str(transaction) + "]/td[" + str(column) + "]"
     ally_activity = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\ally.csv"
     gnu_ally_activity = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\gnu_ally.csv"
-    with open(ally_activity, 'w', newline='') as file:
-        file.truncate()
-    with open(gnu_ally_activity, 'w', newline='') as file:
-        file.truncate()
+    open(ally_activity, 'w', newline='').truncate()
+    open(gnu_ally_activity, 'w', newline='').truncate()
     time.sleep(3)
     inside_date_range = True
     while inside_date_range:
@@ -53,13 +50,14 @@ def runAlly(directory, driver):
                 amount = driver.find_element_by_xpath(element).text.replace("$", "").replace(",", "")
                 description = modifyTransactionDescription(description)
                 row = str(mod_date), description, amount
-                # Write to csv file
-                with open(ally_activity, 'a', newline='') as file:
-                    csv_writer = csv.writer(file)
-                    csv_writer.writerow(row)
-                    transaction += 2
-                    column = 1
-                    element = "//*[@id='form-elements-section']/section/section/table[" + str(table) + "]/tbody/tr[" + str(transaction) + "]/td[" + str(column) + "]"
+                csv.writer(open(ally_activity, 'a', newline='')).writerow(row)
+                # # Write to csv file
+                # with open(ally_activity, 'a', newline='') as file:
+                #     csv_writer = csv.writer(file)
+                #     csv_writer.writerow(row)
+                transaction += 2
+                column = 1
+                element = "//*[@id='form-elements-section']/section/section/table[" + str(table) + "]/tbody/tr[" + str(transaction) + "]/td[" + str(column) + "]"
         except NoSuchElementException:
             table += 1
             column = 1

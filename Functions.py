@@ -409,8 +409,7 @@ def formatTransactionVariables(account, row):
 
 def compileGnuTransactions(account, transactions_csv, gnu_csv, mybook, driver, directory, date_range, line_start=1):
     import_csv = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\import.csv"
-    with open(import_csv, 'w', newline='') as file:
-        file.truncate()
+    open(import_csv, 'w', newline='').truncate()
     if account in ['Ally', 'M1']:
         if account == 'Ally':
             gnu_account = "Assets:Ally Checking Account"
@@ -428,68 +427,55 @@ def compileGnuTransactions(account, transactions_csv, gnu_csv, mybook, driver, d
         for spl in tr.splits:
             amount = format(spl.value, ".2f")
             if spl.account.fullname == gnu_account:
-                # open CSV file at the given path
-                rows = date, description, amount
-                with open(gnu_csv, 'a', newline='') as file:
-                    csv_writer = csv.writer(file)
-                    csv_writer.writerow(rows)
-    with open(gnu_csv, 'r') as t1, open(transactions_csv, 'r') as t2:
-        reader_gnu = csv.reader(t1, delimiter=',')
-        reader_account = csv.reader(t2, delimiter=',')
-        for row in reader_account:
-            if row not in reader_gnu:
-                with open(import_csv, 'a', newline='') as file:
-                    csv_writer = csv.writer(file)
-                    csv_writer.writerow(row)
+                row = date, description, str(amount)
+                csv.writer(open(gnu_csv, 'a', newline='')).writerow(row)
+
+    for row in csv.reader(open(transactions_csv, 'r'), delimiter=','):
+        if row not in csv.reader(open(gnu_csv, 'r'), delimiter=','):
+            csv.writer(open(import_csv, 'a', newline='')).writerow(row)
     review_trans = importGnuTransaction(account, import_csv, mybook, driver, directory, line_start)
     return review_trans
 
 def importGnuTransaction(account, transactions_csv, mybook, driver, directory, line_start=1):
     review_trans = ''
-    with open(transactions_csv) as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        row_count = 0
-        line_count = 0
-        for row in csv_reader:
-            row_count += 1
-            # skip header line
-            if line_count < line_start:
-                line_count += 1
+    row_count = 0
+    line_count = 0
+    for row in csv.reader(open(transactions_csv), delimiter=','):
+        row_count += 1
+        # skip header line
+        if line_count < line_start:
+            line_count += 1
+        else:
+            transaction_variables = formatTransactionVariables(account, row)
+            # Skip credit card payments from CC bills (already captured through Checking accounts)
+            if transaction_variables[3]:
+                continue
             else:
-                transaction_variables = formatTransactionVariables(account, row)
-                # Skip credit card payments from CC bills (already captured through Checking accounts)
-                if transaction_variables[3]:
-                    continue
+                description = transaction_variables[1]
+                postdate = transaction_variables[0]
+                from_account = transaction_variables[4]
+                amount = transaction_variables[2]
+                to_account = setToAccount(account, row)
+                if 'ARCADIA' in description.upper():
+                    amount = getEnergyBillAmounts(driver, directory, transaction_variables[2], energy_bill_num=0)
+                elif 'NM PAYCHECK' in description.upper():
+                    review_trans = review_trans + transaction_variables[5]
                 else:
-                    description = transaction_variables[1]
-                    postdate = transaction_variables[0]
-                    from_account = transaction_variables[4]
-                    amount = transaction_variables[2]
-                    to_account = setToAccount(account, row)
-                    if 'ARCADIA' in description.upper():
-                        amount = getEnergyBillAmounts(driver, directory, transaction_variables[2], energy_bill_num=0)
-                    elif 'NM PAYCHECK' in description.upper():
-                        print('it worked')
+                    if to_account == "Expenses:Other":
                         review_trans = review_trans + transaction_variables[5]
-                    else:
-                        if to_account == "Expenses:Other":
-                            review_trans = review_trans + transaction_variables[5]
-                    writeGnuTransaction(mybook, description, postdate, amount, from_account, to_account)
+                writeGnuTransaction(mybook, description, postdate, amount, from_account, to_account)
     return review_trans
 
 def writeGnuTransaction(mybook, description, postdate, amount, from_account, to_account=''):
     with mybook as book:
         if "Contribution + Interest" in description:
-            split = [Split(value=amount[0], memo="scripted", 
-                        account=mybook.accounts(fullname="Income:Investments:Interest")),
-                    Split(value=amount[1], memo="scripted",
-                        account=mybook.accounts(fullname="Income:Employer Pension Contributions")),
-                    Split(value=amount[2], memo="scripted",
-                        account=mybook.accounts(fullname=from_account))]
+            split = [Split(value=amount[0], memo="scripted", account=mybook.accounts(fullname="Income:Investments:Interest")),
+                    Split(value=amount[1], memo="scripted",account=mybook.accounts(fullname="Income:Employer Pension Contributions")),
+                    Split(value=amount[2], memo="scripted",account=mybook.accounts(fullname=from_account))]
         elif "HSA Statement" in description:
             split = [Split(value=amount[0], account=mybook.accounts(fullname=to_account)),
-                    Split(value=amount[1], account=mybook.accounts(fullname=to_account[0])),
-                    Split(value=amount[2], account=mybook.accounts(fullname=to_account[1]))]
+                    Split(value=amount[1], account=mybook.accounts(fullname=from_account[0])),
+                    Split(value=amount[2], account=mybook.accounts(fullname=from_account[1]))]
         elif "ARCADIA" in description:
             split=[Split(value=amount[0], memo="Arcadia Membership Fee", account=mybook.accounts(fullname="Expenses:Utilities:Arcadia Membership")),
                     Split(value=amount[1], memo="Solar Rebate", account=mybook.accounts(fullname="Expenses:Utilities:Arcadia Membership")),
@@ -498,35 +484,21 @@ def writeGnuTransaction(mybook, description, postdate, amount, from_account, to_
                     Split(value=amount[4], account=mybook.accounts(fullname=from_account))]
         elif "NM Paycheck" in description:
             # review = review + str(postdate) + ', ' + description + ', ' + str(amount) + '\n'
-            split = [Split(value=round(Decimal(1871.40), 2), memo="scripted",
-                        account=mybook.accounts(fullname=from_account)),
-                    Split(value=round(Decimal(173.36), 2), memo="scripted",
-                        account=mybook.accounts(fullname="Assets:Non-Liquid Assets:401k")),
-                    Split(value=round(Decimal(5.49), 2), memo="scripted",
-                        account=mybook.accounts(fullname="Expenses:Medical:Dental")),
-                    Split(value=round(Decimal(36.22), 2), memo="scripted",
-                        account=mybook.accounts(fullname="Expenses:Medical:Health")),
-                    Split(value=round(Decimal(2.67), 2), memo="scripted",
-                        account=mybook.accounts(fullname="Expenses:Medical:Vision")),
-                    Split(value=round(Decimal(168.54), 2), memo="scripted",
-                        account=mybook.accounts(fullname="Expenses:Income Taxes:Social Security")),
-                    Split(value=round(Decimal(39.42), 2), memo="scripted",
-                        account=mybook.accounts(fullname="Expenses:Income Taxes:Medicare")),
-                    Split(value=round(Decimal(305.08), 2), memo="scripted",
-                        account=mybook.accounts(fullname="Expenses:Income Taxes:Federal Tax")),
-                    Split(value=round(Decimal(157.03), 2), memo="scripted",
-                        account=mybook.accounts(fullname="Expenses:Income Taxes:State Tax")),
-                    Split(value=round(Decimal(130.00), 2), memo="scripted",
-                        account=mybook.accounts(fullname="Assets:Non-Liquid Assets:HSA")),
-                    Split(value=-round(Decimal(2889.21), 2), memo="scripted",
-                        account=mybook.accounts(fullname=to_account))]
+            split = [Split(value=round(Decimal(1871.40), 2), memo="scripted",account=mybook.accounts(fullname=from_account)),
+                    Split(value=round(Decimal(173.36), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Non-Liquid Assets:401k")),
+                    Split(value=round(Decimal(5.49), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Medical:Dental")),
+                    Split(value=round(Decimal(36.22), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Medical:Health")),
+                    Split(value=round(Decimal(2.67), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Medical:Vision")),
+                    Split(value=round(Decimal(168.54), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:Social Security")),
+                    Split(value=round(Decimal(39.42), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:Medicare")),
+                    Split(value=round(Decimal(305.08), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:Federal Tax")),
+                    Split(value=round(Decimal(157.03), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:State Tax")),
+                    Split(value=round(Decimal(130.00), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Non-Liquid Assets:HSA")),
+                    Split(value=-round(Decimal(2889.21), 2), memo="scripted",account=mybook.accounts(fullname=to_account))]
         else:
             split = [Split(value=-amount, memo="scripted", account=mybook.accounts(fullname=to_account)),
                     Split(value=amount, memo="scripted", account=mybook.accounts(fullname=from_account))]
-        Transaction(post_date=postdate.date(),
-                            currency=mybook.currencies(mnemonic="USD"),
-                            description=description,
-                            splits=split)
+        Transaction(post_date=postdate.date(), currency=mybook.currencies(mnemonic="USD"), description=description, splits=split)
         book.save()
         book.flush()
     book.close()

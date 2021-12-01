@@ -40,10 +40,8 @@ def runM1(directory, driver):
     inside_date_range = True
     m1_activity = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\m1.csv"
     gnu_m1_activity = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\gnu_m1.csv"
-    with open(m1_activity, 'w', newline='') as file:
-        file.truncate()
-    with open(gnu_m1_activity, 'w', newline='') as file:
-        file.truncate()
+    open(m1_activity, 'w', newline='').truncate()
+    open(gnu_m1_activity, 'w', newline='').truncate()
     # Set Gnucash Book
     mybook = openGnuCashBook(directory, 'Finance', False, False)
     clicked_next = False
@@ -77,10 +75,7 @@ def runM1(directory, driver):
                 description = modifyTransactionDescription(description, amount)
                 amount = amount.replace("+", "")
                 row = m1_date, description, amount
-                # Write to csv file
-                with open(m1_activity, 'a', newline='') as file:
-                    csv_writer = csv.writer(file)
-                    csv_writer.writerow(row)
+                csv.writer(open(m1_activity, 'a', newline='')).writerow(row)
                 transaction += 1
                 column = 1
                 element = "//*[@id='root']/div/div/div/div[2]/div/div[2]/div/div[3]/a[" + str(transaction) + "]/div[" + str(column) + "]"

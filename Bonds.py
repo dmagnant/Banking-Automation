@@ -1,21 +1,18 @@
-from ahk import AHK
-import ctypes
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 from datetime import datetime
 import time
 from decimal import Decimal
-from piecash import Transaction, Split
 import pyotp
 import pyautogui
+import os
 from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, getStartAndEndOfPreviousMonth, writeGnuTransaction
-
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
 driver.implicitly_wait(6)
 driver.get("https://www.myconstant.com/log-in")
-ahk = AHK()
+driver.maximize_window()
 #login
 try:
     driver.find_element_by_id("lg_username").send_keys(getUsername(directory, 'My Constant'))
@@ -24,15 +21,10 @@ try:
     pyautogui.press('tab')
     pyautogui.press('tab')
     pyautogui.press('space')
-    # ahk.key_press('Tab')
-    # ahk.key_press('Tab')
-    # ahk.key_press('Space')
-    # handle captcha
-    MessageBox = ctypes.windll.user32.MessageBoxW
-    MessageBox(None, "Verify captcha, then click OK", 'CAPTCHA', 0)
+    showMessage("CAPTCHA", "Verify captcha, then click OK", 0)
     driver.maximize_window()
     driver.find_element_by_xpath("//*[@id='submit-btn']").click()
-    totp = pyotp.TOTP("IM26VSEB6FOMXVHKO6Z7XSGRVL5HUNCI")
+    totp = pyotp.TOTP(os.environ.get('myconstant'))
     token = totp.now()
     char = 0
     time.sleep(2)
@@ -43,7 +35,7 @@ try:
     time.sleep(6)
 except NoSuchElementException:
     exception = "caught"
-pyautogui.moveTo(1650, 175)
+pyautogui.moveTo(1650, 150)
 time.sleep(8)
 # capture and format Constant balance
 constant_balance_raw = driver.find_element_by_id("acc_balance").text.replace(',', '').replace('$', '')
@@ -103,38 +95,9 @@ lastmonth = getStartAndEndOfPreviousMonth(today, month, year)
 
 with mybook as book:
     # Add Interest Transaction to My Constant
-    writeGnuTransaction(book, "Interest", lastmonth[1].date(), -round(constant_interest, 2), "Income:Investments:Interest", "Assets:Liquid Assets:My Constant", '')
+    writeGnuTransaction(book, "Interest", lastmonth[1], -round(constant_interest, 2), "Income:Investments:Interest", "Assets:Liquid Assets:My Constant")
     # Add Interest Transaction to Worthy Bonds
-    writeGnuTransaction(book, "Interest", lastmonth[1].date(), -round(worthy_interest, 2), "Income:Investments:Interest", "Assets:Liquid Assets:Worthy Bonds", '')
-
-# # Add Interest Transactions
-# with mybook as book:
-#     # Add Interest Transaction to My Constant
-#     to_account = "Assets:Liquid Assets:My Constant"
-#     amount = round(constant_interest, 2)
-#     from_account = "Income:Investments:Interest"
-#     trans1 = Transaction(post_date=lastmonth[1].date(),
-#                          currency=mybook.currencies(mnemonic="USD"),
-#                          description="Interest",
-#                          splits=[
-#                             Split(value=amount, account=mybook.accounts(fullname=to_account)),
-#                             Split(value=-amount, account=mybook.accounts(fullname=from_account)),
-#                         ])
-#     # Add Interest Transaction to Worthy Bonds
-#     to_account = "Assets:Liquid Assets:Worthy Bonds"
-#     amount = round(worthy_interest, 2)
-#     from_account = "Income:Investments:Interest"
-#     trans2 = Transaction(post_date=lastmonth[1].date(),
-#                          currency=mybook.currencies(mnemonic="USD"),
-#                          description="Interest",
-#                          splits=[
-#                              Split(value=amount, account=mybook.accounts(fullname=to_account)),
-#                              Split(value=-amount, account=mybook.accounts(fullname=from_account)),
-#                          ])
-#     book.save()
-#     book.flush()
-# book.close()
-# get Liquid Asset Balance from GnuCash
+    writeGnuTransaction(book, "Interest", lastmonth[1], -round(worthy_interest, 2), "Income:Investments:Interest", "Assets:Liquid Assets:Worthy Bonds")
 liq_assets = getGnuCashBalance(mybook, 'Liquid Assets')
 
 # # # Health Equity HSA
@@ -192,37 +155,20 @@ driver.find_element_by_id("fundPerformanceRefresh").click()
 HE_hsa_dividends = Decimal(driver.find_element_by_xpath("//*[@id='EditPortfolioTab-panel']/member-portfolio-edit-display/member-overall-portfolio-performance-display/div[1]/div/div[3]/div/span").text.replace('$', '').replace(',', ''))
 
 # capture GnuCash HSA Balance
-HSA_gnu_balance = getGnuCashBalance(mybook, 'Liquid Assets')
+HSA_gnu_balance = getGnuCashBalance(mybook, 'HSA')
 
 # Capture HSA change
-HE_hsa_change = Decimal(HE_hsa_balance - HSA_gnu_balance)
+HE_hsa_change = Decimal(HE_hsa_balance - float(HSA_gnu_balance))
 # Capture market change
 HE_hsa_mkt_change = Decimal(HE_hsa_change - HE_hsa_dividends)
-# codifying data
+# format data
 HE_hsa_change = round(HE_hsa_change, 2)
 HE_hsa_mkt_change = round(HE_hsa_mkt_change, 2)
 
-# Add HSA Transactions
-with mybook as book:
-    writeGnuTransaction(mybook, "HSA Statement", lastmonth[1].date(), [HE_hsa_change, -HE_hsa_dividends, -HE_hsa_mkt_change], ["Income:Investments:Dividends", "Income:Investments:Market Change"], "Assets:Non-Liquid Assets:HSA", '')
-
-    # USD = mybook.currencies(mnemonic="USD")
-    # # Add Interest Transaction to My Constant
-    # to_account = "Assets:Non-Liquid Assets:HSA"
-    # trans1 = Transaction(post_date=lastmonth[1].date(),
-    #                      currency=USD,
-    #                      description="HSA Statement",
-    #                      splits=[
-    #                         Split(value=HE_hsa_change, account=mybook.accounts(fullname=to_account)),
-    #                         Split(value=-HE_hsa_dividends, account=mybook.accounts(fullname="Income:Investments:Dividends")),
-    #                         Split(value=-HE_hsa_mkt_change, account=mybook.accounts(fullname="Income:Investments:Market Change")),
-    #                     ])
-    # book.save()
-    # book.flush()
-book.close()
+writeGnuTransaction(mybook, "HSA Statement", lastmonth[1], [HE_hsa_change, -HE_hsa_dividends, -HE_hsa_mkt_change], ["Income:Investments:Dividends", "Income:Investments:Market Change"], "Assets:Non-Liquid Assets:HSA")
 updateSpreadsheet(directory, 'Asset Allocation', year, 'Bonds', month, bond_balance)
 updateSpreadsheet(directory, 'Asset Allocation', year, 'HE_HSA', month, HE_hsa_balance)
-updateSpreadsheet(directory, 'Asset Allocation', year, 'Liquid Assets', month, liq_assets)
+updateSpreadsheet(directory, 'Asset Allocation', year, 'Liquid Assets', month, float(liq_assets))
 updateSpreadsheet(directory, 'Asset Allocation', year, 'Vanguard401k', month, vanguard401kbal)
 driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1sWJuxtYI-fJ6bUHBWHZTQwcggd30RcOSTMlqIzd1BBo/edit#gid=953264104');")
 showMessage("Balances + Review", f'MyConstant: {constant_balance} \n' f'Worthy: {worthy_balance} \n' f'Liquid Assets: {liq_assets} \n' f'401k: {vanguard401kbal}')
