@@ -129,8 +129,6 @@ review_trans = importGnuTransaction('Barclays', transactions_csv, mybook, driver
 barclays_gnu = getGnuCashBalance(mybook, 'Barclays')
 if float(rewards_balance) > 50:
     # # REDEEM REWARDS
-    barclays_window = driver.window_handles[0]
-    driver.switch_to.window(barclays_window)
     # click on Rewards & Benefits
     driver.find_element_by_xpath("/html/body/section[2]/div[1]/nav/div/ul/li[4]/a").click()
     # click on Redeem my cash rewards

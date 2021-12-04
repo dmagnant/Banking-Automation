@@ -94,10 +94,14 @@ def getGnuCashBalance(mybook, account):
             gnuCashAccount = mybook.accounts(fullname="Assets:Liquid Assets")            
         elif account == 'M1':
             gnuCashAccount = mybook.accounts(fullname="Assets:Liquid Assets:M1 Spend")
+        elif account == 'MyConstant':
+            gnuCashAccount = mybook.accounts(fullname="Assets:Liquid Assets:My Constant")
         elif account == 'TIAA':
             gnuCashAccount = mybook.accounts(fullname="Assets:Liquid Assets:TIAA")
         elif account == 'VanguardPension':
             gnuCashAccount = mybook.accounts(fullname="Assets:Non-Liquid Assets:Pension")
+        elif account == 'Worthy':
+            gnuCashAccount = mybook.accounts(fullname="Assets:Liquid Assets:Worthy Bonds")
         balance = gnuCashAccount.get_balance()
     book.close()
     return balance
@@ -112,13 +116,13 @@ def chromeDriverAsUser(directory):
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     return webdriver.Chrome(executable_path=chromedriver, options=options)
 
-def updateSpreadsheet(directory, type, year, account, month, value, modified=False):
+def updateSpreadsheet(directory, gsheet, wsheet, account, month, value, modified=False):
     json_creds = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\creds.json"
-    sheet = gspread.service_account(filename=json_creds).open(type)
-    if type == 'Home':
-        worksheet = sheet.worksheet(str(year) + " Balance")
+    sheet = gspread.service_account(filename=json_creds).open(gsheet)
+    if gsheet == 'Home':
+        worksheet = sheet.worksheet(str(wsheet) + " Balance")
     else: 
-        worksheet = sheet.worksheet(str(year))
+        worksheet = sheet.worksheet(str(wsheet))
     cell = getCell(account, month)
     if modified:
         cell = cell.replace(cell[0], chr(ord(cell[0]) + 3))
@@ -146,7 +150,11 @@ def getCell(account, month):
     elif account == 'Vanguard401k':
         cellarray = ['B6', 'I6', 'P6', 'B28', 'I28', 'P28', 'B50', 'I50', 'P50', 'B72', 'I72', 'P72']
     elif account == 'VanguardPension':
-        cellarray = ['B8', 'I8', 'P8', 'B30', 'I30', 'P30', 'B52', 'I52', 'P52', 'B74', 'I74', 'P74']                                 
+        cellarray = ['B8', 'I8', 'P8', 'B30', 'I30', 'P30', 'B52', 'I52', 'P52', 'B74', 'I74', 'P74']
+    elif account == 'BTC':
+        cellarray = ['I9']
+    elif account == 'ETH':
+        cellarray = ['I12']
     return cellarray[month - 1]
 
 def getStartAndEndOfPreviousMonth(today, month, year):
@@ -440,6 +448,7 @@ def importGnuTransaction(account, transactions_csv, mybook, driver, directory, l
     review_trans = ''
     row_count = 0
     line_count = 0
+    energy_bill_num = 0
     for row in csv.reader(open(transactions_csv), delimiter=','):
         row_count += 1
         # skip header line
@@ -457,7 +466,8 @@ def importGnuTransaction(account, transactions_csv, mybook, driver, directory, l
                 amount = transaction_variables[2]
                 to_account = setToAccount(account, row)
                 if 'ARCADIA' in description.upper():
-                    amount = getEnergyBillAmounts(driver, directory, transaction_variables[2], energy_bill_num=0)
+                    energy_bill_num += 1
+                    amount = getEnergyBillAmounts(driver, directory, transaction_variables[2], energy_bill_num)
                 elif 'NM PAYCHECK' in description.upper():
                     review_trans = review_trans + transaction_variables[5]
                 else:
@@ -503,15 +513,13 @@ def writeGnuTransaction(mybook, description, postdate, amount, from_account, to_
         book.flush()
     book.close()
 
-def getEnergyBillAmounts(driver, directory, amount, energy_bill_num=0):
-    energy_bill_num += 1
+def getEnergyBillAmounts(driver, directory, amount, energy_bill_num):
     if energy_bill_num == 1:
         # Get balances from Arcadia
         driver.execute_script("window.open('https://login.arcadia.com/email');")
         driver.implicitly_wait(5)
-        # make the new window active
-        arcadia_window = driver.window_handles[1]
-        driver.switch_to.window(arcadia_window)
+        # switch to last window
+        driver.switch_to.window(driver.window_handles[len(driver.window_handles)-1])
         # get around bot-prevention by logging in twice
         num = 1
         while num <3:
@@ -537,8 +545,8 @@ def getEnergyBillAmounts(driver, directory, amount, energy_bill_num=0):
             if not driver.find_element_by_xpath('/html/body/div[1]/div[2]/div/div[1]/h1'):
                 showMessage("Login Check", 'Confirm Login to Arcadia, (manually if necessary) \n' 'Then click OK \n')
     else:
-        arcadia_window = driver.window_handles[1]
-        driver.switch_to.window(arcadia_window)
+        # switch to last window
+        driver.switch_to.window(driver.window_handles[len(driver.window_handles)-1])
         driver.get("https://home.arcadia.com/billing")
     statement_row = 1
     statement_found = "no"                     
@@ -578,9 +586,8 @@ def getEnergyBillAmounts(driver, directory, amount, energy_bill_num=0):
     # Get balances from WE Energies
     if energy_bill_num == 1:
         driver.execute_script("window.open('https://www.we-energies.com/secure/auth/l/acct/summary_accounts.aspx');")
-        # make the new window active
-        we_window = driver.window_handles[2]
-        driver.switch_to.window(we_window)
+        # switch to last window
+        driver.switch_to.window(driver.window_handles[len(driver.window_handles)-1])
         try:
             ## LOGIN
             driver.find_element_by_xpath("//*[@id='signInName']").send_keys(getUsername(directory, 'WE-Energies (Home)'))

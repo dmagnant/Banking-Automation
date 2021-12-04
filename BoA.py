@@ -124,9 +124,8 @@ driver.execute_script("window.scrollTo(0, 300)")
 time.sleep(2)
 # wait for Redeem Cash Rewards button to load, click it
 driver.find_element_by_id("rewardsRedeembtn").click()
-# make the new window active
-window_after = driver.window_handles[1]
-driver.switch_to.window(window_after)
+# switch to last window
+driver.switch_to.window(driver.window_handles[len(driver.window_handles)-1])
 # close out of pop-up (if present)
 try:
     driver.find_element_by_xpath("/html/body/div[1]/div/div/div[2]/div/div/button").click()

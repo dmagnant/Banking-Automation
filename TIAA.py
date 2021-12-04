@@ -7,8 +7,8 @@ def runTIAA(directory, driver):
     closeExpressVPN()
     # # # TIAA
     driver.execute_script("window.open('https://www.tiaabank.com/');")
-    window_after = driver.window_handles[1]
-    driver.switch_to.window(window_after)
+    # switch to last window
+    driver.switch_to.window(driver.window_handles[len(driver.window_handles)-1])
     ## Login
     driver.find_element_by_id("password").send_keys(getPassword(directory, 'TIAA'))
     # click LOG IN
