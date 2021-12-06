@@ -27,7 +27,7 @@ def runM1(directory, driver):
         # click Spend
         driver.find_element_by_xpath("//*[@id='root']/div/div/div/div[1]/div[2]/div/div[1]/nav/a[2]/div/div/span").click()
 
-    m1 = driver.find_element_by_xpath("//*[@id='root']/div/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/h1").text.replace("$", "").replace(",", "")
+    m1 = driver.find_element_by_xpath("//*[@id='root']/div/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/h1").text.strip('$').strip(',')
     # get current date
     today = datetime.today()
     year = today.year
@@ -71,9 +71,9 @@ def runM1(directory, driver):
                 description = driver.find_element_by_xpath(element).text
                 column += 2
                 element = "//*[@id='root']/div/div/div/div[2]/div/div[2]/div/div[3]/a[" + str(transaction) + "]/div[" + str(column) + "]"
-                amount = driver.find_element_by_xpath(element).text.replace("$", "").replace(",", "")
+                amount = driver.find_element_by_xpath(element).text.strip('$').strip(',')
                 description = modifyTransactionDescription(description, amount)
-                amount = amount.replace("+", "")
+                amount = amount.strip('+')
                 row = m1_date, description, amount
                 csv.writer(open(m1_activity, 'a', newline='')).writerow(row)
                 transaction += 1

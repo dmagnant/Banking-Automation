@@ -5,6 +5,7 @@ from pykeepass import PyKeePass
 from datetime import datetime, timedelta
 import time
 import os
+import pyotp
 import psutil
 import ctypes
 import pygetwindow
@@ -17,6 +18,9 @@ from piecash import Transaction, Split, GnucashException
 def showMessage(header, body): 
     MessageBox = ctypes.windll.user32.MessageBoxW
     MessageBox(None, body, header, 0)
+
+def getOTP(account):
+    return pyotp.TOTP(os.environ.get(account)).now()
 
 def getUsername(directory, name):
     keepass_file = directory + r"\Other\KeePass.kdbx"
@@ -116,13 +120,10 @@ def chromeDriverAsUser(directory):
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     return webdriver.Chrome(executable_path=chromedriver, options=options)
 
-def updateSpreadsheet(directory, gsheet, wsheet, account, month, value, modified=False):
+def updateSpreadsheet(directory, sheetTitle, tabTitle, account, month, value, modified=False):
     json_creds = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\creds.json"
-    sheet = gspread.service_account(filename=json_creds).open(gsheet)
-    if gsheet == 'Home':
-        worksheet = sheet.worksheet(str(wsheet) + " Balance")
-    else: 
-        worksheet = sheet.worksheet(str(wsheet))
+    sheet = gspread.service_account(filename=json_creds).open(sheetTitle)
+    worksheet = sheet.worksheet(str(tabTitle))
     cell = getCell(account, month)
     if modified:
         cell = cell.replace(cell[0], chr(ord(cell[0]) + 3))
@@ -155,6 +156,16 @@ def getCell(account, month):
         cellarray = ['I9']
     elif account == 'ETH':
         cellarray = ['I12']
+    elif account == 'ADA':
+        cellarray = ['I10']
+    elif account == 'ETH2':
+        cellarray = ['I14']
+    elif account == 'SOL':
+        cellarray = ['I17']
+    elif account == 'DOT':
+        cellarray = ['I15']            
+    elif account == 'PRE':
+        cellarray = ['I16']     
     return cellarray[month - 1]
 
 def getStartAndEndOfPreviousMonth(today, month, year):
@@ -234,10 +245,7 @@ def modifyTransactionDescription(description, amount="0.00"):
 
 def setToAccount(account, row):
     to_account = ''
-    if account in ['BoA', 'BoA-joint', 'Chase', 'Discover']:
-        row_num = 2
-    else:
-        row_num = 1
+    row_num = 2 if account in ['BoA', 'BoA-joint', 'Chase', 'Discover'] else 1
     if "BoA CC" in row[row_num]:
         if account == 'Ally':
             to_account = "Liabilities:BoA Credit Card"
@@ -296,15 +304,9 @@ def setToAccount(account, row):
     elif "SPECTRUM" in row[row_num].upper():
             to_account = "Expenses:Utilities:Internet"     
     elif "UBER" in row[row_num].upper():
-        if account in ['BoA-joint', 'Ally']:
-            to_account = "Expenses:Travel:Ride Services"
-        else:
-            to_account = "Expenses:Transportation:Ride Services"
+        to_account = "Expenses:Travel:Ride Services" if account in ['BoA-joint', 'Ally'] else "Expenses:Transportation:Ride Services"
     elif "INTEREST PAID" in row[row_num].upper():
-        if account in ['BoA-joint', 'Ally']:
-            to_account = "Income:Interest"
-        else:
-            to_account = "Income:Investments:Interest"
+        to_account = "Income:Interest" if account in ['BoA-joint', 'Ally'] else "Income:Investments:Interest"
 
     if not to_account:
         for i in ['REDEMPTION CREDIT', 'CASH REWARD']:
@@ -552,7 +554,7 @@ def getEnergyBillAmounts(driver, directory, amount, energy_bill_num):
     statement_found = "no"                     
     while statement_found == "no":
         # Capture statement balance
-        arcadia_balance = driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/div[2]/div[2]/div/div[2]/ul/li[" + str(statement_row) + "]/div/div/p").text.replace('$', '')
+        arcadia_balance = driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/div[2]/div[2]/div/div[2]/ul/li[" + str(statement_row) + "]/div/div/p").text.strip('$')
         formatted_amount = "{:.2f}".format(abs(amount))
         if arcadia_balance == formatted_amount:
             # click to view statement
@@ -570,12 +572,12 @@ def getEnergyBillAmounts(driver, directory, amount, energy_bill_num):
             # read the header to get transaction description
             statement_trans = driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/h2").text
             if statement_trans == "Arcadia Membership":
-                arcadia_membership = Decimal(driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.replace('$',''))
+                arcadia_membership = Decimal(driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.strip('$'))
                 arcadiaamt = Decimal(arcadia_membership)
             elif statement_trans == "Free Trial":
-                arcadia_membership = arcadia_membership + Decimal(driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.replace('$',''))
+                arcadia_membership = arcadia_membership + Decimal(driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.strip('$'))
             elif statement_trans == "Community Solar":
-                solar = solar + Decimal(driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.replace('$',''))
+                solar = solar + Decimal(driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.strip('$'))
             elif statement_trans == "WE Energies Utility":
                 we_bill = driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text
             statement_row += 1
@@ -617,9 +619,9 @@ def getEnergyBillAmounts(driver, directory, amount, energy_bill_num):
     # capture gas charges
     bill_column -= 2
     we_amt_path = "/html/body/div[1]/div[1]/form/div[5]/div/div/div/div/div[6]/div[2]/div[2]/div/table/tbody/tr[" + str(bill_row) + "]/td[" + str(bill_column) + "]/span"
-    gasamt = Decimal(driver.find_element_by_xpath(we_amt_path).text.replace('$', ""))
+    gasamt = Decimal(driver.find_element_by_xpath(we_amt_path).text.strip('$'))
     # capture electricity charges
     bill_column -= 2
     we_amt_path = "/html/body/div[1]/div[1]/form/div[5]/div/div/div/div/div[6]/div[2]/div[2]/div/table/tbody/tr[" + str(bill_row) + "]/td[" + str(bill_column) + "]/span"
-    electricityamt = Decimal(driver.find_element_by_xpath(we_amt_path).text.replace('$', ""))
+    electricityamt = Decimal(driver.find_element_by_xpath(we_amt_path).text.strip('$'))
     return [arcadiaamt, solaramt, electricityamt, gasamt, amount]

@@ -34,9 +34,9 @@ pyautogui.moveTo(500, 500)
 #scroll down
 pyautogui.scroll(-1000)
 # Get Total Account Balance
-vanguard = driver.find_element_by_xpath("/html/body/div[3]/div/app-dashboard-root/app-assets-details/app-balance-details/div/div[3]/div[3]/div/app-details-card/div/div/div[1]/div[3]/h4").text.replace('$', '').replace(',', '')
+vanguard = driver.find_element_by_xpath("/html/body/div[3]/div/app-dashboard-root/app-assets-details/app-balance-details/div/div[3]/div[3]/div/app-details-card/div/div/div[1]/div[3]/h4").text.strip('$').strip(',')
 # Get Interest YTD
-interest_ytd = driver.find_element_by_xpath("/html/body/div[3]/div/app-dashboard-root/app-assets-details/app-balance-details/div/div[3]/div[4]/div/app-details-card/div/div/div[1]/div[3]/h4").text.replace('$', '').replace(',', '')
+interest_ytd = driver.find_element_by_xpath("/html/body/div[3]/div/app-dashboard-root/app-assets-details/app-balance-details/div/div[3]/div[4]/div/app-details-card/div/div/div[1]/div[3]/h4").text.strip('$').strip(',')
 
 #get current date
 today = datetime.today()

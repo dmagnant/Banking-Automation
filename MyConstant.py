@@ -1,12 +1,10 @@
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.keys import Keys
-from datetime import datetime
 import time
 from decimal import Decimal
 import pyotp
 import pyautogui
 import os
-from Functions import showMessage, getUsername, getPassword
+from Functions import showMessage, getUsername, getPassword, getOTP
 
 def runMyConstant(directory, driver):
     driver.get("https://www.myconstant.com/log-in")
@@ -22,8 +20,7 @@ def runMyConstant(directory, driver):
         showMessage("CAPTCHA", "Verify captcha, then click OK")
         driver.maximize_window()
         driver.find_element_by_xpath("//*[@id='submit-btn']").click()
-        totp = pyotp.TOTP(os.environ.get('my_constant'))
-        token = totp.now()
+        token = getOTP('my_constant')
         char = 0
         time.sleep(2)
         while char < 6:
@@ -36,7 +33,7 @@ def runMyConstant(directory, driver):
     pyautogui.moveTo(1650, 165)
     time.sleep(8)
     # capture and format Bonds balance
-    constant_balance_raw = driver.find_element_by_id("acc_balance").text.replace(',', '').replace('$', '')
+    constant_balance_raw = driver.find_element_by_id("acc_balance").text.strip('$').strip(',')
     constant_balance_dec = Decimal(constant_balance_raw)
     constant_balance = float(round(constant_balance_dec, 2))
     driver.get('https://www.myconstant.com/lend-crypto-to-earn-interest')

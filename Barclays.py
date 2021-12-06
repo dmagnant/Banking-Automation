@@ -48,9 +48,9 @@ try:
 except NoSuchElementException:
     exception = "Caught"
 # # Capture Statement balance
-barclays = driver.find_element_by_xpath("/html/body/section[2]/div[4]/div[2]/div[1]/section[2]/div/div/div[2]/div/div[2]/div[2]/div[2]/div[2]").text.replace('-', '')
+barclays = driver.find_element_by_xpath("/html/body/section[2]/div[4]/div[2]/div[1]/section[2]/div/div/div[2]/div/div[2]/div[2]/div[2]/div[2]").text.strip('-')
 # Capture Rewards balance
-rewards_balance = driver.find_element_by_xpath("//*[@id='rewardsTile']/div[2]/div/div[2]/div[1]/div").text.replace('$', '')
+rewards_balance = driver.find_element_by_xpath("//*[@id='rewardsTile']/div[2]/div/div[2]/div[1]/div").text.strip('$')
 # # EXPORT TRANSACTIONS
 # click on Activity & Statements
 driver.find_element_by_xpath("/html/body/section[2]/div[1]/nav/div/ul/li[3]/a").click()

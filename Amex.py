@@ -1,5 +1,6 @@
 import pyautogui
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.keys import Keys
 from datetime import datetime
 import time
 from decimal import Decimal
@@ -95,7 +96,7 @@ amex_gnu = getGnuCashBalance(mybook, 'Amex')
 # click on Rewards
 driver.find_element_by_xpath("/html/body/div[1]/div[1]/div/div[2]/div/div/div[4]/div/div[2]/div/div/header/div/div/div/div/div/div/div[1]/div/div[1]/div/ul/li[5]/a/span").click()
 time.sleep(10)
-rewards = driver.find_element_by_xpath("/html/body/div[1]/div[1]/div/div[2]/div/div[3]/div/div[3]/div/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div").text.replace("$","")
+rewards = driver.find_element_by_xpath("/html/body/div[1]/div[1]/div/div[2]/div/div[3]/div/div[3]/div/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div").text.strip('$').strip(',')
 ahk = AHK()
 # click on Redeem for Statement Credit
 driver.find_element_by_xpath("/html/body/div[1]/div[1]/div/div[2]/div/div[3]/div/div[3]/div/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[3]/a").click()

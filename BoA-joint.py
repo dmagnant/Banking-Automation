@@ -140,7 +140,7 @@ review_trans = importGnuTransaction('BoA-joint', transactions_csv, mybook, drive
 #                     statement_found = "no"
 #                     while statement_found == "no":
 #                         # Capture statement balance
-#                         arcadia_balance = driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/div/div[3]/div/div[2]/ul/li[" + str(statement_row) + "]/div/div/p").text.replace('$', '')
+#                         arcadia_balance = driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/div/div[3]/div/div[2]/ul/li[" + str(statement_row) + "]/div/div/p").text.strip('$')
 #                         formatted_amount = "{:.2f}".format(abs(amount))
 #                         if arcadia_balance == formatted_amount:
 #                             # click to view statement
@@ -159,12 +159,12 @@ review_trans = importGnuTransaction('BoA-joint', transactions_csv, mybook, drive
 #                             # read the header to get transaction description
 #                             statement_trans = driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/h2").text
 #                             if statement_trans == "Arcadia Membership":
-#                                 arcadia_membership = Decimal(driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.replace('$',''))
+#                                 arcadia_membership = Decimal(driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.strip('$'))
 #                                 arcadiaamt = Decimal(arcadia_membership)
 #                             elif statement_trans == "Free Trial":
-#                                 arcadia_membership = arcadia_membership + Decimal(driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.replace('$',''))
+#                                 arcadia_membership = arcadia_membership + Decimal(driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.strip('$'))
 #                             elif statement_trans == "Community Solar":
-#                                 solar = solar + Decimal(driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.replace('$',''))
+#                                 solar = solar + Decimal(driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.strip('$'))
 #                             elif statement_trans == "WE Energies Utility":
 #                                 we_bill = driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text
 #                             statement_row += 1
@@ -209,11 +209,11 @@ review_trans = importGnuTransaction('BoA-joint', transactions_csv, mybook, drive
 #                     # capture gas charges
 #                     bill_column -= 2
 #                     we_amt_path = "/html/body/div[1]/div[1]/form/div[5]/div/div/div/div/div[6]/div[2]/div[2]/div/table/tbody/tr[" + str(bill_row) + "]/td[" + str(bill_column) + "]/span"
-#                     gasamt = Decimal(driver.find_element_by_xpath(we_amt_path).text.replace('$', ""))
+#                     gasamt = Decimal(driver.find_element_by_xpath(we_amt_path).text.strip('$'))
 #                     # capture electricity charges
 #                     bill_column -= 2
 #                     we_amt_path = "/html/body/div[1]/div[1]/form/div[5]/div/div/div/div/div[6]/div[2]/div[2]/div/table/tbody/tr[" + str(bill_row) + "]/td[" + str(bill_column) + "]/span"
-#                     electricityamt = Decimal(driver.find_element_by_xpath(we_amt_path).text.replace('$', ""))
+#                     electricityamt = Decimal(driver.find_element_by_xpath(we_amt_path).text.strip('$'))
 
 #                     Transaction(post_date=postdate.date(),
 #                                         currency=mybook.currencies(mnemonic="USD"),
@@ -241,8 +241,8 @@ BoAjoint_gnu = getGnuCashBalance(mybook, 'BoA-joint')
 if month == 12:
     year = year + 1
 BoAjoint_neg = float(BoAjoint.strip('$')) * -1
-updateSpreadsheet(directory, 'Home', year, 'BoA-joint', month, BoAjoint_neg)
-updateSpreadsheet(directory, 'Home', year, 'BoA-joint', month, BoAjoint_neg, True)
+updateSpreadsheet(directory, 'Home', str(year) + 'Balances', 'BoA-joint', month, BoAjoint_neg)
+updateSpreadsheet(directory, 'Home', str(year) + 'Balances', 'BoA-joint', month, BoAjoint_neg, True)
 # Display Home spreadsheet
 driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1oP3U7y8qywvXG9U_zYXgjFfqHrCyPtUDl4zPDftFCdM/edit#gid=460564976');")
 # Open GnuCash if there are transactions to review

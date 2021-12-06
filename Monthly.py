@@ -1,57 +1,54 @@
 from datetime import datetime
 from decimal import Decimal
-from Worthy import runWorthy
 from MyConstant import runMyConstant
+from Worthy import runWorthy
 from HealthEquity import runHealthEquity
+from CCVault import runCCVault
+from Kraken import runKraken
+from Presearch import runPresearch
 from Functions import setDirectory, chromeDriverAsUser, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, getStartAndEndOfPreviousMonth, writeGnuTransaction
 
-directory = setDirectory()
-driver = chromeDriverAsUser(directory)
-driver.implicitly_wait(6)
-my_constant_balances = runMyConstant(directory, driver)
-constant_balance = my_constant_balances[0]
-worthy_balance = runWorthy(directory, driver)
-# calculate total bond balance
-bond_balance = worthy_balance + constant_balance
-# Set Gnucash Book
-mybook = openGnuCashBook(directory, 'Finance', False, False)
-# Obtain balances from Gnucash
-constant_old_bal = float(getGnuCashBalance(mybook, 'MyConstant'))
-worthy_old_bal = float(getGnuCashBalance(mybook, 'Worthy'))
-# Calculate Interest
-constant_interest = Decimal(constant_balance - constant_old_bal)
-worthy_interest = Decimal(worthy_balance - worthy_old_bal)
 # Get current date
 today = datetime.today()
 year = today.year
 month = today.month
 lastmonth = getStartAndEndOfPreviousMonth(today, month, year)
-# Add Interest Transaction to My Constant
-writeGnuTransaction(mybook, "Interest", lastmonth[1], -round(constant_interest, 2), "Income:Investments:Interest", "Assets:Liquid Assets:My Constant")
-# Add Interest Transaction to Worthy Bonds
-writeGnuTransaction(mybook, "Interest", lastmonth[1], -round(worthy_interest, 2), "Income:Investments:Interest", "Assets:Liquid Assets:Worthy Bonds")
-liq_assets = getGnuCashBalance(mybook, 'Liquid Assets')
+
+directory = setDirectory()
+driver = chromeDriverAsUser(directory)
+driver.implicitly_wait(6)
+
+my_constant_balances = runMyConstant(directory, driver)
+worthy_balance = runWorthy(directory, driver)
 HE_balances = runHealthEquity(driver, lastmonth)
-HE_hsa_balance = HE_balances[0]
-HE_hsa_dividends = HE_balances[1]
-vanguard401kbal = HE_balances[2]
-# capture GnuCash HSA Balance
-HSA_gnu_balance = getGnuCashBalance(mybook, 'HSA')
-# Capture HSA change
-HE_hsa_change = Decimal(HE_hsa_balance - float(HSA_gnu_balance))
-# Capture market change
-HE_hsa_mkt_change = Decimal(HE_hsa_change - HE_hsa_dividends)
-# format data
-HE_hsa_change = round(HE_hsa_change, 2)
-HE_hsa_mkt_change = round(HE_hsa_mkt_change, 2)
-writeGnuTransaction(mybook, "HSA Statement", lastmonth[1], [HE_hsa_change, -HE_hsa_dividends, -HE_hsa_mkt_change], ["Income:Investments:Dividends", "Income:Investments:Market Change"], "Assets:Non-Liquid Assets:HSA")
-updateSpreadsheet(directory, 'Asset Allocation', year, 'Bonds', month, bond_balance)
-updateSpreadsheet(directory, 'Asset Allocation', year, 'HE_HSA', month, HE_hsa_balance)
+ada_balance = runCCVault(driver)
+kraken_balances = runKraken(directory, driver)
+pre_balance = runPresearch(driver)
+
+# Set Gnucash Book
+mybook = openGnuCashBook(directory, 'Finance', False, False)
+constant_interest = Decimal(my_constant_balances[0] - float(getGnuCashBalance(mybook, 'MyConstant')))
+worthy_interest = Decimal(worthy_balance - float(getGnuCashBalance(mybook, 'Worthy')))
+liq_assets = getGnuCashBalance(mybook, 'Liquid Assets')
+HE_hsa_change = round(Decimal(HE_balances[0] - float(getGnuCashBalance(mybook, 'HSA'))), 2)
+HE_hsa_mkt_change = round(Decimal(HE_hsa_change - HE_balances[1]), 2)
+
+writeGnuTransaction(mybook, "Interest", lastmonth[1], -round(constant_interest, 2), "Income:Investments:Interest", "Assets:Liquid Assets:My Constant")
+writeGnuTransaction(mybook, "Interest", lastmonth[1], -round(worthy_interest, 2), "Income:Investments:Interest", "Assets:Liquid Assets:Worthy Bonds")
+writeGnuTransaction(mybook, "HSA Statement", lastmonth[1], [HE_hsa_change, -HE_balances[1], -HE_hsa_mkt_change], ["Income:Investments:Dividends", "Income:Investments:Market Change"], "Assets:Non-Liquid Assets:HSA")
+
+updateSpreadsheet(directory, 'Asset Allocation', year, 'Bonds', month, (worthy_balance + my_constant_balances[0]))
+updateSpreadsheet(directory, 'Asset Allocation', year, 'HE_HSA', month, HE_balances[0])
 updateSpreadsheet(directory, 'Asset Allocation', year, 'Liquid Assets', month, float(liq_assets))
-updateSpreadsheet(directory, 'Asset Allocation', year, 'Vanguard401k', month, vanguard401kbal)
+updateSpreadsheet(directory, 'Asset Allocation', year, 'Vanguard401k', month, HE_balances[2])
 updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC', 1, my_constant_balances[1])
 updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH', 1, my_constant_balances[2])
+updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ADA', 1, ada_balance)
+updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH2', 1, kraken_balances[0])
+updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'SOL', 1, kraken_balances[1])
+updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'DOT', 1, kraken_balances[2])
+updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'PRE', 1, pre_balance)
 
 driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1sWJuxtYI-fJ6bUHBWHZTQwcggd30RcOSTMlqIzd1BBo/edit#gid=953264104');")
-showMessage("Balances + Review", f'MyConstant: {constant_balance} \n' f'Worthy: {worthy_balance} \n' f'Liquid Assets: {liq_assets} \n' f'401k: {vanguard401kbal}')
+showMessage("Balances + Review", f'MyConstant: {my_constant_balances[0]} \n' f'Worthy: {worthy_balance} \n' f'Liquid Assets: {liq_assets} \n' f'401k: {HE_balances[2]}')
 driver.quit()

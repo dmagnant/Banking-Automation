@@ -25,11 +25,11 @@ def runWorthy(directory, driver):
     # Get balance from Worthy I
 
     driver.find_element_by_xpath("//*[@id='q-app']/div/div[1]/main/div/div/div[2]/div/div[2]/div/div/div[1]").click()
-    wpc1_raw = driver.find_element_by_xpath("/html/body/div[1]/div/div[1]/main/div/div/div[2]/div/div[2]/div/div/div[3]/div/h4/span[3]").text.replace('$', '').replace(',', '')
+    wpc1_raw = driver.find_element_by_xpath("/html/body/div[1]/div/div[1]/main/div/div/div[2]/div/div[2]/div/div/div[3]/div/h4/span[3]").text.strip('$').strip(',')
     wpc1 = Decimal(wpc1_raw)
     # Get balance from Worthy II
     driver.find_element_by_xpath("/html/body/div[1]/div/div[1]/main/div/div/div[2]/div/div[3]/div/div/div[2]/div/h4/span[3]").click()
-    wpc2_raw = driver.find_element_by_xpath("/html/body/div[1]/div/div[1]/main/div/div/div[2]/div/div[3]/div/div/div[2]/div/h4/span[3]").text.replace('$', '').replace(',', '')
+    wpc2_raw = driver.find_element_by_xpath("/html/body/div[1]/div/div[1]/main/div/div/div[2]/div/div[3]/div/div/div[2]/div/h4/span[3]").text.strip('$').strip(',')
     wpc2 = Decimal(wpc2_raw)
     # Combine Worthy balances
     worthy_balance_dec = wpc1 + wpc2
