@@ -133,7 +133,7 @@ def getCell(account, month):
     if account == 'Amex':
         cellarray = ['K7', 'S7', 'C42', 'K42', 'S42', 'C77', 'K77', 'S77', 'C112', 'K112', 'S112', 'C7']
     elif account == 'Barclays':
-        cellarray = ['K10', 'S10', 'C45', 'K45', 'S45', 'C80', 'K80', 'S80', 'C115', 'K115', 'S115', 'C10']    
+        cellarray = ['K10', 'S10', 'C45', 'K45', 'S45', 'C80', 'K80', 'S80', 'C115', 'K115', 'S115', 'C10']
     elif account == 'BoA':
         cellarray = ['K5', 'S5', 'C40', 'K40', 'S40', 'C75', 'K75', 'S75', 'C110', 'K110', 'S110', 'C5']
     elif account == 'BoA-joint':
@@ -152,20 +152,24 @@ def getCell(account, month):
         cellarray = ['B6', 'I6', 'P6', 'B28', 'I28', 'P28', 'B50', 'I50', 'P50', 'B72', 'I72', 'P72']
     elif account == 'VanguardPension':
         cellarray = ['B8', 'I8', 'P8', 'B30', 'I30', 'P30', 'B52', 'I52', 'P52', 'B74', 'I74', 'P74']
-    elif account == 'BTC':
-        cellarray = ['I9']
-    elif account == 'ETH':
-        cellarray = ['I12']
     elif account == 'ADA':
         cellarray = ['I10']
+    elif account == 'ALGO':
+        cellarray = ['I8']
+    elif account == 'ATOM':
+        cellarray = ['I11']
+    elif account == 'BTC':
+        cellarray = ['I9']
+    elif account == 'DOT':
+        cellarray = ['I15']
+    elif account == 'ETH':
+        cellarray = ['I12']
     elif account == 'ETH2':
         cellarray = ['I14']
+    elif account == 'PRE':
+        cellarray = ['I16']
     elif account == 'SOL':
         cellarray = ['I17']
-    elif account == 'DOT':
-        cellarray = ['I15']            
-    elif account == 'PRE':
-        cellarray = ['I16']     
     return cellarray[month - 1]
 
 def getStartAndEndOfPreviousMonth(today, month, year):

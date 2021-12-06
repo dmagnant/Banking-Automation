@@ -1,9 +1,7 @@
 from selenium.common.exceptions import NoSuchElementException
 import time
 from decimal import Decimal
-import pyotp
 import pyautogui
-import os
 from Functions import showMessage, getUsername, getPassword, getOTP
 
 def runMyConstant(directory, driver):

@@ -2,8 +2,6 @@ import time
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 import time
-from decimal import Decimal
-from Functions import getUsername, getPassword, getOTP
 
 def runPresearch(driver):    
     driver.execute_script("window.open('https://nodes.presearch.org/dashboard');")

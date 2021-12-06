@@ -1,7 +1,6 @@
 import time
 from selenium.common.exceptions import NoSuchElementException
 import time
-from decimal import Decimal
 from Functions import getUsername, getPassword, getOTP
 
 def runKraken(directory, driver):    
