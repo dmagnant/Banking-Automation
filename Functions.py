@@ -79,34 +79,34 @@ def getGnuCashBalance(mybook, account):
     # Get GnuCash Balances
     with mybook as book:
         if account == 'Ally':
-            gnuCashAccount = mybook.accounts(fullname="Assets:Ally Checking Account")
+            accountpath = "Assets:Ally Checking Account"
         elif account == 'Amex':
-            gnuCashAccount = mybook.accounts(fullname="Liabilities:Credit Cards:Amex BlueCash Everyday")
+            accountpath = "Liabilities:Credit Cards:Amex BlueCash Everyday"
         elif account == 'Barclays':
-            gnuCashAccount = mybook.accounts(fullname="Liabilities:Credit Cards:BarclayCard CashForward")
+            accountpath = "Liabilities:Credit Cards:BarclayCard CashForward"
         elif account == 'BoA':
-            gnuCashAccount = mybook.accounts(fullname="Liabilities:Credit Cards:BankAmericard Cash Rewards")
+            accountpath = "Liabilities:Credit Cards:BankAmericard Cash Rewards"
         elif account == 'BoA-joint':
-            gnuCashAccount = mybook.accounts(fullname="Liabilities:BoA Credit Card")
+            accountpath = "Liabilities:BoA Credit Card"
         elif account == 'Chase':
-            gnuCashAccount = mybook.accounts(fullname="Liabilities:Credit Cards:Chase Freedom")
+            accountpath = "Liabilities:Credit Cards:Chase Freedom"
         elif account == 'Discover':
-            gnuCashAccount = mybook.accounts(fullname="Liabilities:Credit Cards:Discover It")
+            accountpath = "Liabilities:Credit Cards:Discover It"
         elif account == 'HSA':
-            gnuCashAccount = mybook.accounts(fullname="Assets:Non-Liquid Assets:HSA")  
+            accountpath = "Assets:Non-Liquid Assets:HSA"
         elif account == 'Liquid Assets':
-            gnuCashAccount = mybook.accounts(fullname="Assets:Liquid Assets")            
+            accountpath = "Assets:Liquid Assets"
         elif account == 'M1':
-            gnuCashAccount = mybook.accounts(fullname="Assets:Liquid Assets:M1 Spend")
+            accountpath = "Assets:Liquid Assets:M1 Spend"
         elif account == 'MyConstant':
-            gnuCashAccount = mybook.accounts(fullname="Assets:Liquid Assets:My Constant")
+            accountpath = "Assets:Liquid Assets:My Constant"
         elif account == 'TIAA':
-            gnuCashAccount = mybook.accounts(fullname="Assets:Liquid Assets:TIAA")
+            accountpath = "Assets:Liquid Assets:TIAA"
         elif account == 'VanguardPension':
-            gnuCashAccount = mybook.accounts(fullname="Assets:Non-Liquid Assets:Pension")
+            accountpath = "Assets:Non-Liquid Assets:Pension"
         elif account == 'Worthy':
-            gnuCashAccount = mybook.accounts(fullname="Assets:Liquid Assets:Worthy Bonds")
-        balance = gnuCashAccount.get_balance()
+            accountpath = "Assets:Liquid Assets:Worthy Bonds"
+        balance = mybook.accounts(fullname=accountpath).get_balance()
     book.close()
     return balance
 
@@ -500,8 +500,9 @@ def writeGnuTransaction(mybook, description, postdate, amount, from_account, to_
                     Split(value=amount[4], account=mybook.accounts(fullname=from_account))]
         elif "NM Paycheck" in description:
             # review = review + str(postdate) + ', ' + description + ', ' + str(amount) + '\n'
-            split = [Split(value=round(Decimal(1871.40), 2), memo="scripted",account=mybook.accounts(fullname=from_account)),
+            split = [Split(value=round(Decimal(1621.40), 2), memo="scripted",account=mybook.accounts(fullname=from_account)),
                     Split(value=round(Decimal(173.36), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Non-Liquid Assets:401k")),
+                    Split(value=round(Decimal(250.00), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Liquid Assets:Promos")),
                     Split(value=round(Decimal(5.49), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Medical:Dental")),
                     Split(value=round(Decimal(36.22), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Medical:Health")),
                     Split(value=round(Decimal(2.67), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Medical:Vision")),

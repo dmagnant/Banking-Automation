@@ -17,7 +17,7 @@ def runAlly(directory, driver):
     driver.find_element_by_xpath("/html/body/div/div[1]/main/div/div/div/div/div[1]/form/div[3]/button/span").click()
     time.sleep(4)
     # capture balance
-    ally = driver.find_element_by_xpath("/html/body/div[1]/div[1]/main/div/div/div/div[2]/div/div[2]/div/table/tbody/tr/td[2]/div").text.strip('$').strip(',')
+    ally = driver.find_element_by_xpath("/html/body/div[1]/div[1]/main/div/div/div/div[2]/div/div[2]/div/table/tbody/tr/td[2]/div").text.strip('$').replace(',', '')
     # click Joint Checking link
     driver.find_element_by_partial_link_text("Joint Checking").click()
     time.sleep(3)

@@ -48,7 +48,6 @@ updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH2', 1, kr
 updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'SOL', 1, kraken_balances[1])
 updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'DOT', 1, kraken_balances[2])
 updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'PRE', 1, pre_balance)
-# prompt to update for Exodus
 showMessage('Claim ALGO Rewards',"Open Exodus \n"
                             "Navigate to Rewards \n"
                             "For ALGO click Get Reward \n"
