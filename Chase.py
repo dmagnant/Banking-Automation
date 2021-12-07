@@ -23,7 +23,7 @@ driver.find_element_by_xpath("//*[@id='header-transactionTypeOptions']/span[1]")
 driver.find_element_by_id("item-0-STMT_CYCLE_1").click()
 time.sleep(1)
 # # Capture Statement balance
-chase = driver.find_element_by_xpath("/html/body/div[2]/div/div[23]/div/div[2]/div[1]/div/div/div/div[4]/div/div[4]/div/div/div[3]/div[1]/dl/dd").text
+chase = driver.find_element_by_xpath("/html/body/div[2]/div/div[23]/div/div[2]/div[1]/div/div/div/div[1]/div/div[1]/div/div[3]/div/div[1]/ul/li[2]/div[1]/div/span[2]").text.strip('$')
 time.sleep(1)
 # click Download
 driver.find_element_by_xpath("//*[@id='downloadActivityIcon']").click()
@@ -36,18 +36,11 @@ year = today.year
 month = today.month
 
 # # IMPORT TRANSACTIONS
-review_trans = ""
 day = today.strftime('%d')
 monthto = today.strftime('%m')
-if month == 1:
-    monthfrom = "12"
-    yearto = str(year)
-    yearfrom = str(year - 1)
-else:
-    monthfrom = "{:02d}".format(month - 1)
-    yearto = str(year)
-    yearfrom = yearto
-
+yearto = str(year)
+monthfrom = "12"         if month == 1 else "{:02d}".format(month - 1)
+yearfrom = str(year - 1) if month == 1 else yearto
 fromdate = yearfrom + monthfrom + "07_"
 todate = yearto + monthto + "06_"
 currentdate = yearto + monthto + day
@@ -56,39 +49,7 @@ time.sleep(2)
 # Set Gnucash Book
 mybook = openGnuCashBook(directory, 'Finance', False, False)
 
-importGnuTransaction('Chase', transactions_csv, mybook, driver, directory)
-# open CSV file at the given path
-# with open(transactions_csv) as csv_file:
-#     csv_reader = csv.reader(csv_file, delimiter=',')
-#     line_count = 0
-#     for row in csv_reader:
-#         # skip header line
-#         if line_count == 0:
-#             line_count += 1
-#         else:
-#             # Skip payment (already captured in Checking Balance script
-#             if "AUTOMATIC PAYMENT" in row[2]:
-#                 continue
-#             else:
-#                 to_account = setToAccount('Chase', row)
-#                 if to_account == "Expenses:Other":
-#                     review_trans = review_trans + row[0] + ", " + row[1] + ", " + "\n"
-#             amount = Decimal(row[5])
-#             from_account = "Liabilities:Credit Cards:Chase Freedom"
-#             postdate = datetime.strptime(row[1], '%m/%d/%Y')
-#             with mybook as book:
-#                 USD = mybook.currencies(mnemonic="USD")
-#                 # create transaction with core objects in one step
-#                 trans = Transaction(post_date=postdate.date(),
-#                                     currency=USD,
-#                                     description=row[2],
-#                                     splits=[
-#                                          Split(value=-amount, memo="scripted", account=mybook.accounts(fullname=to_account)),
-#                                          Split(value=amount, memo="scripted", account=mybook.accounts(fullname=from_account)),
-#                                      ])
-#                 book.save()
-#                 book.flush()
-# book.close()
+review_trans = importGnuTransaction('Chase', transactions_csv, mybook, driver, directory)
 # Back to Accounts page
 driver.find_element_by_id("backToAccounts").click()
 # # REDEEM REWARDS
@@ -110,7 +71,7 @@ chase_gnu = getGnuCashBalance(mybook, 'Chase')
 # switch worksheets if running in December (to next year's worksheet)
 if month == 12:
     year = year + 1
-chase_neg = float(chase.strip('$')) * -1
+chase_neg = float(chase) * -1
 updateSpreadsheet(directory, 'Checking Balance', year, 'Chase', month, chase_neg)
 updateSpreadsheet(directory, 'Checking Balance', year, 'Chase', month, chase_neg, True)
 

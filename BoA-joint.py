@@ -73,7 +73,6 @@ stmtmonth = today.strftime("%B")
 stmtyear = str(year)
 transactions_csv = os.path.join(r"C:\Users\dmagn\Downloads", stmtmonth + stmtyear + "_8955.csv")
 time.sleep(2)
-review_trans = ""
 energy_bill_num = 0
 # Set Gnucash Book
 mybook = openGnuCashBook(directory, 'Home', False, False)

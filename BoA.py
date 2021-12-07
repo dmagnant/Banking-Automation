@@ -2,11 +2,8 @@ from selenium.common.exceptions import NoSuchElementException, ElementNotInterac
 from selenium.webdriver.common.keys import Keys
 from datetime import datetime
 import time
-from decimal import Decimal
-import csv
 import os
-from piecash import Transaction, Split
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, setToAccount, importGnuTransaction
+from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, importGnuTransaction
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
@@ -77,44 +74,11 @@ stmtmonth = today.strftime("%B")
 stmtyear = str(year)
 transactions_csv = os.path.join(r"C:\Users\dmagn\Downloads", stmtmonth + stmtyear + "_8549.csv")
 time.sleep(2)
-review_trans = ""
 # Set Gnucash Book
 mybook = openGnuCashBook(directory, 'Finance', False, False)
 
 review_trans = importGnuTransaction('BoA', transactions_csv, mybook, driver, directory)
 
-# # open CSV file at the given path
-# with open(transactions_csv) as csv_file:
-#     csv_reader = csv.reader(csv_file, delimiter=',')
-#     line_count = 0
-#     for row in csv_reader:
-#         # skip header line
-#         if line_count == 0:
-#             line_count += 1
-#         else:
-#             # Skip payment (already captured in Checking Balance script
-#             if "BA ELECTRONIC PAYMENT" in row[2]:
-#                 continue
-#             else:
-#                 to_account = setToAccount('BoA', row)
-#                 if to_account == "Expenses:Other":
-#                     review_trans = review_trans + row[0] + ", " + row[1] + ", " + "\n"
-#             amount = Decimal(row[4])
-#             from_account = "Liabilities:Credit Cards:BankAmericard Cash Rewards"
-#             postdate = datetime.strptime(row[0], '%m/%d/%Y')
-#             with mybook as book:
-#                 USD = mybook.currencies(mnemonic="USD")
-#                 # create transaction with core objects in one step
-#                 trans = Transaction(post_date=postdate.date(),
-#                                     currency=USD,
-#                                     description=row[2],
-#                                     splits=[
-#                                          Split(value=-amount, memo="scripted", account=mybook.accounts(fullname=to_account)),
-#                                          Split(value=amount, memo="scripted", account=mybook.accounts(fullname=from_account)),
-#                                      ])
-#                 book.save()
-#                 book.flush()
-# book.close()
 BoA_gnu = getGnuCashBalance(mybook, 'BoA')
 # # REDEEM REWARDS
 # click on View/Redeem menu

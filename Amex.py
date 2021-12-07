@@ -50,7 +50,6 @@ except FileNotFoundError:
 driver.find_element_by_xpath("/html/body/div[1]/div[4]/div/div/div/div/div/div[3]/a").click()
 
 # # IMPORT TRANSACTIONS
-review_trans = ""
 # open CSV file at the given path
 time.sleep(3)
 

@@ -309,6 +309,8 @@ def setToAccount(account, row):
             to_account = "Expenses:Utilities:Internet"     
     elif "UBER" in row[row_num].upper():
         to_account = "Expenses:Travel:Ride Services" if account in ['BoA-joint', 'Ally'] else "Expenses:Transportation:Ride Services"
+    elif "TECH WAY AUTO SERV" in row[row_num].upper():
+        to_account = "Expenses:Transportation:Car Maintenance"
     elif "INTEREST PAID" in row[row_num].upper():
         to_account = "Income:Interest" if account in ['BoA-joint', 'Ally'] else "Income:Investments:Interest"
 

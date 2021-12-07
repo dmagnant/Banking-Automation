@@ -84,7 +84,6 @@ driver.find_element_by_id("downloadToDate_input").send_keys(todate)
 # click Download
 driver.find_element_by_xpath("/html/body/div[3]/div[2]/div/div/div[2]/div/form/div[3]/div/button").click()
 # # IMPORT TRANSACTIONS
-review_trans = ""
 # open CSV file at the given path
 time.sleep(2)
 # Set Gnucash Book
