@@ -47,7 +47,7 @@ def runAlly(directory, driver):
                 description = driver.find_element_by_xpath(element).text
                 column += 1
                 element = "//*[@id='form-elements-section']/section/section/table[" + str(table) + "]/tbody/tr[" + str(transaction) + "]/td[" + str(column) + "]"
-                amount = driver.find_element_by_xpath(element).text.strip('$').strip(',')
+                amount = driver.find_element_by_xpath(element).text.strip('$').replace(',', '')
                 description = modifyTransactionDescription(description)
                 row = str(mod_date), description, amount
                 csv.writer(open(ally_activity, 'a', newline='')).writerow(row)

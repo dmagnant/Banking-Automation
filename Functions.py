@@ -418,6 +418,7 @@ def formatTransactionVariables(account, row):
     elif account == 'M1':
         postdate = datetime.strptime(row[0], '%Y-%m-%d')
         description = row[1]
+        print(row[2])
         amount = Decimal(row[2])
         from_account = "Assets:Liquid Assets:M1 Spend"
         review_trans_path = row[0] + ", " + row[1] + ", " + row[2] + "\n"
