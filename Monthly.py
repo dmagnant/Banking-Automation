@@ -6,6 +6,7 @@ from HealthEquity import runHealthEquity
 from CCVault import runCCVault
 from Kraken import runKraken
 from Presearch import runPresearch
+from Crypto import runCrypto
 from Functions import setDirectory, chromeDriverAsUser, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, getStartAndEndOfPreviousMonth, writeGnuTransaction
 
 # Get current date
@@ -41,26 +42,6 @@ updateSpreadsheet(directory, 'Asset Allocation', year, 'Bonds', month, (worthy_b
 updateSpreadsheet(directory, 'Asset Allocation', year, 'HE_HSA', month, HE_balances[0])
 updateSpreadsheet(directory, 'Asset Allocation', year, 'Liquid Assets', month, float(liq_assets))
 updateSpreadsheet(directory, 'Asset Allocation', year, 'Vanguard401k', month, HE_balances[2])
-updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC', 1, my_constant_balances[1])
-updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH', 1, my_constant_balances[2])
-updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ADA', 1, ada_balance)
-updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH2', 1, kraken_balances[0])
-updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'SOL', 1, kraken_balances[1])
-updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'DOT', 1, kraken_balances[2])
-updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'PRE', 1, pre_balance)
-showMessage('Claim ALGO Rewards',"Open Exodus \n"
-                            "Navigate to Rewards \n"
-                            "For ALGO click Get Reward \n"
-                            "Claim rewards \n"
-                            "After clicking OK, see python window for inputs \n")
-atom_balance = float(input("Navigate to ATOM Wallet \n"
-                            "Click Send \n"
-                             "select ALL, then copy Balance and enter here:  \n"))                            
-algo_balance = float(input("Navigate to ALGO Wallet \n"
-                            "Click Send \n"
-                             "select ALL, then copy Balance and enter here:  \n"))  
-updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ATOM', 1, atom_balance)
-updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ALGO', 1, algo_balance)
 
 driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1sWJuxtYI-fJ6bUHBWHZTQwcggd30RcOSTMlqIzd1BBo/edit#gid=953264104');")
 showMessage("Balances + Review", f'MyConstant: {my_constant_balances[0]} \n' f'Worthy: {worthy_balance} \n' f'Liquid Assets: {liq_assets} \n' f'401k: {HE_balances[2]}')

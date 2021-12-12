@@ -229,6 +229,8 @@ def modifyTransactionDescription(description, amount="0.00"):
         description = "TIAA Transfer"
     elif "AMEX EPAYMENT" in description.upper():
         description = "Amex CC"
+    elif "COINBASE" in description.upper():
+        description = "ADA purchase"
     elif "CHASE CREDIT CRD RWRD" in description.upper():
         description = "Chase CC Rewards"
     elif "CHASE CREDIT CRD AUTOPAY" in description.upper():
@@ -240,7 +242,7 @@ def modifyTransactionDescription(description, amount="0.00"):
     elif "BARCLAYCARD US CREDITCARD" in description.upper():
         description = "Barclays CC"
     elif "BARCLAYCARD US ACH REWARD" in description.upper():
-        description = "Barclays CC rewards"
+        description = "Barclays CC Rewards"
     elif "BK OF AMER VISA ONLINE PMT" in description.upper():
         description = "BoA CC"
     elif "ALLY BANK $TRANSFER" in description.upper():
@@ -273,7 +275,7 @@ def setToAccount(account, row):
         to_account = "Expenses:Utilities:Phone"
     elif "TIAA Transfer" in row[row_num]:
         to_account = "Assets:Liquid Assets:TIAA"
-    elif "COINBASE" in row[row_num].upper():
+    elif "ADA PURCHASE" in row[row_num].upper():
         to_account = "Assets:Non-Liquid Assets:CryptoCurrency"
     elif "Pinecone Research" in row[row_num]:
         to_account = "Income:Market Research"
@@ -281,18 +283,14 @@ def setToAccount(account, row):
         to_account = "Assets:Non-Liquid Assets:Roth IRA"
     elif "Lending Club" in row[row_num]:
         to_account = "Assets:Non-Liquid Assets:MicroLoans"
-    elif "Chase CC Rewards" in row[row_num]:
+    elif "CHASE CC REWARDS" or "DISCOVER CC REWARDS" or "BARCLAYS CC REWARDS" or "REDEMPTION CREDIT" or "CASH REWARD" in row[row_num].upper():
         to_account = "Income:Credit Card Rewards"
     elif "Chase CC" in row[row_num]:
         to_account = "Liabilities:Credit Cards:Chase Freedom"
-    elif "Discover CC Rewards" in row[row_num]:
-        to_account = "Income:Credit Card Rewards"
     elif "Discover CC" in row[row_num]:
         to_account = "Liabilities:Credit Cards:Discover It"
     elif "Amex CC" in row[row_num]:
         to_account = "Liabilities:Credit Cards:Amex BlueCash Everyday"
-    elif "Barclays CC Rewards" in row[row_num]:
-        to_account = "Income:Credit Card Rewards"
     elif "Barclays CC" in row[row_num]:
         to_account = "Liabilities:Credit Cards:BarclayCard CashForward"
     elif "Ally Transfer" in row[row_num]:
@@ -315,44 +313,29 @@ def setToAccount(account, row):
         to_account = "Income:Interest" if account in ['BoA-joint', 'Ally'] else "Income:Investments:Interest"
 
     if not to_account:
-        for i in ['REDEMPTION CREDIT', 'CASH REWARD']:
-            if i in row[row_num].upper():
-                to_account = "Income:Credit Card Rewards"
+        if (row[row_num].upper() in ['HOMEDEPOT.COM', 'THE HOME DEPOT']):
+            if account in ['BoA-joint', 'Ally']:
+                to_account = "Expenses:Home Depot"
     
     if not to_account:
-        for i in ['HOMEDEPOT.COM', 'THE HOME DEPOT']:
-            if i in row[row_num].upper():
-                if account in ['BoA-joint', 'Ally']:
-                    to_account = "Expenses:Home Depot"
-    
-    if not to_account:
-        for i in ['AMAZON', 'AMZN']:
-            if i in row[row_num].upper():
-                to_account = "Expenses:Amazon"
+        if (row[row_num].upper() in ['AMAZON', 'AMZN']):
+            to_account = "Expenses:Amazon"
 
     if not to_account:
-        if account == "Chase":
-            if row[3] == "Groceries":
-                to_account = "Expenses:Groceries"
-        elif account == "Discover":
-            if row[4] == "Supermarkets":
+        if account == "Chase" or "Discover":
+            if row[3] or row[4] == "Groceries" or "Supermarkets":
                 to_account = "Expenses:Groceries"
         if not to_account:
-            for i in ['PICK N SAVE', 'KOPPA', 'KETTLE RANGE', 'WHOLE FOODS', 'WHOLEFDS', 'TARGET']:
-                if i in row[row_num].upper():
-                    to_account = "Expenses:Groceries"
+            if (row[row_num].upper() in ['PICK N SAVE', 'KOPPA', 'KETTLE RANGE', 'WHOLE FOODS', 'WHOLEFDS', 'TARGET']):
+                to_account = "Expenses:Groceries"
 
     if not to_account:
-        if account == "Chase":
-            if row[3] == "Food & Drink":
-                to_account = "Expenses:Bars & Restaurants"
-        elif account == "Discover":
-            if row[4] == "Restaurants":
+        if account == "Chase" or "Discover":
+            if row[3] or row[4] == "Food & Drink" or "Restaurants":
                 to_account = "Expenses:Bars & Restaurants"
         if not to_account:
-            for i in ['MCDONALD', 'GRUBHUB', 'JIMMY JOHN', 'COLECTIVO']:
-                if i in row[row_num].upper():
-                    to_account = "Expenses:Bars & Restaurants"
+            if (row[row_num].upper() in ['MCDONALD', 'GRUBHUB', 'JIMMY JOHN', 'COLECTIVO']):
+                to_account = "Expenses:Bars & Restaurants"
     
     if not to_account:
             to_account = "Expenses:Other"
@@ -418,7 +401,6 @@ def formatTransactionVariables(account, row):
     elif account == 'M1':
         postdate = datetime.strptime(row[0], '%Y-%m-%d')
         description = row[1]
-        print(row[2])
         amount = Decimal(row[2])
         from_account = "Assets:Liquid Assets:M1 Spend"
         review_trans_path = row[0] + ", " + row[1] + ", " + row[2] + "\n"
@@ -477,7 +459,7 @@ def importGnuTransaction(account, transactions_csv, mybook, driver, directory, l
                 if 'ARCADIA' in description.upper():
                     energy_bill_num += 1
                     amount = getEnergyBillAmounts(driver, directory, transaction_variables[2], energy_bill_num)
-                elif 'NM PAYCHECK' in description.upper():
+                elif 'NM PAYCHECK' or "ADA PURCHASE" in description.upper():
                     review_trans = review_trans + transaction_variables[5]
                 else:
                     if to_account == "Expenses:Other":
@@ -502,7 +484,6 @@ def writeGnuTransaction(mybook, description, postdate, amount, from_account, to_
                     Split(value=amount[3], account=mybook.accounts(fullname="Expenses:Utilities:Gas")),
                     Split(value=amount[4], account=mybook.accounts(fullname=from_account))]
         elif "NM Paycheck" in description:
-            # review = review + str(postdate) + ', ' + description + ', ' + str(amount) + '\n'
             split = [Split(value=round(Decimal(1621.40), 2), memo="scripted",account=mybook.accounts(fullname=from_account)),
                     Split(value=round(Decimal(173.36), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Non-Liquid Assets:401k")),
                     Split(value=round(Decimal(250.00), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Liquid Assets:Promos")),
@@ -515,6 +496,9 @@ def writeGnuTransaction(mybook, description, postdate, amount, from_account, to_
                     Split(value=round(Decimal(157.03), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:State Tax")),
                     Split(value=round(Decimal(130.00), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Non-Liquid Assets:HSA")),
                     Split(value=-round(Decimal(2889.21), 2), memo="scripted",account=mybook.accounts(fullname=to_account))]
+        # elif "Barclays CC Rewards" in description:
+        #     split = [Split(value=amount, memo="scripted", account=mybook.accounts(fullname=to_account)),
+        #             Split(value=-amount, memo="scripted", account=mybook.accounts(fullname=from_account))]
         else:
             split = [Split(value=-amount, memo="scripted", account=mybook.accounts(fullname=to_account)),
                     Split(value=amount, memo="scripted", account=mybook.accounts(fullname=from_account))]

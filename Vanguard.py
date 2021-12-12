@@ -26,17 +26,17 @@ try:
     driver.find_element_by_xpath("//*[@id='LoginForm:ContinueInput']").click()
 except NoSuchElementException:
     exception = "caught"
-#click View all assets
-driver.find_element_by_xpath("/html/body/div[3]/div/app-dashboard-root/app-dashboard/div/div[1]/div/div/div/div/div/div[2]/div[2]/button[2]").click()
+# navigate to asset details page (click view all assets)
+driver.get('https://ownyourfuture.vanguard.com/main/dashboard/assets-details')
 time.sleep(2)
 # move cursor to middle window
 pyautogui.moveTo(500, 500)
 #scroll down
 pyautogui.scroll(-1000)
 # Get Total Account Balance
-vanguard = driver.find_element_by_xpath("/html/body/div[3]/div/app-dashboard-root/app-assets-details/app-balance-details/div/div[3]/div[3]/div/app-details-card/div/div/div[1]/div[3]/h4").text.strip('$').strip(',')
+vanguard = driver.find_element_by_xpath("/html/body/div[3]/div/app-dashboard-root/app-assets-details/app-balance-details/div/div[3]/div[3]/div/app-details-card/div/div/div[1]/div[3]/h4").text.strip('$').replace(',', '')
 # Get Interest YTD
-interest_ytd = driver.find_element_by_xpath("/html/body/div[3]/div/app-dashboard-root/app-assets-details/app-balance-details/div/div[3]/div[4]/div/app-details-card/div/div/div[1]/div[3]/h4").text.strip('$').strip(',')
+interest_ytd = driver.find_element_by_xpath("/html/body/div[3]/div/app-dashboard-root/app-assets-details/app-balance-details/div/div[3]/div[4]/div/app-details-card/div/div/div[1]/div[3]/h4").text.strip('$').replace(',', '')
 
 #get current date
 today = datetime.today()
@@ -70,7 +70,7 @@ with mybook as book:
     account_change = Decimal(vanguard) - pension
     emp_contribution = account_change - interest
     from_account = "Assets:Non-Liquid Assets:Pension"
-    writeGnuTransaction(mybook, "Contribution + Interest", lastmonth[1].date(), [-interest, -emp_contribution, account_change], from_account)   
+    writeGnuTransaction(mybook, "Contribution + Interest", lastmonth[1], [-interest, -emp_contribution, account_change], from_account)   
     # Transaction(post_date=lastmonth[1].date(),
     #                 currency=mybook.currencies(mnemonic="USD"),
     #                 description="Contribution + Interest",
@@ -86,7 +86,7 @@ with mybook as book:
     # book.flush()
 book.close()
 vanguard_gnu = getGnuCashBalance(mybook, 'VanguardPension')
-updateSpreadsheet(directory, 'Asset Allocation', year, 'VanguardPension', month, vanguard)
+updateSpreadsheet(directory, 'Asset Allocation', year, 'VanguardPension', month, float(vanguard))
 # Start Gnu cash
 os.startfile(directory + r"\Finances\Personal Finances\Finance.gnucash")
 # Display Asset Allocation spreadsheet

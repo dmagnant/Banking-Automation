@@ -10,13 +10,17 @@ def runKraken(directory, driver):
     time.sleep(1)
     try:
         driver.find_element_by_id('username').send_keys(getUsername(directory, 'Kraken'))
+        time.sleep(1)
         driver.find_element_by_id('password').send_keys(getPassword(directory, 'Kraken'))
-        driver.find_element_by_xpath("//*[@id='__next']/div[2]/div/div[2]/div/div/form/div/div[3]/button/div/div/div").click()
+        time.sleep(1)
+        driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/div[2]/div/div/div/form/div/div[3]/button/div/div/div/span").click()
         token = getOTP('kraken_otp')
+        time.sleep(1)
         driver.find_element_by_id('tfa').send_keys(token)
-        driver.find_element_by_xpath("//*[@id='__next']/div[2]/div/div[2]/div/div/form/div[1]/div/div/div[2]/button/div/div/div/span").click()
+        driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/div[2]/div/div/div/form/div[1]/div/div/div[2]/button/div/div/div").click()
     except NoSuchElementException:
         exception = 'already logged in'
+    time.sleep(2)
     driver.get('https://www.kraken.com/u/history/ledger')
     eth2_balance = ''
     sol_balance = ''

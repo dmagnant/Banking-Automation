@@ -28,10 +28,12 @@ def runMyConstant(directory, driver):
         time.sleep(6)
     except NoSuchElementException:
         exception = "caught"
-    pyautogui.moveTo(1650, 165)
+    pyautogui.moveTo(1650, 167)
+    pyautogui.moveTo(1670, 167)
+    pyautogui.moveTo(1650, 167)
     time.sleep(8)
     # capture and format Bonds balance
-    constant_balance_raw = driver.find_element_by_id("acc_balance").text.strip('$').strip(',')
+    constant_balance_raw = driver.find_element_by_id("acc_balance").text.strip('$').replace(',','')
     constant_balance_dec = Decimal(constant_balance_raw)
     constant_balance = float(round(constant_balance_dec, 2))
     driver.get('https://www.myconstant.com/lend-crypto-to-earn-interest')

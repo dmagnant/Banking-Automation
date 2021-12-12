@@ -13,6 +13,7 @@ def runPresearch(driver):
     if float(unclaimed) > 0:
         driver.find_element_by_xpath('/html/body/div/div[1]/div[2]/div[3]/div[2]/div[3]/div[2]/div/div/div[2]/div/a').click()
         driver.find_element_by_xpath('/html/body/div/div[1]/div[2]/div/div/div/div[2]/div/form/div/button').click()
+        time.sleep(2)
         driver.refresh()
         time.sleep(1)
         avail_to_stake = float(driver.find_element_by_xpath('/html/body/div/div[1]/div[2]/div[3]/div[1]/div[2]/div/div[2]/div/h2').text.strip(' PRE'))
