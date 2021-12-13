@@ -409,11 +409,10 @@ def formatTransactionVariables(account, row):
 def compileGnuTransactions(account, transactions_csv, gnu_csv, mybook, driver, directory, date_range, line_start=1):
     import_csv = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\import.csv"
     open(import_csv, 'w', newline='').truncate()
-    if account in ['Ally', 'M1']:
-        if account == 'Ally':
-            gnu_account = "Assets:Ally Checking Account"
-        elif account == 'M1':
-            gnu_account = "Assets:Liquid Assets:M1 Spend"
+    if account == 'Ally':
+        gnu_account = "Assets:Ally Checking Account"
+    elif account == 'M1':
+        gnu_account = "Assets:Liquid Assets:M1 Spend"
     
     # retrieve transactions from GnuCash
     transactions = [tr for tr in mybook.transactions

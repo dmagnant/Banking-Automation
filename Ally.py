@@ -51,10 +51,6 @@ def runAlly(directory, driver):
                 description = modifyTransactionDescription(description)
                 row = str(mod_date), description, amount
                 csv.writer(open(ally_activity, 'a', newline='')).writerow(row)
-                # # Write to csv file
-                # with open(ally_activity, 'a', newline='') as file:
-                #     csv_writer = csv.writer(file)
-                #     csv_writer.writerow(row)
                 transaction += 2
                 column = 1
                 element = "//*[@id='form-elements-section']/section/section/table[" + str(table) + "]/tbody/tr[" + str(transaction) + "]/td[" + str(column) + "]"
