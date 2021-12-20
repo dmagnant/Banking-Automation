@@ -130,47 +130,50 @@ def updateSpreadsheet(directory, sheetTitle, tabTitle, account, month, value, mo
     worksheet.update(cell, value)
 
 def getCell(account, month):
-    if account == 'Amex':
-        cellarray = ['K7', 'S7', 'C42', 'K42', 'S42', 'C77', 'K77', 'S77', 'C112', 'K112', 'S112', 'C7']
-    elif account == 'Barclays':
-        cellarray = ['K10', 'S10', 'C45', 'K45', 'S45', 'C80', 'K80', 'S80', 'C115', 'K115', 'S115', 'C10']
-    elif account == 'BoA':
-        cellarray = ['K5', 'S5', 'C40', 'K40', 'S40', 'C75', 'K75', 'S75', 'C110', 'K110', 'S110', 'C5']
-    elif account == 'BoA-joint':
-        cellarray = ['K16', 'S16', 'C52', 'K52', 'S52', 'C88', 'K88', 'S88', 'C124', 'K124', 'S124', 'C16']
-    elif account == 'Bonds':
-        cellarray = ['F4', 'M4', 'T4', 'F26', 'M26', 'T26', 'F48', 'M48', 'T48', 'F70', 'M70', 'T70']
-    elif account == 'Chase':
-        cellarray = ['F8', 'S8', 'C43', 'K43', 'S43', 'C78', 'K78', 'S78', 'C113', 'K113', 'S113', 'C8']
-    elif account == 'Discover':
-        cellarray = ['K6', 'S6', 'C41', 'K41', 'S41', 'C76', 'K76', 'S76', 'C111', 'K111', 'S111', 'C6']
-    elif account == 'HE_HSA':
-        cellarray = ['B14', 'I14', 'P14', 'B36', 'I36', 'P36', 'B58', 'I58', 'P58', 'B80', 'I80', 'P80']
-    elif account == 'Liquid Assets':
-        cellarray = ['B4', 'I4', 'P4', 'B26', 'I26', 'P26', 'B48', 'I48', 'P48', 'B70', 'I70', 'P70']
-    elif account == 'Vanguard401k':
-        cellarray = ['B6', 'I6', 'P6', 'B28', 'I28', 'P28', 'B50', 'I50', 'P50', 'B72', 'I72', 'P72']
-    elif account == 'VanguardPension':
-        cellarray = ['B8', 'I8', 'P8', 'B30', 'I30', 'P30', 'B52', 'I52', 'P52', 'B74', 'I74', 'P74']
-    elif account == 'ADA':
-        cellarray = ['I10']
-    elif account == 'ALGO':
-        cellarray = ['I8']
-    elif account == 'ATOM':
-        cellarray = ['I11']
-    elif account == 'BTC':
-        cellarray = ['I9']
-    elif account == 'DOT':
-        cellarray = ['I15']
-    elif account == 'ETH':
-        cellarray = ['I12']
-    elif account == 'ETH2':
-        cellarray = ['I14']
-    elif account == 'PRE':
-        cellarray = ['I16']
-    elif account == 'SOL':
-        cellarray = ['I17']
-    return cellarray[month - 1]
+    def getCellArray(account):
+        match account:
+            case 'Amex':
+                return ['K7', 'S7', 'C42', 'K42', 'S42', 'C77', 'K77', 'S77', 'C112', 'K112', 'S112', 'C7']
+            case 'Barclays':
+                return ['K10', 'S10', 'C45', 'K45', 'S45', 'C80', 'K80', 'S80', 'C115', 'K115', 'S115', 'C10']
+            case 'BoA':
+                return ['K5', 'S5', 'C40', 'K40', 'S40', 'C75', 'K75', 'S75', 'C110', 'K110', 'S110', 'C5']
+            case 'BoA-joint':
+                return ['K16', 'S16', 'C52', 'K52', 'S52', 'C88', 'K88', 'S88', 'C124', 'K124', 'S124', 'C16']
+            case 'Bonds':
+                return ['F4', 'M4', 'T4', 'F26', 'M26', 'T26', 'F48', 'M48', 'T48', 'F70', 'M70', 'T70']
+            case 'Chase':
+                return ['F8', 'S8', 'C43', 'K43', 'S43', 'C78', 'K78', 'S78', 'C113', 'K113', 'S113', 'C8']
+            case 'Discover':
+                return ['K6', 'S6', 'C41', 'K41', 'S41', 'C76', 'K76', 'S76', 'C111', 'K111', 'S111', 'C6']
+            case 'HE_HSA':
+                return ['B14', 'I14', 'P14', 'B36', 'I36', 'P36', 'B58', 'I58', 'P58', 'B80', 'I80', 'P80']
+            case 'Liquid Assets':
+                return ['B4', 'I4', 'P4', 'B26', 'I26', 'P26', 'B48', 'I48', 'P48', 'B70', 'I70', 'P70']
+            case 'Vanguard401k':
+                return ['B6', 'I6', 'P6', 'B28', 'I28', 'P28', 'B50', 'I50', 'P50', 'B72', 'I72', 'P72']
+            case 'VanguardPension':
+                return ['B8', 'I8', 'P8', 'B30', 'I30', 'P30', 'B52', 'I52', 'P52', 'B74', 'I74', 'P74']
+            case 'ADA':
+                return ['J10']
+            case 'ALGO':
+                return ['J8']
+            case 'ATOM':
+                return ['J11']
+            case 'BTC':
+                return ['J9']
+            case 'DOT':
+                return ['J15']
+            case 'ETH':
+                return ['J12']
+            case 'ETH2':
+                return ['J14']
+            case 'PRE':
+                return ['J16']
+            case 'SOL':
+                return ['J17']
+    cell = (getCellArray(account))[month - 1]
+    return cell
 
 def getStartAndEndOfPreviousMonth(today, month, year):
     if month == 1:
@@ -283,14 +286,18 @@ def setToAccount(account, row):
         to_account = "Assets:Non-Liquid Assets:Roth IRA"
     elif "Lending Club" in row[row_num]:
         to_account = "Assets:Non-Liquid Assets:MicroLoans"
-    elif "CHASE CC REWARDS" or "DISCOVER CC REWARDS" or "BARCLAYS CC REWARDS" or "REDEMPTION CREDIT" or "CASH REWARD" in row[row_num].upper():
+    elif "Chase CC Rewards" in row[row_num]:
         to_account = "Income:Credit Card Rewards"
     elif "Chase CC" in row[row_num]:
         to_account = "Liabilities:Credit Cards:Chase Freedom"
+    elif "Discover CC Rewards" in row[row_num]:
+        to_account = "Income:Credit Card Rewards"        
     elif "Discover CC" in row[row_num]:
         to_account = "Liabilities:Credit Cards:Discover It"
     elif "Amex CC" in row[row_num]:
         to_account = "Liabilities:Credit Cards:Amex BlueCash Everyday"
+    elif "Barclays CC Rewards" in row[row_num]:
+        to_account = "Income:Credit Card Rewards"
     elif "Barclays CC" in row[row_num]:
         to_account = "Liabilities:Credit Cards:BarclayCard CashForward"
     elif "Ally Transfer" in row[row_num]:
@@ -313,29 +320,33 @@ def setToAccount(account, row):
         to_account = "Income:Interest" if account in ['BoA-joint', 'Ally'] else "Income:Investments:Interest"
 
     if not to_account:
-        if (row[row_num].upper() in ['HOMEDEPOT.COM', 'THE HOME DEPOT']):
-            if account in ['BoA-joint', 'Ally']:
-                to_account = "Expenses:Home Depot"
+        for i in ['HOMEDEPOT.COM', 'THE HOME DEPOT']:
+            if i in row[row_num].upper():
+                if account in ['BoA-joint', 'Ally']:
+                    to_account = "Expenses:Home Depot"
     
     if not to_account:
-        if (row[row_num].upper() in ['AMAZON', 'AMZN']):
-            to_account = "Expenses:Amazon"
+        for i in ['AMAZON', 'AMZN']:
+            if i in row[row_num].upper():
+                to_account = "Expenses:Amazon"
 
     if not to_account:
-        if account == "Chase" or "Discover":
-            if row[3] or row[4] == "Groceries" or "Supermarkets":
+        if len(row) >= 5:
+            if row[3] == "Groceries" or row[4] == "Supermarkets":
                 to_account = "Expenses:Groceries"
         if not to_account:
-            if (row[row_num].upper() in ['PICK N SAVE', 'KOPPA', 'KETTLE RANGE', 'WHOLE FOODS', 'WHOLEFDS', 'TARGET']):
-                to_account = "Expenses:Groceries"
+            for i in ['PICK N SAVE', 'KOPPA', 'KETTLE RANGE', 'WHOLE FOODS', 'WHOLEFDS', 'TARGET']:
+                if i in row[row_num].upper():
+                    to_account = "Expenses:Groceries"
 
     if not to_account:
-        if account == "Chase" or "Discover":
-            if row[3] or row[4] == "Food & Drink" or "Restaurants":
+        if len(row) >= 5:
+            if row[3] == "Food & Drink" or row[4] == "Restaurants":
                 to_account = "Expenses:Bars & Restaurants"
         if not to_account:
-            if (row[row_num].upper() in ['MCDONALD', 'GRUBHUB', 'JIMMY JOHN', 'COLECTIVO']):
-                to_account = "Expenses:Bars & Restaurants"
+            for i in ['MCDONALD', 'GRUBHUB', 'JIMMY JOHN', 'COLECTIVO', 'INSOMNIA', 'EATSTREET', "KOPP'S CUSTARD"]:
+                if i in row[row_num].upper():
+                    to_account = "Expenses:Bars & Restaurants"
     
     if not to_account:
             to_account = "Expenses:Other"
@@ -455,10 +466,12 @@ def importGnuTransaction(account, transactions_csv, mybook, driver, directory, l
                 from_account = transaction_variables[4]
                 amount = transaction_variables[2]
                 to_account = setToAccount(account, row)
+                print('import: ' + to_account)
+                print(description)
                 if 'ARCADIA' in description.upper():
                     energy_bill_num += 1
                     amount = getEnergyBillAmounts(driver, directory, transaction_variables[2], energy_bill_num)
-                elif 'NM PAYCHECK' or "ADA PURCHASE" in description.upper():
+                elif 'NM PAYCHECK' in description.upper() or "ADA PURCHASE" in description.upper():
                     review_trans = review_trans + transaction_variables[5]
                 else:
                     if to_account == "Expenses:Other":
@@ -468,6 +481,8 @@ def importGnuTransaction(account, transactions_csv, mybook, driver, directory, l
 
 def writeGnuTransaction(mybook, description, postdate, amount, from_account, to_account=''):
     with mybook as book:
+        print('write: ' + to_account)
+        print(description)
         if "Contribution + Interest" in description:
             split = [Split(value=amount[0], memo="scripted", account=mybook.accounts(fullname="Income:Investments:Interest")),
                     Split(value=amount[1], memo="scripted",account=mybook.accounts(fullname="Income:Employer Pension Contributions")),
@@ -495,9 +510,6 @@ def writeGnuTransaction(mybook, description, postdate, amount, from_account, to_
                     Split(value=round(Decimal(157.03), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:State Tax")),
                     Split(value=round(Decimal(130.00), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Non-Liquid Assets:HSA")),
                     Split(value=-round(Decimal(2889.21), 2), memo="scripted",account=mybook.accounts(fullname=to_account))]
-        # elif "Barclays CC Rewards" in description:
-        #     split = [Split(value=amount, memo="scripted", account=mybook.accounts(fullname=to_account)),
-        #             Split(value=-amount, memo="scripted", account=mybook.accounts(fullname=from_account))]
         else:
             split = [Split(value=-amount, memo="scripted", account=mybook.accounts(fullname=to_account)),
                     Split(value=amount, memo="scripted", account=mybook.accounts(fullname=from_account))]
@@ -508,6 +520,7 @@ def writeGnuTransaction(mybook, description, postdate, amount, from_account, to_
 
 def getEnergyBillAmounts(driver, directory, amount, energy_bill_num):
     if energy_bill_num == 1:
+        closeExpressVPN()
         # Get balances from Arcadia
         driver.execute_script("window.open('https://login.arcadia.com/email');")
         driver.implicitly_wait(5)
@@ -534,9 +547,13 @@ def getEnergyBillAmounts(driver, directory, amount, energy_bill_num):
                 driver.get("https://home.arcadia.com/billing")
             except NoSuchElementException:
                 exception = "already signed in"
-            num += 1
-            if not driver.find_element_by_xpath('/html/body/div[1]/div[2]/div/div[1]/h1'):
-                showMessage("Login Check", 'Confirm Login to Arcadia, (manually if necessary) \n' 'Then click OK \n')
+            try: 
+                driver.find_element_by_xpath('/html/body/div[1]/div[2]/div/div[1]/h1')
+                num = 4
+            except NoSuchElementException:
+                num += 1
+        if num == 3:
+            showMessage("Login Check", 'Confirm Login to Arcadia, (manually if necessary) \n' 'Then click OK \n')
     else:
         # switch to last window
         driver.switch_to.window(driver.window_handles[len(driver.window_handles)-1])
@@ -568,7 +585,7 @@ def getEnergyBillAmounts(driver, directory, amount, energy_bill_num):
             elif statement_trans == "Free Trial":
                 arcadia_membership = arcadia_membership + Decimal(driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.strip('$'))
             elif statement_trans == "Community Solar":
-                solar = solar + Decimal(driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.strip('$'))
+                solar = solar + Decimal(driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.replace('$',''))
             elif statement_trans == "WE Energies Utility":
                 we_bill = driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text
             statement_row += 1

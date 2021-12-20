@@ -1,50 +1,30 @@
-from ahk import AHK
-from datetime import datetime, time
 import time
 from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException
-from decimal import Decimal
-import csv
-from piecash import Transaction, Split
 import os
-import pyautogui
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, setToAccount, importGnuTransaction
+from datetime import datetime
+from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, importGnuTransaction, getGnuCashBalance, updateSpreadsheet
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
-driver.implicitly_wait(5)
-driver.get("https://www.discover.com/")
+driver.implicitly_wait(6)
+
+driver.get("https://portal.discover.com/customersvcs/universalLogin/ac_main")
 driver.maximize_window()
 # login
-ahk = AHK()
-pyautogui.leftClick(1131, 391)
-pyautogui.press('tab')
-pyautogui.write(getUsername(directory, 'Discover'))
-pyautogui.press('tab')
-pyautogui.write(getPassword(directory, 'Discover'))
-pyautogui.press('tab')
-pyautogui.press('tab')
-pyautogui.press('tab')
-pyautogui.press('enter')
-# ahk.mouse_move(x=1131, y=391)
-# ahk.click()
-# ahk.key_press('Tab')
-# ahk.type(entry.username)
-# ahk.key_press('Tab')
-# ahk.type(entry.password)
-# ahk.key_press('Tab')
-# ahk.key_press('Tab')
-# ahk.key_press('Tab')
-# ahk.key_press('Enter')
+driver.find_element_by_id('userid-content').send_keys(getUsername(directory, 'Discover'))
+driver.find_element_by_id('password-content').send_keys(getPassword(directory, 'Discover'))
+time.sleep(1)
+driver.find_element_by_xpath('/html/body/div[1]/main/div/div[1]/div/form/input[8]').click()
+
 #handle pop-up
 try:
     driver.find_element_by_xpath("/html/body/div[1]/main/div[12]/div/div/div[2]/a").click()
-except NoSuchElementException:
-    exception = "caught"
-except ElementNotInteractableException:
+except (NoSuchElementException, ElementNotInteractableException, AttributeError):
     exception = "caught"
 showMessage("Login Check", 'Confirm Login to , (manually if necessary) \n' 'Then click OK \n')
+
 # # Capture Statement balance
-discover = driver.find_element_by_xpath("/html/body/div[1]/main/div[5]/div[1]/div[1]/div[1]/p[3]/span[2]").text
+discover = driver.find_element_by_xpath("/html/body/div[1]/main/div[4]/div/div[1]/div[1]/p[3]/span[2]").text
 # # Export Transactions
 # Click on All Activity & Statements
 driver.find_element_by_partial_link_text("All Activity & Statements").click()

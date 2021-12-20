@@ -17,7 +17,7 @@ def runAlly(directory, driver):
     driver.find_element_by_xpath("/html/body/div/div[1]/main/div/div/div/div/div[1]/form/div[3]/button/span").click()
     time.sleep(4)
     # capture balance
-    ally = driver.find_element_by_xpath("/html/body/div[1]/div[1]/main/div/div/div/div[2]/div/div[2]/div/table/tbody/tr/td[2]/div").text.strip('$').replace(',', '')
+    ally = driver.find_element_by_xpath("/html/body/div[1]/div[1]/main/div/div/div/div[2]/div/div[2]/div/table/tbody/tr/td[2]/div").text.replace('$', '').replace(',', '')
     # click Joint Checking link
     driver.find_element_by_partial_link_text("Joint Checking").click()
     time.sleep(3)
@@ -47,7 +47,7 @@ def runAlly(directory, driver):
                 description = driver.find_element_by_xpath(element).text
                 column += 1
                 element = "//*[@id='form-elements-section']/section/section/table[" + str(table) + "]/tbody/tr[" + str(transaction) + "]/td[" + str(column) + "]"
-                amount = driver.find_element_by_xpath(element).text.strip('$').replace(',', '')
+                amount = driver.find_element_by_xpath(element).text.replace('$','').replace(',','')
                 description = modifyTransactionDescription(description)
                 row = str(mod_date), description, amount
                 csv.writer(open(ally_activity, 'a', newline='')).writerow(row)
