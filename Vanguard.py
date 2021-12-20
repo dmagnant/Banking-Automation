@@ -71,19 +71,6 @@ with mybook as book:
     emp_contribution = account_change - interest
     from_account = "Assets:Non-Liquid Assets:Pension"
     writeGnuTransaction(mybook, "Contribution + Interest", lastmonth[1], [-interest, -emp_contribution, account_change], from_account)   
-    # Transaction(post_date=lastmonth[1].date(),
-    #                 currency=mybook.currencies(mnemonic="USD"),
-    #                 description="Contribution + Interest",
-    #                 splits=[
-    #                     Split(value=-interest, memo="scripted",
-    #                             account=mybook.accounts(fullname="Income:Investments:Interest")),
-    #                     Split(value=-emp_contribution, memo="scripted",
-    #                             account=mybook.accounts(fullname="Income:Employer Pension Contributions")),
-    #                     Split(value=account_change, memo="scripted",
-    #                             account=mybook.accounts(fullname=from_account)),
-    #                 ])
-    # book.save()
-    # book.flush()
 book.close()
 vanguard_gnu = getGnuCashBalance(mybook, 'VanguardPension')
 updateSpreadsheet(directory, 'Asset Allocation', year, 'VanguardPension', month, float(vanguard))
