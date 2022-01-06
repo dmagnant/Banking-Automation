@@ -34,7 +34,7 @@ def runAlly(directory, driver):
     gnu_ally_activity = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\gnu_ally.csv"
     open(ally_activity, 'w', newline='').truncate()
     open(gnu_ally_activity, 'w', newline='').truncate()
-    time.sleep(3)
+    time.sleep(6)
     inside_date_range = True
     while inside_date_range:
         try:
@@ -59,7 +59,8 @@ def runAlly(directory, driver):
             column = 1
             transaction = 1
             element = "//*[@id='form-elements-section']/section/section/table[" + str(table) + "]/tbody/tr[" + str(transaction) + "]/td[" + str(column) + "]"
-
+        except ValueError:
+            inside_date_range = False
     # Set Gnucash Book
     mybook = openGnuCashBook(directory, 'Home', False, False)
     # Compare against existing transactions in GnuCash and import new ones

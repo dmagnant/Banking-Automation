@@ -29,11 +29,11 @@ def runHealthEquity(driver, lastmonth):
     except NoSuchElementException:
         exception = "already verified"
     # Capture balances
-    HE_hsa_avail_bal = driver.find_element_by_xpath("//*[@id='21895515-020']/div/hqy-hsa-tab/div/div[2]/div/span[1]").text.strip('$').strip(',')
-    HE_hsa_invest_bal = driver.find_element_by_xpath("//*[@id='21895515-020']/div/hqy-hsa-tab/div/div[2]/span[2]/span[1]").text.strip('$').strip(',')
+    HE_hsa_avail_bal = driver.find_element_by_xpath("//*[@id='21895515-020']/div/hqy-hsa-tab/div/div[2]/div/span[1]").text.strip('$').replace(',','')
+    HE_hsa_invest_bal = driver.find_element_by_xpath("//*[@id='21895515-020']/div/hqy-hsa-tab/div/div[2]/span[2]/span[1]").text.strip('$').replace(',','')
     HE_hsa_invest_total = float(HE_hsa_avail_bal) + float(HE_hsa_invest_bal)
     HE_hsa_balance = float(HE_hsa_invest_total)
-    vanguard401k = driver.find_element_by_xpath("//*[@id='retirementAccounts']/li/a/div/ul/li/span[2]").text.strip('$').strip(',')
+    vanguard401k = driver.find_element_by_xpath("//*[@id='retirementAccounts']/li/a/div/ul/li/span[2]").text.strip('$').replace(',','')
     vanguard401kbal = float(vanguard401k)
     # click Manage HSA Investments
     driver.find_element_by_xpath("//*[@id='hsaInvestment']/div/div/a").click()

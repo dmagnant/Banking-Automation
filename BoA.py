@@ -126,7 +126,7 @@ def runBoA(account):
     if account == 'p':
         updateSpreadsheet(directory, 'Checking Balance', year, 'BoA', month, BoA_neg)
         updateSpreadsheet(directory, 'Checking Balance', year, 'BoA', month, BoA_neg, True)
-        driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1684fQ-gW5A0uOf7s45p9tC4GiEE5s5_fjO5E7dgVI1s/edit#gid=914927265');")
+        driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1684fQ-gW5A0uOf7s45p9tC4GiEE5s5_fjO5E7dgVI1s/edit#gid=1688093622');")
     else:
         updateSpreadsheet(directory, 'Home', str(year) + ' Balance', 'BoA-joint', month, BoA_neg)
         updateSpreadsheet(directory, 'Home', str(year) + ' Balance', 'BoA-joint', month, BoA_neg, True)
@@ -142,4 +142,4 @@ def runBoA(account):
     driver.quit()
     # startExpressVPN()
 
-runBoA('j')
+runBoA('p')

@@ -25,6 +25,7 @@ def runKraken(directory, driver):
     eth2_balance = ''
     sol_balance = ''
     dot_balance = ''
+    algo_balance = ''
     num = 1
     while num < 20:
         balance = driver.find_element_by_xpath("//*[@id='__next']/div/main/div/div[2]/div/div/div[3]/div[2]/div/div[" + str(num) + "]/div/div[7]/div/div/span/span/span").text
@@ -38,6 +39,9 @@ def runKraken(directory, driver):
         elif coin == 'DOT':
             if not dot_balance:
                 dot_balance = float(balance)
-        num = 21 if eth2_balance and sol_balance and dot_balance else num + 1
-    return [eth2_balance, sol_balance, dot_balance]
+        elif coin == 'ALGO':
+            if not algo_balance:
+                algo_balance = float(balance)
+        num = 21 if eth2_balance and sol_balance and dot_balance and algo_balance else num + 1
+    return [eth2_balance, sol_balance, dot_balance, algo_balance]
 

@@ -37,12 +37,23 @@ def runMyConstant(directory, driver):
     constant_balance_dec = Decimal(constant_balance_raw)
     constant_balance = float(round(constant_balance_dec, 2))
     driver.get('https://www.myconstant.com/lend-crypto-to-earn-interest')
-    # click BTC
-    driver.find_element_by_xpath("/html/body/div[1]/div[1]/div[2]/div/div/div/div[2]/div/form/div[1]/div[2]/div[2]/div/div/div[2]").click()
+    time.sleep(1)
+    # get BTC balance
+    # click dropdown menu
+    driver.find_element_by_xpath("//*[@id='layout']/div[2]/div/div/div/div[2]/div/form/div[1]/div[2]/div/div/button/div").click()
+    # search for coin
+    driver.find_element_by_id('dropdown-search-selectedSymbol').send_keys('BTC')
+    # select coin
+    driver.find_element_by_xpath("//*[@id='layout']/div[2]/div/div/div/div[2]/div/form/div[1]/div[2]/div/div/div/a/div/div/span").click()
     time.sleep(6)
     btc_balance = driver.find_element_by_xpath('/html/body/div[1]/div[1]/div[2]/div/div/div/div[2]/div/form/div[2]/div[2]/span/span/span').text
-    # click ETH
-    driver.find_element_by_xpath('/html/body/div[1]/div[1]/div[2]/div/div/div/div[2]/div/form/div[1]/div[2]/div[3]/div/div/div[2]').click()
+    # get ETH balance
+     # click dropdown menu
+    driver.find_element_by_xpath("//*[@id='layout']/div[2]/div/div/div/div[2]/div/form/div[1]/div[2]/div/div/button/div").click()
+    # search for coin
+    driver.find_element_by_id('dropdown-search-selectedSymbol').send_keys('ETH')
+    # select coin
+    driver.find_element_by_xpath("//*[@id='layout']/div[2]/div/div/div/div[2]/div/form/div[1]/div[2]/div/div/div/a/div/div/span").click()
     time.sleep(6)
     eth_balance = driver.find_element_by_xpath('/html/body/div[1]/div[1]/div[2]/div/div/div/div[2]/div/form/div[2]/div[2]/span/span/span').text
     return [constant_balance, float(btc_balance), float(eth_balance)]

@@ -18,7 +18,8 @@ def runPresearch(driver):
         time.sleep(1)
         avail_to_stake = float(driver.find_element_by_xpath('/html/body/div/div[1]/div[2]/div[3]/div[1]/div[2]/div/div[2]/div/h2').text.strip(' PRE'))
     
-    # stake available PRE
+    # stake available PRE to highest rated node
+    time.sleep(2)
     if avail_to_stake:
         # get reliability scores
         num = 1
@@ -33,23 +34,21 @@ def runPresearch(driver):
         
         scores.sort(reverse=True)
         nodes = num - 1
-        even_stake_amount = ((avail_to_stake - (avail_to_stake % nodes)) / nodes)
-        remainder = (avail_to_stake % nodes)
 
         num = 1
         while num <= nodes:
             score = driver.find_element_by_xpath('/html/body/div/div[1]/div[2]/div[3]/div[5]/div/table/tbody/tr[' + str(num) + ']/td[7]').text
-            stake_amount = even_stake_amount + remainder if score == scores[0] else even_stake_amount
-            driver.find_element_by_xpath('/html/body/div/div[1]/div[2]/div[3]/div[5]/div/table/tbody/tr[' + str(num) + ']/td[9]/a[1]').click()
-            while stake_amount > 0:
-                driver.find_element_by_id('stake_amount').send_keys(Keys.ARROW_UP)
-                stake_amount -= 1
-            driver.find_element_by_xpath("//*[@id='editNodeForm']/div[7]/button").click()
-            time.sleep(1)
-            driver.get('https://nodes.presearch.org/dashboard')
+            if score == scores[0]:
+                stake_amount = avail_to_stake
+                driver.find_element_by_xpath('/html/body/div/div[1]/div[2]/div[3]/div[5]/div/table/tbody/tr[' + str(num) + ']/td[9]/a[1]').click()
+                while stake_amount > 0:
+                    driver.find_element_by_id('stake_amount').send_keys(Keys.ARROW_UP)
+                    stake_amount -= 1
+                driver.find_element_by_xpath("//*[@id='editNodeForm']/div[7]/button").click()
+                time.sleep(1)
+                driver.get('https://nodes.presearch.org/dashboard')
             num += 1
     search_rewards = float(driver.find_element_by_xpath('/html/body/div/header/div/div[2]/div/div/div[1]/p').text.strip(' PRE'))
     staked_tokens = float(driver.find_element_by_xpath('/html/body/div/div[1]/div[2]/div[3]/div[1]/div[2]/div/div[1]/div/h2').text.strip(' PRE').replace(',', ''))
     pre_total = search_rewards + staked_tokens
-    return pre_total
-
+    return [pre_total, staked_tokens]

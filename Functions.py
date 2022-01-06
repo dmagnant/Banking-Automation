@@ -155,23 +155,23 @@ def getCell(account, month):
             case 'VanguardPension':
                 return ['B8', 'I8', 'P8', 'B30', 'I30', 'P30', 'B52', 'I52', 'P52', 'B74', 'I74', 'P74']
             case 'ADA':
-                return ['J10']
+                return ['J4']
             case 'ALGO':
-                return ['J8']
+                return ['J2']
             case 'ATOM':
-                return ['J11']
+                return ['J5']
             case 'BTC':
-                return ['J9']
+                return ['J3']
             case 'DOT':
-                return ['J15']
+                return ['J9']
             case 'ETH':
-                return ['J12']
+                return ['J6']
             case 'ETH2':
-                return ['J14']
+                return ['J8']
             case 'PRE':
-                return ['J16']
+                return ['J10']
             case 'SOL':
-                return ['J17']
+                return ['J11']
     cell = (getCellArray(account))[month - 1]
     return cell
 
@@ -204,6 +204,8 @@ def getDateRange(today, num_days):
 def modifyTransactionDescription(description, amount="0.00"):
     if "INTERNET TRANSFER FROM ONLINE SAVINGS ACCOUNT XXXXXX9703" in description.upper():
         description = "Tessa Deposit"
+    elif "ALLY BANK $TRANSFER DAN" in description.upper():
+        description = "Ally Transfer"
     elif "CITY OF MILWAUKE B2P*MILWWA" in description.upper():
         description = "Water Bill"
     elif "REQUESTED TRANSFER FROM DAN S MAGNANT" in description.upper():
@@ -248,18 +250,21 @@ def modifyTransactionDescription(description, amount="0.00"):
         description = "Barclays CC Rewards"
     elif "BK OF AMER VISA ONLINE PMT" in description.upper():
         description = "BoA CC"
-    elif "ALLY BANK $TRANSFER" in description.upper():
-        description = "Ally Transfer"
+    elif "CASH REWARDS STATEMENT CREDIT" in description.upper():
+        description = "BoA CC Rewards"
     return description
 
 def setToAccount(account, row):
     to_account = ''
     row_num = 2 if account in ['BoA', 'BoA-joint', 'Chase', 'Discover'] else 1
     if "BoA CC" in row[row_num]:
-        if account == 'Ally':
-            to_account = "Liabilities:BoA Credit Card"
-        elif account == 'M1':
-            to_account = "Liabilities:Credit Cards:BankAmericard Cash Rewards"
+        if "Rewards" in row[row_num]:
+            lpjbrj9b1to_account = "Income:Credit Card Rewards"  
+        else: 
+            if account == 'Ally':
+                to_account = "Liabilities:BoA Credit Card"
+            elif account == 'M1':
+                to_account = "Liabilities:Credit Cards:BankAmericard Cash Rewards"
     elif "ARCADIA" in row[row_num]:
         to_account = ""
     elif "Tessa Deposit" in row[row_num]:
@@ -466,8 +471,6 @@ def importGnuTransaction(account, transactions_csv, mybook, driver, directory, l
                 from_account = transaction_variables[4]
                 amount = transaction_variables[2]
                 to_account = setToAccount(account, row)
-                print('import: ' + to_account)
-                print(description)
                 if 'ARCADIA' in description.upper():
                     energy_bill_num += 1
                     amount = getEnergyBillAmounts(driver, directory, transaction_variables[2], energy_bill_num)
@@ -481,8 +484,6 @@ def importGnuTransaction(account, transactions_csv, mybook, driver, directory, l
 
 def writeGnuTransaction(mybook, description, postdate, amount, from_account, to_account=''):
     with mybook as book:
-        print('write: ' + to_account)
-        print(description)
         if "Contribution + Interest" in description:
             split = [Split(value=amount[0], memo="scripted", account=mybook.accounts(fullname="Income:Investments:Interest")),
                     Split(value=amount[1], memo="scripted",account=mybook.accounts(fullname="Income:Employer Pension Contributions")),

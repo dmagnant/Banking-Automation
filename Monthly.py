@@ -21,21 +21,19 @@ driver.implicitly_wait(6)
 my_constant_balances = runMyConstant(directory, driver)
 worthy_balance = runWorthy(directory, driver)
 HE_balances = runHealthEquity(driver, lastmonth)
-ada_balance = runCCVault(driver)
-kraken_balances = runKraken(directory, driver)
-pre_balance = runPresearch(driver)
 
 # Set Gnucash Book
 mybook = openGnuCashBook(directory, 'Finance', False, False)
 constant_interest = Decimal(my_constant_balances[0] - float(getGnuCashBalance(mybook, 'MyConstant')))
 worthy_interest = Decimal(worthy_balance - float(getGnuCashBalance(mybook, 'Worthy')))
-liq_assets = getGnuCashBalance(mybook, 'Liquid Assets')
 HE_hsa_change = round(Decimal(HE_balances[0] - float(getGnuCashBalance(mybook, 'HSA'))), 2)
 HE_hsa_mkt_change = round(Decimal(HE_hsa_change - HE_balances[1]), 2)
 
 writeGnuTransaction(mybook, "Interest", lastmonth[1], -round(constant_interest, 2), "Income:Investments:Interest", "Assets:Liquid Assets:My Constant")
 writeGnuTransaction(mybook, "Interest", lastmonth[1], -round(worthy_interest, 2), "Income:Investments:Interest", "Assets:Liquid Assets:Worthy Bonds")
 writeGnuTransaction(mybook, "HSA Statement", lastmonth[1], [HE_hsa_change, -HE_balances[1], -HE_hsa_mkt_change], ["Income:Investments:Dividends", "Income:Investments:Market Change"], "Assets:Non-Liquid Assets:HSA")
+
+liq_assets = getGnuCashBalance(mybook, 'Liquid Assets')
 
 updateSpreadsheet(directory, 'Asset Allocation', year, 'Bonds', month, (worthy_balance + my_constant_balances[0]))
 updateSpreadsheet(directory, 'Asset Allocation', year, 'HE_HSA', month, HE_balances[0])

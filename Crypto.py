@@ -1,4 +1,3 @@
-
 from CCVault import runCCVault
 from Kraken import runKraken
 from MyConstant import runMyConstant
@@ -14,31 +13,40 @@ my_constant_balances = runMyConstant(directory, driver)
 ada_balance = runCCVault(driver)
 kraken_balances = runKraken(directory, driver)
 pre_balance = runPresearch(driver)
-exodus_balances = runExodus()
-showMessage('test', 'test')
+atom_balance = runExodus()
+
 updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ADA', 1, ada_balance)
-updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ALGO', 1, exodus_balances[0])
-updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ATOM', 1, exodus_balances[1])
+updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ALGO', 1, kraken_balances[3])
+updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ATOM', 1, atom_balance)
 updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC', 1, my_constant_balances[1])
 updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'DOT', 1, kraken_balances[2])
 updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH', 1, my_constant_balances[2])
 updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH2', 1, kraken_balances[0])
-updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'PRE', 1, pre_balance)
+updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'PRE', 1, pre_balance[0])
 updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'SOL', 1, kraken_balances[1])
 
 driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1sWJuxtYI-fJ6bUHBWHZTQwcggd30RcOSTMlqIzd1BBo/edit#gid=623829469');")
 
 # # write cardano transaction from coinbase
+# mybook = openGnuCashBook(directory, 'Finance', False, False)
+# from_account = 'Assets:Liquid Assets:M1 Spend'
+# to_account = 'Assets:Non-Liquid Assets:CryptoCurrency:Cardano'
+# fee_account = 'Expenses:Bank Fees:Coinbase Fee'
+# amount = Decimal(50.00)
+# description = 'ADA purchase'
+# today = datetime.today()
+# year = today.year
+# postdate = today.replace(month=1, day=1, year=year)
 # with mybook as book:
 #     split = [Split(value=-amount, memo="scripted", account=mybook.accounts(fullname=from_account)),
-#             Split(value=round(amount-Decimal(1.99), 2), quantity=Decimal(1.5), memo="scripted", account=mybook.accounts(fullname=to_account)),
+#             Split(value=round(amount-Decimal(1.99), 2), quantity=round(Decimal(35.052832), 6), memo="scripted", account=mybook.accounts(fullname=to_account)),
 #             Split(value=round(Decimal(1.99),2), memo="scripted", account=mybook.accounts(fullname=fee_account))]
-#     Transaction(post_date=postdate, currency=mybook.currencies(mnemonic="USD"), description=description, splits=split)
+#     Transaction(post_date=postdate.date(), currency=mybook.currencies(mnemonic="USD"), description=description, splits=split)
 #     book.save()
 #     book.flush()
 # book.close()
 
-## update price
+## update price in gnu cash
 # with mybook as book:
 #     p = Price(commodity=mybook.commodities(mnemonic="ADA"), currency=mybook.currencies(mnemonic="USD"), date=today.date(), value=Decimal('1.99'))
 #     book.save()
