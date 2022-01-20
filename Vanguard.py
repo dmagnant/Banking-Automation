@@ -15,15 +15,15 @@ driver.maximize_window()
 driver.find_element_by_id("username").send_keys(getUsername(directory, 'Vanguard'))
 time.sleep(1)
 # Enter password
-driver.find_element_by_id("password").send_keys(getPassword(directory, 'Vanguard'))
+driver.find_element_by_id("pword").send_keys(getPassword(directory, 'Vanguard'))
 time.sleep(1)
-# click SUBMIT
-driver.find_element_by_xpath("/html/body/app-root/app-layout/div/div[2]/main/app-login/div/div[1]/div[2]/div/form/vui-button/button").click()
+# click Log in
+driver.find_element_by_xpath("//*[@id='vui-button-1']/button/div").click()
 # handle security code
 try:
-    driver.find_element_by_xpath("//*[@id='LoginForm:DEVICE:0']").click()
+    driver.find_element_by_id('vui-radio-1-input-label').click()
     showMessage('Security Code', "Enter Security code, then click OK")
-    driver.find_element_by_xpath("//*[@id='LoginForm:ContinueInput']").click()
+    driver.find_element_by_xpath("//*[@id='security-code-submit-btn']/button/div").click()
 except NoSuchElementException:
     exception = "caught"
 # navigate to asset details page (click view all assets)
@@ -57,7 +57,7 @@ with mybook as book:
     # # GNUCASH
     # retrieve transactions from GnuCash
     transactions = [tr for tr in mybook.transactions
-                    if str(tr.post_date.strftime('%Y')) == str(year)
+                    if str(tr.post_date.strftime('%Y')) == str(lastmonth[0].year)
                     for spl in tr.splits
                     if spl.account.fullname == pension_acct
                     ]

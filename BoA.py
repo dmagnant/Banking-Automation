@@ -64,13 +64,20 @@ def runBoA(account):
     # click Previous transactions
     time.sleep(3)
     driver.find_element_by_partial_link_text("Previous transactions").click()
-    # click Download
-    driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div[1]/div/div[5]/div[2]/div[2]/div/div[1]/a").click()
-    # select Microsoft Excel format
-    driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div[1]/div/div[5]/div[2]/div[2]/div/div[3]/div/div[3]/div[1]/select").send_keys("m")
+    # click Download, select microsoft excel
+    ## had to edit div1/div2 on 1/19/22
+    try: 
+        driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div[1]/div/div[5]/div[2]/div[1]/div/div[1]/a").click()
+        driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div[1]/div/div[5]/div[2]/div[1]/div/div[3]/div/div[3]/div[1]/select").send_keys("m")
+    except NoSuchElementException:
+        driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div[1]/div/div[5]/div[2]/div[2]/div/div[1]/a").click()
+        driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div[1]/div/div[5]/div[2]/div[2]/div/div[3]/div/div[3]/div[1]/select").send_keys("m")
     driver.execute_script("window.scrollTo(0, 300)")
     # click Download Transactions
-    driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div[1]/div/div[5]/div[2]/div[2]/div/div[3]/div/div[4]/div[2]/a/span").click()
+    try: 
+        driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div[1]/div/div[5]/div[2]/div[1]/div/div[3]/div/div[4]/div[2]/a/span").click()
+    except NoSuchElementException:
+        driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div[1]/div/div[5]/div[2]/div[2]/div/div[3]/div/div[4]/div[2]/a/span").click()
     # get current date
     today = datetime.today()
     year = today.year
@@ -131,7 +138,7 @@ def runBoA(account):
         updateSpreadsheet(directory, 'Home', str(year) + ' Balance', 'BoA-joint', month, BoA_neg)
         updateSpreadsheet(directory, 'Home', str(year) + ' Balance', 'BoA-joint', month, BoA_neg, True)
         # Display Home spreadsheet
-        driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1oP3U7y8qywvXG9U_zYXgjFfqHrCyPtUDl4zPDftFCdM/edit#gid=460564976');")
+        driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1oP3U7y8qywvXG9U_zYXgjFfqHrCyPtUDl4zPDftFCdM/edit#gid=317262693');")
 
     # Display Checking Balance spreadsheet
     # Open GnuCash if there are transactions to review
@@ -142,4 +149,4 @@ def runBoA(account):
     driver.quit()
     # startExpressVPN()
 
-runBoA('p')
+runBoA('j')

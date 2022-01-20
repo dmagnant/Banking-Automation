@@ -2,6 +2,7 @@ from CCVault import runCCVault
 from Kraken import runKraken
 from MyConstant import runMyConstant
 from Exodus import runExodus
+from IoPay import runIoPay
 from Presearch import runPresearch
 from Functions import updateSpreadsheet, setDirectory, chromeDriverAsUser, showMessage
 
@@ -14,6 +15,7 @@ ada_balance = runCCVault(driver)
 kraken_balances = runKraken(directory, driver)
 pre_balance = runPresearch(driver)
 atom_balance = runExodus()
+iotx_balance = runIoPay()
 
 updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ADA', 1, ada_balance)
 updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ALGO', 1, kraken_balances[3])
@@ -22,6 +24,7 @@ updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC', 1, my_
 updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'DOT', 1, kraken_balances[2])
 updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH', 1, my_constant_balances[2])
 updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH2', 1, kraken_balances[0])
+updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'IOTX', 1, iotx_balance)
 updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'PRE', 1, pre_balance[0])
 updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'SOL', 1, kraken_balances[1])
 

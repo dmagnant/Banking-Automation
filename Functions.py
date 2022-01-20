@@ -120,6 +120,10 @@ def chromeDriverAsUser(directory):
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     return webdriver.Chrome(executable_path=chromedriver, options=options)
 
+def chromeDriverBlank(directory):
+    chromedriver = directory + r"\Projects\Coding\webdrivers\chromedriver.exe"
+    return webdriver.Chrome(executable_path=chromedriver)
+
 def updateSpreadsheet(directory, sheetTitle, tabTitle, account, month, value, modified=False):
     json_creds = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\creds.json"
     sheet = gspread.service_account(filename=json_creds).open(sheetTitle)
@@ -168,10 +172,12 @@ def getCell(account, month):
                 return ['J6']
             case 'ETH2':
                 return ['J8']
+            case 'IOTX':
+                return ['J9']
             case 'PRE':
-                return ['J10']
-            case 'SOL':
                 return ['J11']
+            case 'SOL':
+                return ['J12']
     cell = (getCellArray(account))[month - 1]
     return cell
 
@@ -317,6 +323,8 @@ def setToAccount(account, row):
         to_account = "Expenses:Transportation:Car Insurance"
     elif "SPECTRUM" in row[row_num].upper():
             to_account = "Expenses:Utilities:Internet"     
+    elif "UBER" in row[row_num].upper() and "EATS" in row[row_num].upper():
+        to_account = "Expenses:Bars & Restaurants"
     elif "UBER" in row[row_num].upper():
         to_account = "Expenses:Travel:Ride Services" if account in ['BoA-joint', 'Ally'] else "Expenses:Transportation:Ride Services"
     elif "TECH WAY AUTO SERV" in row[row_num].upper():
@@ -499,17 +507,17 @@ def writeGnuTransaction(mybook, description, postdate, amount, from_account, to_
                     Split(value=amount[3], account=mybook.accounts(fullname="Expenses:Utilities:Gas")),
                     Split(value=amount[4], account=mybook.accounts(fullname=from_account))]
         elif "NM Paycheck" in description:
-            split = [Split(value=round(Decimal(1621.40), 2), memo="scripted",account=mybook.accounts(fullname=from_account)),
+            split = [Split(value=round(Decimal(1910.20), 2), memo="scripted",account=mybook.accounts(fullname=from_account)),
                     Split(value=round(Decimal(173.36), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Non-Liquid Assets:401k")),
-                    Split(value=round(Decimal(250.00), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Liquid Assets:Promos")),
+                    # Split(value=round(Decimal(250.00), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Liquid Assets:Promos")),
                     Split(value=round(Decimal(5.49), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Medical:Dental")),
-                    Split(value=round(Decimal(36.22), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Medical:Health")),
+                    Split(value=round(Decimal(34.10), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Medical:Health")),
                     Split(value=round(Decimal(2.67), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Medical:Vision")),
-                    Split(value=round(Decimal(168.54), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:Social Security")),
-                    Split(value=round(Decimal(39.42), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:Medicare")),
-                    Split(value=round(Decimal(305.08), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:Federal Tax")),
-                    Split(value=round(Decimal(157.03), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:State Tax")),
-                    Split(value=round(Decimal(130.00), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Non-Liquid Assets:HSA")),
+                    Split(value=round(Decimal(168.59), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:Social Security")),
+                    Split(value=round(Decimal(39.43), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:Medicare")),
+                    Split(value=round(Decimal(296.12), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:Federal Tax")),
+                    Split(value=round(Decimal(128.00), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:State Tax")),
+                    Split(value=round(Decimal(131.25), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Non-Liquid Assets:HSA")),
                     Split(value=-round(Decimal(2889.21), 2), memo="scripted",account=mybook.accounts(fullname=to_account))]
         else:
             split = [Split(value=-amount, memo="scripted", account=mybook.accounts(fullname=to_account)),
@@ -563,11 +571,11 @@ def getEnergyBillAmounts(driver, directory, amount, energy_bill_num):
     statement_found = "no"                     
     while statement_found == "no":
         # Capture statement balance
-        arcadia_balance = driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/div[2]/div[2]/div/div[2]/ul/li[" + str(statement_row) + "]/div/div/p").text.strip('$')
+        arcadia_balance = driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/div[2]/div[2]/div/div[2]/li[" + str(statement_row) + "]/div[2]/div/p")
         formatted_amount = "{:.2f}".format(abs(amount))
-        if arcadia_balance == formatted_amount:
+        if arcadia_balance.text.strip('$') == formatted_amount:
             # click to view statement
-            driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/div[2]/div[2]/div/div[2]/ul/li[" + str(statement_row) + "]/div/div/p").click()
+            arcadia_balance.click()
             statement_found = "yes"
         else:
             statement_row += 1

@@ -2,7 +2,7 @@ import time
 from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException
 import os
 from datetime import datetime
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, importGnuTransaction, getGnuCashBalance, updateSpreadsheet
+from Functions import setDirectory, chromeDriverAsUser, chromeDriverBlank, getUsername, getPassword, openGnuCashBook, showMessage, importGnuTransaction, getGnuCashBalance, updateSpreadsheet
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
@@ -87,7 +87,7 @@ updateSpreadsheet(directory, 'Checking Balance', year, 'Discover', month, discov
 updateSpreadsheet(directory, 'Checking Balance', year, 'Discover', month, discover_neg, True)
 
 # Display Checking Balance spreadsheet
-driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1684fQ-gW5A0uOf7s45p9tC4GiEE5s5_fjO5E7dgVI1s/edit#gid=914927265');")
+driver.execute_script("window.open('hhttps://docs.google.com/spreadsheets/d/1684fQ-gW5A0uOf7s45p9tC4GiEE5s5_fjO5E7dgVI1s/edit#gid=1688093622');")
 # Open GnuCash if there are transactions to review
 if review_trans:
     os.startfile(directory + r"\Finances\Personal Finances\Finance.gnucash")

@@ -13,7 +13,7 @@ def runPresearch(driver):
     if float(unclaimed) > 0:
         driver.find_element_by_xpath('/html/body/div/div[1]/div[2]/div[3]/div[2]/div[3]/div[2]/div/div/div[2]/div/a').click()
         driver.find_element_by_xpath('/html/body/div/div[1]/div[2]/div/div/div/div[2]/div/form/div/button').click()
-        time.sleep(2)
+        time.sleep(4)
         driver.refresh()
         time.sleep(1)
         avail_to_stake = float(driver.find_element_by_xpath('/html/body/div/div[1]/div[2]/div[3]/div[1]/div[2]/div/div[2]/div/h2').text.strip(' PRE'))
@@ -45,7 +45,7 @@ def runPresearch(driver):
                     driver.find_element_by_id('stake_amount').send_keys(Keys.ARROW_UP)
                     stake_amount -= 1
                 driver.find_element_by_xpath("//*[@id='editNodeForm']/div[7]/button").click()
-                time.sleep(1)
+                time.sleep(2)
                 driver.get('https://nodes.presearch.org/dashboard')
             num += 1
     search_rewards = float(driver.find_element_by_xpath('/html/body/div/header/div/div[2]/div/div/div[1]/p').text.strip(' PRE'))

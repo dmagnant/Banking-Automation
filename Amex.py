@@ -13,10 +13,12 @@ from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
 driver.implicitly_wait(5)
+time.sleep(1)
 driver.get("https://www.americanexpress.com/")
 driver.maximize_window()
+print('here')
 # login
-driver.find_element_by_xpath("/html/body/div[1]/div/div/header/div[2]/div[1]/div[2]/div/div[6]/ul/li[3]/span/a[1]/span").click()
+driver.find_element_by_xpath("/html/body/div[1]/div/div/header/div[2]/div[1]/div[3]/div/div[5]/ul/li[3]/span/a[1]").click()
 driver.find_element_by_id("eliloUserID").send_keys(getUsername(directory, 'Amex'))
 driver.find_element_by_id("eliloPassword").send_keys(getPassword(directory, 'Amex'))
 driver.find_element_by_id("loginSubmit").click()
@@ -27,7 +29,7 @@ except NoSuchElementException:
     exception = "caught"
 time.sleep(1)
 # # Capture Statement balance
-amex = driver.find_element_by_xpath("//*[@id='axp-balance-payment']/div[1]/div[1]/div/div[1]/div/div/span[1]/div").text
+amex = driver.find_element_by_xpath("//*[@id='axp-balance-payment']/div[1]/div[1]/div/div[1]/div/div/span[1]/div").text.replace('$', '')
 # # EXPORT TRANSACTIONS
 # click on View Transactions
 driver.find_element_by_xpath("//*[@id='axp-balance-payment']/div[2]/div[2]/div/div[1]/div[1]/div/a").click()
@@ -40,7 +42,7 @@ except NoSuchElementException:
 time.sleep(5)
 driver.find_element_by_xpath("/html/body/div[1]/div[1]/div/div[2]/div/div/div[4]/div/div[3]/div/div/div/div/div/div/div[2]/div/div/div[2]/div/div/div/div/table/thead/div/tr[1]/td[2]/div/div[2]/div/button").click()
 # click on CSV option
-driver.find_element_by_xpath("/html/body/div[1]/div[4]/div/div/div/div/div/div[2]/div/div[1]/div/fieldset/div[2]/label").click()
+driver.find_element_by_xpath("/html/body/div[1]/div[4]/div/div/div/div/div/div[2]/div/div[1]/div/fieldset/div[1]/label").click()
 # delete old csv file, if present
 try:
     os.remove(r"C:\Users\dmagn\Downloads\activity.csv")
@@ -131,7 +133,7 @@ amex_neg = float(amex.strip('$')) * -1
 updateSpreadsheet(directory, 'Checking Balance', year, 'Amex', month, amex_neg)
 updateSpreadsheet(directory, 'Checking Balance', year, 'Amex', month, amex_neg, True)
 # Display Checking Balance spreadsheet
-driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1684fQ-gW5A0uOf7s45p9tC4GiEE5s5_fjO5E7dgVI1s/edit#gid=914927265');")
+driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1684fQ-gW5A0uOf7s45p9tC4GiEE5s5_fjO5E7dgVI1s/edit#gid=1688093622');")
 # Open GnuCash if there are transactions to review
 if review_trans:
     os.startfile(directory + r"\Finances\Personal Finances\Finance.gnucash")
