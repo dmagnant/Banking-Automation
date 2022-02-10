@@ -1,6 +1,6 @@
 import time
+from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
-import time
 from Functions import getUsername, getPassword, getOTP
 
 def runKraken(directory, driver):    
@@ -9,15 +9,15 @@ def runKraken(directory, driver):
     driver.switch_to.window(driver.window_handles[len(driver.window_handles)-1])
     time.sleep(1)
     try:
-        driver.find_element_by_id('username').send_keys(getUsername(directory, 'Kraken'))
+        driver.find_element(By.ID, 'username').send_keys(getUsername(directory, 'Kraken'))
         time.sleep(1)
-        driver.find_element_by_id('password').send_keys(getPassword(directory, 'Kraken'))
+        driver.find_element(By.ID, 'password').send_keys(getPassword(directory, 'Kraken'))
         time.sleep(1)
-        driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/div[2]/div/div/div/form/div/div[3]/button/div/div/div/span").click()
+        driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/div/div[2]/div/div/div/form/div/div[3]/button/div/div/div/span").click()
         token = getOTP('kraken_otp')
         time.sleep(1)
-        driver.find_element_by_id('tfa').send_keys(token)
-        driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/div[2]/div/div/div/form/div[1]/div/div/div[2]/button/div/div/div").click()
+        driver.find_element(By.ID, 'tfa').send_keys(token)
+        driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/div/div[2]/div/div/div/form/div[1]/div/div/div[2]/button/div/div/div").click()
     except NoSuchElementException:
         exception = 'already logged in'
     time.sleep(2)
@@ -28,8 +28,8 @@ def runKraken(directory, driver):
     algo_balance = ''
     num = 1
     while num < 20:
-        balance = driver.find_element_by_xpath("//*[@id='__next']/div/main/div/div[2]/div/div/div[3]/div[2]/div/div[" + str(num) + "]/div/div[7]/div/div/span/span/span").text
-        coin = driver.find_element_by_xpath("//*[@id='__next']/div/main/div/div[2]/div/div/div[3]/div[2]/div/div[" + str(num) + "]/div/div[7]/div/div/div").text
+        balance = driver.find_element(By.XPATH, "//*[@id='__next']/div/main/div/div[2]/div/div/div[3]/div[2]/div/div[" + str(num) + "]/div/div[7]/div/div/span/span/span").text
+        coin = driver.find_element(By.XPATH, "//*[@id='__next']/div/main/div/div[2]/div/div/div[3]/div[2]/div/div[" + str(num) + "]/div/div[7]/div/div/div").text
         if coin == 'ETH2':
             if not eth2_balance:
                 eth2_balance = float(balance)
@@ -44,4 +44,3 @@ def runKraken(directory, driver):
                 algo_balance = float(balance)
         num = 21 if eth2_balance and sol_balance and dot_balance and algo_balance else num + 1
     return [eth2_balance, sol_balance, dot_balance, algo_balance]
-

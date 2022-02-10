@@ -1,3 +1,4 @@
+from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from decimal import Decimal
 from datetime import datetime
@@ -12,18 +13,18 @@ driver.implicitly_wait(5)
 driver.get("https://ownyourfuture.vanguard.com/login#/")
 driver.maximize_window()
 # Enter username
-driver.find_element_by_id("username").send_keys(getUsername(directory, 'Vanguard'))
+driver.find_element(By.ID, "username").send_keys(getUsername(directory, 'Vanguard'))
 time.sleep(1)
 # Enter password
-driver.find_element_by_id("pword").send_keys(getPassword(directory, 'Vanguard'))
+driver.find_element(By.ID, "pword").send_keys(getPassword(directory, 'Vanguard'))
 time.sleep(1)
 # click Log in
-driver.find_element_by_xpath("//*[@id='vui-button-1']/button/div").click()
+driver.find_element(By.XPATH, "//*[@id='vui-button-1']/button/div").click()
 # handle security code
 try:
-    driver.find_element_by_id('vui-radio-1-input-label').click()
+    driver.find_element(By.ID, 'vui-radio-1-input-label').click()
     showMessage('Security Code', "Enter Security code, then click OK")
-    driver.find_element_by_xpath("//*[@id='security-code-submit-btn']/button/div").click()
+    driver.find_element(By.XPATH, "//*[@id='security-code-submit-btn']/button/div").click()
 except NoSuchElementException:
     exception = "caught"
 # navigate to asset details page (click view all assets)
@@ -34,9 +35,9 @@ pyautogui.moveTo(500, 500)
 #scroll down
 pyautogui.scroll(-1000)
 # Get Total Account Balance
-vanguard = driver.find_element_by_xpath("/html/body/div[3]/div/app-dashboard-root/app-assets-details/app-balance-details/div/div[3]/div[3]/div/app-details-card/div/div/div[1]/div[3]/h4").text.strip('$').replace(',', '')
+vanguard = driver.find_element(By.XPATH, "/html/body/div[3]/div/app-dashboard-root/app-assets-details/app-balance-details/div/div[3]/div[3]/div/app-details-card/div/div/div[1]/div[3]/h4").text.strip('$').replace(',', '')
 # Get Interest YTD
-interest_ytd = driver.find_element_by_xpath("/html/body/div[3]/div/app-dashboard-root/app-assets-details/app-balance-details/div/div[3]/div[4]/div/app-details-card/div/div/div[1]/div[3]/h4").text.strip('$').replace(',', '')
+interest_ytd = driver.find_element(By.XPATH, "/html/body/div[3]/div/app-dashboard-root/app-assets-details/app-balance-details/div/div[3]/div[4]/div/app-details-card/div/div/div[1]/div[3]/h4").text.strip('$').replace(',', '')
 
 #get current date
 today = datetime.today()

@@ -1,3 +1,4 @@
+from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from datetime import datetime
 import time
@@ -11,15 +12,15 @@ def runAlly(directory, driver):
     driver.maximize_window()
     time.sleep(1)
     # login
-    # enter password
-    driver.find_element_by_xpath("/html/body/div/div[1]/main/div/div/div/div/div[1]/form/div[2]/div/input").send_keys(getPassword(directory, 'Ally Bank'))
+    # enter password # changed 1/21/22
+    driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/main/div/div/div/div/div[1]/form/div[2]/div/span/input").send_keys(getPassword(directory, 'Ally Bank'))
     # click Log In
-    driver.find_element_by_xpath("/html/body/div/div[1]/main/div/div/div/div/div[1]/form/div[3]/button/span").click()
+    driver.find_element(By.XPATH, "/html/body/div/div[1]/main/div/div/div/div/div[1]/form/div[3]/button/span").click()
     time.sleep(4)
     # capture balance
-    ally = driver.find_element_by_xpath("/html/body/div[1]/div[1]/main/div/div/div/div[2]/div/div[2]/div/table/tbody/tr/td[2]/div").text.replace('$', '').replace(',', '')
+    ally = driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/main/div/div/div/div[2]/div/div[2]/div/table/tbody/tr/td[2]/div").text.replace('$', '').replace(',', '')
     # click Joint Checking link
-    driver.find_element_by_partial_link_text("Joint Checking").click()
+    driver.find_element(By.PARTIAL_LINK_TEXT, "Joint Checking").click()
     time.sleep(3)
 
     # get current date
@@ -38,16 +39,16 @@ def runAlly(directory, driver):
     inside_date_range = True
     while inside_date_range:
         try:
-            mod_date = datetime.strptime(driver.find_element_by_xpath(element).text, '%b %d, %Y').date()
+            mod_date = datetime.strptime(driver.find_element(By.XPATH, element).text, '%b %d, %Y').date()
             if str(mod_date) not in date_range:
                 inside_date_range = False
             else:
                 column += 1
                 element = "//*[@id='form-elements-section']/section/section/table[" + str(table) + "]/tbody/tr[" + str(transaction) + "]/td[" + str(column) + "]/button"
-                description = driver.find_element_by_xpath(element).text
+                description = driver.find_element(By.XPATH, element).text
                 column += 1
                 element = "//*[@id='form-elements-section']/section/section/table[" + str(table) + "]/tbody/tr[" + str(transaction) + "]/td[" + str(column) + "]"
-                amount = driver.find_element_by_xpath(element).text.replace('$','').replace(',','')
+                amount = driver.find_element(By.XPATH, element).text.replace('$','').replace(',','')
                 description = modifyTransactionDescription(description)
                 row = str(mod_date), description, amount
                 csv.writer(open(ally_activity, 'a', newline='')).writerow(row)
@@ -66,3 +67,4 @@ def runAlly(directory, driver):
     # Compare against existing transactions in GnuCash and import new ones
     review_trans = compileGnuTransactions('Ally', ally_activity, gnu_ally_activity, mybook, driver, directory, date_range, 0)
     return [ally, review_trans]
+    

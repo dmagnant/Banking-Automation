@@ -1,3 +1,4 @@
+from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException
 from selenium.webdriver.common.keys import Keys
 from datetime import datetime
@@ -13,71 +14,71 @@ def runBoA(account):
     driver.get("https://www.bankofamerica.com/")
     driver.maximize_window()
     # login
-    driver.find_element_by_id("onlineId1").send_keys(getUsername(directory, 'BoA CC'))
-    driver.find_element_by_id("passcode1").send_keys(getPassword(directory, 'BoA CC'))
-    driver.find_element_by_xpath("//*[@id='signIn']").click()
+    driver.find_element(By.ID, "onlineId1").send_keys(getUsername(directory, 'BoA CC'))
+    driver.find_element(By.ID, "passcode1").send_keys(getPassword(directory, 'BoA CC'))
+    driver.find_element(By.XPATH, "//*[@id='signIn']").click()
     # handle ID verification
     try:
-        driver.find_element_by_xpath("//*[@id='btnARContinue']/span[1]").click()
+        driver.find_element(By.XPATH, "//*[@id='btnARContinue']/span[1]").click()
         showMessage("Get Verification Code", "Enter code, then click OK")
-        driver.find_element_by_xpath("//*[@id='yes-recognize']").click()
-        driver.find_element_by_xpath("//*[@id='continue-auth-number']/span").click()
+        driver.find_element(By.XPATH, "//*[@id='yes-recognize']").click()
+        driver.find_element(By.XPATH, "//*[@id='continue-auth-number']/span").click()
     except NoSuchElementException:
         exception = "Caught"
 
     # handle security questions
     try:
-        question = driver.find_element_by_xpath("/html/body/div[1]/div/div/div[2]/div[1]/div/div/form/div[2]/label").text
+        question = driver.find_element(By.XPATH, "/html/body/div[1]/div/div/div[2]/div[1]/div/div/form/div[2]/label").text
         q1 = "What is the name of a college you applied to but didn't attend?"
         a1 = os.environ.get('CollegeApplied')
         q2 = "As a child, what did you want to be when you grew up?"
         a2 = os.environ.get('DreamJob')
         q3 = "What is the name of your first babysitter?"
         a3 = os.environ.get('FirstBabySitter')
-        if driver.find_element_by_xpath("/html/body/div[1]/div/div/div[2]/div[1]/div/div/form/div[2]/label"):
-            question = driver.find_element_by_xpath(
+        if driver.find_element(By.XPATH, "/html/body/div[1]/div/div/div[2]/div[1]/div/div/form/div[2]/label"):
+            question = driver.find_element(By.XPATH, 
                 "/html/body/div[1]/div/div/div[2]/div[1]/div/div/form/div[2]/label").text
             if question == q1:
-                driver.find_element_by_name("challengeQuestionAnswer").send_keys(a1)
+                driver.find_element(By.NAME, "challengeQuestionAnswer").send_keys(a1)
             elif question == q2:
-                driver.find_element_by_name("challengeQuestionAnswer").send_keys(a2)
+                driver.find_element(By.NAME, "challengeQuestionAnswer").send_keys(a2)
             else:
-                driver.find_element_by_name("challengeQuestionAnswer").send_keys(a3)
-            driver.find_element_by_xpath("/html/body/div[1]/div/div/div[2]/div[1]/div/div/form/fieldset/div[2]/div/div[1]/input").click()
-            driver.find_element_by_xpath("/html/body/div[1]/div/div/div[2]/div[1]/div/div/form/a[1]/span").click()
+                driver.find_element(By.NAME, "challengeQuestionAnswer").send_keys(a3)
+            driver.find_element(By.XPATH, "/html/body/div[1]/div/div/div[2]/div[1]/div/div/form/fieldset/div[2]/div/div[1]/input").click()
+            driver.find_element(By.XPATH, "/html/body/div[1]/div/div/div[2]/div[1]/div/div/form/a[1]/span").click()
     except NoSuchElementException:
         exception = "Caught"
 
     # close mobile app pop-up
     try:
-        driver.find_element_by_xpath("//*[@id='sasi-overlay-module-modalClose']/span[1]").click()
+        driver.find_element(By.XPATH, "//*[@id='sasi-overlay-module-modalClose']/span[1]").click()
     except NoSuchElementException:
         exception = "Caught"
 
     # account = p for personal or j for joint
     partial_link = 'Customized Cash Rewards Visa Signature - 8549' if account == 'p' else 'Travel Rewards Visa Signature - 8955'
 
-    driver.find_element_by_partial_link_text(partial_link).click()
+    driver.find_element(By.PARTIAL_LINK_TEXT, partial_link).click()
     # # Capture Statement balance
-    BoA = driver.find_element_by_xpath("/html/body/div[1]/div/div[2]/div/div[2]/div[2]/div/div/div[3]/div[4]/div[3]/div/div[2]/div[2]/div[2]").text.replace('$','').replace(',','')
+    BoA = driver.find_element(By.XPATH, "/html/body/div[1]/div/div[2]/div/div[2]/div[2]/div/div/div[3]/div[4]/div[3]/div/div[2]/div[2]/div[2]").text.replace('$','').replace(',','')
     # # EXPORT TRANSACTIONS
     # click Previous transactions
     time.sleep(3)
-    driver.find_element_by_partial_link_text("Previous transactions").click()
+    driver.find_element(By.PARTIAL_LINK_TEXT, "Previous transactions").click()
     # click Download, select microsoft excel
     ## had to edit div1/div2 on 1/19/22
     try: 
-        driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div[1]/div/div[5]/div[2]/div[1]/div/div[1]/a").click()
-        driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div[1]/div/div[5]/div[2]/div[1]/div/div[3]/div/div[3]/div[1]/select").send_keys("m")
+        driver.find_element(By.XPATH, "/html/body/div[1]/div/div[4]/div[1]/div/div[5]/div[2]/div[1]/div/div[1]/a").click()
+        driver.find_element(By.XPATH, "/html/body/div[1]/div/div[4]/div[1]/div/div[5]/div[2]/div[1]/div/div[3]/div/div[3]/div[1]/select").send_keys("m")
     except NoSuchElementException:
-        driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div[1]/div/div[5]/div[2]/div[2]/div/div[1]/a").click()
-        driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div[1]/div/div[5]/div[2]/div[2]/div/div[3]/div/div[3]/div[1]/select").send_keys("m")
+        driver.find_element(By.XPATH, "/html/body/div[1]/div/div[4]/div[1]/div/div[5]/div[2]/div[2]/div/div[1]/a").click()
+        driver.find_element(By.XPATH, "/html/body/div[1]/div/div[4]/div[1]/div/div[5]/div[2]/div[2]/div/div[3]/div/div[3]/div[1]/select").send_keys("m")
     driver.execute_script("window.scrollTo(0, 300)")
     # click Download Transactions
     try: 
-        driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div[1]/div/div[5]/div[2]/div[1]/div/div[3]/div/div[4]/div[2]/a/span").click()
+        driver.find_element(By.XPATH, "/html/body/div[1]/div/div[4]/div[1]/div/div[5]/div[2]/div[1]/div/div[3]/div/div[4]/div[2]/a/span").click()
     except NoSuchElementException:
-        driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div[1]/div/div[5]/div[2]/div[2]/div/div[3]/div/div[4]/div[2]/a/span").click()
+        driver.find_element(By.XPATH, "/html/body/div[1]/div/div[4]/div[1]/div/div[5]/div[2]/div[2]/div/div[3]/div/div[4]/div[2]/a/span").click()
     # get current date
     today = datetime.today()
     year = today.year
@@ -97,31 +98,31 @@ def runBoA(account):
     if account == 'p':
         # # REDEEM REWARDS
         # click on View/Redeem menu
-        driver.find_element_by_xpath("/html/body/div[1]/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[4]/div[3]/a").click()
+        driver.find_element(By.XPATH, "/html/body/div[1]/div/div[2]/div/div[2]/div[2]/div/div/div[1]/div[4]/div[3]/a").click()
         time.sleep(5)
         #scroll down to view button
         driver.execute_script("window.scrollTo(0, 300)")
         time.sleep(2)
         # wait for Redeem Cash Rewards button to load, click it
-        driver.find_element_by_id("rewardsRedeembtn").click()
+        driver.find_element(By.ID, "rewardsRedeembtn").click()
         # switch to last window
         driver.switch_to.window(driver.window_handles[len(driver.window_handles)-1])
         # close out of pop-up (if present)
         try:
-            driver.find_element_by_xpath("/html/body/div[1]/div/div/div[2]/div/div/button").click()
+            driver.find_element(By.XPATH, "/html/body/div[1]/div/div/div[2]/div/div/button").click()
         except NoSuchElementException:
             exception = "caught"
         # if no pop-up, proceed to click on Redemption option
-        driver.find_element_by_id("redemption_option").click()
+        driver.find_element(By.ID, "redemption_option").click()
         # redeem if there is a balance, else skip
         try:
             # Choose Visa - statement credit
-            driver.find_element_by_id("redemption_option").send_keys("v")
-            driver.find_element_by_id("redemption_option").send_keys(Keys.ENTER)
+            driver.find_element(By.ID, "redemption_option").send_keys("v")
+            driver.find_element(By.ID, "redemption_option").send_keys(Keys.ENTER)
             # click on Redeem all
-            driver.find_element_by_xpath("/html/body/main/div[2]/div/div/div/div/div[1]/div[2]/div[1]/div/div/form/button").click()
+            driver.find_element(By.XPATH, "/html/body/main/div[2]/div/div/div/div/div[1]/div[2]/div[1]/div/div/form/button").click()
             # click Complete Redemption
-            driver.find_element_by_xpath("/html/body/div[1]/div/div/div[3]/button[1]").click()
+            driver.find_element(By.XPATH, "/html/body/div[1]/div/div/div[3]/button[1]").click()
         except ElementNotInteractableException:
             exception = "caught"
 

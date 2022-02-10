@@ -1,4 +1,5 @@
 import time
+from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException
 import os
 from datetime import datetime
@@ -11,36 +12,36 @@ driver.implicitly_wait(6)
 driver.get("https://portal.discover.com/customersvcs/universalLogin/ac_main")
 driver.maximize_window()
 # login
-driver.find_element_by_id('userid-content').send_keys(getUsername(directory, 'Discover'))
-driver.find_element_by_id('password-content').send_keys(getPassword(directory, 'Discover'))
+driver.find_element(By.ID, 'userid-content').send_keys(getUsername(directory, 'Discover'))
+driver.find_element(By.ID, 'password-content').send_keys(getPassword(directory, 'Discover'))
 time.sleep(1)
-driver.find_element_by_xpath('/html/body/div[1]/main/div/div[1]/div/form/input[8]').click()
+driver.find_element(By.XPATH, '/html/body/div[1]/main/div/div[1]/div/form/input[8]').click()
 
 #handle pop-up
 try:
-    driver.find_element_by_xpath("/html/body/div[1]/main/div[12]/div/div/div[2]/a").click()
+    driver.find_element(By.XPATH, "/html/body/div[1]/main/div[12]/div/div/div[2]/a").click()
 except (NoSuchElementException, ElementNotInteractableException, AttributeError):
     exception = "caught"
 showMessage("Login Check", 'Confirm Login to , (manually if necessary) \n' 'Then click OK \n')
 
 # # Capture Statement balance
-discover = driver.find_element_by_xpath("/html/body/div[1]/main/div[4]/div/div[1]/div[1]/p[3]/span[2]").text
+discover = driver.find_element(By.XPATH, "/html/body/div[1]/main/div[4]/div/div[1]/div[1]/p[3]/span[2]").text
 # # Export Transactions
 # Click on All Activity & Statements
-driver.find_element_by_partial_link_text("All Activity & Statements").click()
+driver.find_element(By.PARTIAL_LINK_TEXT, "All Activity & Statements").click()
 # Click on "Select Activity or Statement Period"
-driver.find_element_by_xpath("/html/body/div[1]/main/div[1]/div[4]/div/div[1]/div/div/div/div/div[1]/a").click()
+driver.find_element(By.XPATH, "/html/body/div[1]/main/div[1]/div[4]/div/div[1]/div/div/div/div/div[1]/a").click()
 # Click on Current
-driver.find_element_by_partial_link_text("Current").click()
+driver.find_element(By.PARTIAL_LINK_TEXT, "Current").click()
 driver.implicitly_wait(3)
 # Click on Download
-driver.find_element_by_xpath("/html/body/div[1]/main/div[1]/aside/div[2]/div[1]/div/a[2]").click()
+driver.find_element(By.XPATH, "/html/body/div[1]/main/div[1]/aside/div[2]/div[1]/div/a[2]").click()
 # CLick on CSV
-driver.find_element_by_id("radio4").click()
+driver.find_element(By.ID, "radio4").click()
 # CLick Download
-driver.find_element_by_id("submitDownload").click()
+driver.find_element(By.ID, "submitDownload").click()
 # Click Close
-driver.find_element_by_xpath("/html/body/div[1]/main/div[5]/div/form/div/div[4]/a[1]").click()
+driver.find_element(By.XPATH, "/html/body/div[1]/main/div[5]/div/form/div/div[4]/a[1]").click()
 # get current date
 today = datetime.today()
 year = today.year
@@ -57,24 +58,24 @@ review_trans = importGnuTransaction('Discover', transactions_csv, mybook, driver
 
 # Redeem Rewards
 # Click Rewards
-driver.find_element_by_xpath("/html/body/div[1]/header/div/div/div[3]/div[1]/ul/li[4]/a").click()
+driver.find_element(By.XPATH, "/html/body/div[1]/header/div/div/div[3]/div[1]/ul/li[4]/a").click()
 # Click "Redeem Cashback Bonus"
-driver.find_element_by_xpath("/html/body/div[1]/header/div/div/div[3]/div[1]/ul/li[4]/div/div/div/ul/li[3]/a").click()
+driver.find_element(By.XPATH, "/html/body/div[1]/header/div/div/div[3]/div[1]/ul/li[4]/div/div/div/ul/li[3]/a").click()
 # Click "Cash It"
-driver.find_element_by_xpath("//*[@id='redemption-module']/li[1]/a").click()
+driver.find_element(By.XPATH, "//*[@id='redemption-module']/li[1]/a").click()
 time.sleep(1)
 try:
     # Click Electronic Deposit to your bank account
-    driver.find_element_by_xpath("//*[@id='electronic-deposit']").click()
+    driver.find_element(By.XPATH, "//*[@id='electronic-deposit']").click()
     time.sleep(1)
     # Click Redeem All link
-    driver.find_element_by_xpath("/html/body/div[1]/div[1]/main/div/div/section/div[2]/div/form/div[2]/fieldset/div[3]/div[2]/span[2]/button").click()
+    driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/main/div/div/section/div[2]/div/form/div[2]/fieldset/div[3]/div[2]/span[2]/button").click()
     time.sleep(1)
     # Click Continue
-    driver.find_element_by_xpath("/html/body/div[1]/div[1]/main/div/div/section/div[2]/div/form/div[4]/input").click()
+    driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/main/div/div/section/div[2]/div/form/div[4]/input").click()
     time.sleep(1)
     # Click Submit
-    driver.find_element_by_xpath("/html/body/div[1]/div[1]/main/div/div/section/div[2]/div/div/div/div[1]/div/div/div[2]/div/button[1]").click()
+    driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/main/div/div/section/div[2]/div/div/div/div[1]/div/div/div[2]/div/button[1]").click()
 except NoSuchElementException:
     exception = "caught"
 

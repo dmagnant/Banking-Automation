@@ -1,3 +1,4 @@
+from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
 import time
 from datetime import datetime
@@ -18,18 +19,18 @@ showMessage("Login Manually", 'login manually \n' 'Then click OK \n')
 driver.get("https://secure07a.chase.com/web/auth/dashboard#/dashboard/overviewAccounts/overview/multiProduct;flyout=accountSummary,818208017,CARD,BAC")
 # click on Activity since last statement
 time.sleep(3)
-driver.find_element_by_xpath("//*[@id='header-transactionTypeOptions']/span[1]").click()
+driver.find_element(By.XPATH, "//*[@id='header-transactionTypeOptions']/span[1]").click()
 # choose last statement
-driver.find_element_by_id("item-0-STMT_CYCLE_1").click()
+driver.find_element(By.ID, "item-0-STMT_CYCLE_1").click()
 time.sleep(1)
 # # Capture Statement balance
-chase = driver.find_element_by_xpath("/html/body/div[2]/div/div[23]/div/div[2]/div[1]/div/div/div/div[1]/div/div[1]/div/div[3]/div/div[1]/ul/li[2]/div[1]/div/span[2]").text.strip('$')
+chase = driver.find_element(By.XPATH, "/html/body/div[2]/div/div[23]/div/div[2]/div[1]/div/div/div/div[1]/div/div[1]/div/div[3]/div/div[1]/ul/li[2]/div[1]/div/span[2]").text.strip('$')
 time.sleep(1)
 # click Download
-driver.find_element_by_xpath("//*[@id='downloadActivityIcon']").click()
+driver.find_element(By.XPATH, "//*[@id='downloadActivityIcon']").click()
 time.sleep(2)
 # click Download
-driver.find_element_by_id("download").click()
+driver.find_element(By.ID, "download").click()
 # get current date
 today = datetime.today()
 year = today.year
@@ -51,17 +52,17 @@ mybook = openGnuCashBook(directory, 'Finance', False, False)
 
 review_trans = importGnuTransaction('Chase', transactions_csv, mybook, driver, directory)
 # Back to Accounts page
-driver.find_element_by_id("backToAccounts").click()
+driver.find_element(By.ID, "backToAccounts").click()
 # # REDEEM REWARDS
 # open redeem for cash back page
 driver.get("https://ultimaterewardspoints.chase.com/cash-back?lang=en")
 try:
     # Deposit into a Bank Account
-    driver.find_element_by_xpath("/html/body/the-app/main/ng-component/main/div/section[2]/div[2]/form/div[6]/ul/li[2]/label").click()
+    driver.find_element(By.XPATH, "/html/body/the-app/main/ng-component/main/div/section[2]/div[2]/form/div[6]/ul/li[2]/label").click()
     # Click Continue
-    driver.find_element_by_xpath("/html/body/the-app/main/ng-component/main/div/section[2]/div[2]/form/div[7]/button").click()
+    driver.find_element(By.XPATH, "/html/body/the-app/main/ng-component/main/div/section[2]/div[2]/form/div[7]/button").click()
     # Click Confirm & Submit
-    driver.find_element_by_id("cash_back_button_submit").click()
+    driver.find_element(By.ID, "cash_back_button_submit").click()
 except NoSuchElementException:
     exception = "caught"
 except ElementClickInterceptedException:

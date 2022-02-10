@@ -1,5 +1,8 @@
 import gspread
+import selenium
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
 from selenium.common.exceptions import NoSuchElementException
 from pykeepass import PyKeePass
 from datetime import datetime, timedelta
@@ -114,15 +117,17 @@ def setDirectory():
     return os.environ.get('StorageDirectory')
 
 def chromeDriverAsUser(directory):
-    chromedriver = directory + r"\Projects\Coding\webdrivers\chromedriver.exe"
+    chromedriver = Service(directory + r"\Projects\Coding\webdrivers\chromedriver.exe")
     options = webdriver.ChromeOptions()
     options.add_argument(r"user-data-dir=C:\Users\dmagn\AppData\Local\Google\Chrome\User Data")
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    return webdriver.Chrome(executable_path=chromedriver, options=options)
+    return webdriver.Chrome(service=chromedriver, options=options)
 
 def chromeDriverBlank(directory):
-    chromedriver = directory + r"\Projects\Coding\webdrivers\chromedriver.exe"
-    return webdriver.Chrome(executable_path=chromedriver)
+    chromedriver = Service(directory + r"\Projects\Coding\webdrivers\chromedriver.exe")
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    return webdriver.Chrome(service=chromedriver, options=options)
 
 def updateSpreadsheet(directory, sheetTitle, tabTitle, account, month, value, modified=False):
     json_creds = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\creds.json"
@@ -167,17 +172,17 @@ def getCell(account, month):
             case 'BTC':
                 return ['J3']
             case 'DOT':
-                return ['J9']
+                return ['J12']
             case 'ETH':
-                return ['J6']
+                return ['J7']
             case 'ETH2':
                 return ['J8']
             case 'IOTX':
-                return ['J9']
-            case 'PRE':
                 return ['J11']
+            case 'PRE':
+                return ['J13']
             case 'SOL':
-                return ['J12']
+                return ['J14']
     cell = (getCellArray(account))[month - 1]
     return cell
 
@@ -265,7 +270,7 @@ def setToAccount(account, row):
     row_num = 2 if account in ['BoA', 'BoA-joint', 'Chase', 'Discover'] else 1
     if "BoA CC" in row[row_num]:
         if "Rewards" in row[row_num]:
-            lpjbrj9b1to_account = "Income:Credit Card Rewards"  
+            to_account = "Income:Credit Card Rewards"  
         else: 
             if account == 'Ally':
                 to_account = "Liabilities:BoA Credit Card"
@@ -507,9 +512,9 @@ def writeGnuTransaction(mybook, description, postdate, amount, from_account, to_
                     Split(value=amount[3], account=mybook.accounts(fullname="Expenses:Utilities:Gas")),
                     Split(value=amount[4], account=mybook.accounts(fullname=from_account))]
         elif "NM Paycheck" in description:
-            split = [Split(value=round(Decimal(1910.20), 2), memo="scripted",account=mybook.accounts(fullname=from_account)),
+            split = [Split(value=round(Decimal(1410.20), 2), memo="scripted",account=mybook.accounts(fullname=from_account)),
                     Split(value=round(Decimal(173.36), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Non-Liquid Assets:401k")),
-                    # Split(value=round(Decimal(250.00), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Liquid Assets:Promos")),
+                    Split(value=round(Decimal(500.00), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Liquid Assets:Promos")),
                     Split(value=round(Decimal(5.49), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Medical:Dental")),
                     Split(value=round(Decimal(34.10), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Medical:Health")),
                     Split(value=round(Decimal(2.67), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Medical:Vision")),
@@ -540,24 +545,24 @@ def getEnergyBillAmounts(driver, directory, amount, energy_bill_num):
         while num <3:
             try:
                 # click Sign in with email
-                driver.find_element_by_xpath("/html/body/div/main/div[1]/div/div/div[1]/div/a").click()
+                driver.find_element(By.XPATH, "/html/body/div/main/div[1]/div/div/div[1]/div/a").click()
                 time.sleep(1)
             except NoSuchElementException:
                 exception = "sign in page loaded already"
             try:
                 # Login
-                driver.find_element_by_xpath("/html/body/div[1]/main/div[1]/div/form/div[1]/div[1]/input").send_keys(getUsername(directory, 'Arcadia Power'))
+                driver.find_element(By.XPATH, "/html/body/div[1]/main/div[1]/div/form/div[1]/div[1]/input").send_keys(getUsername(directory, 'Arcadia Power'))
                 time.sleep(1)
-                driver.find_element_by_xpath("/html/body/div[1]/main/div[1]/div/form/div[1]/div[2]/input").send_keys(getPassword(directory, 'Arcadia Power'))
+                driver.find_element(By.XPATH, "/html/body/div[1]/main/div[1]/div/form/div[1]/div[2]/input").send_keys(getPassword(directory, 'Arcadia Power'))
                 time.sleep(1)
-                driver.find_element_by_xpath("/html/body/div[1]/main/div[1]/div/form/div[2]/button").click()
+                driver.find_element(By.XPATH, "/html/body/div[1]/main/div[1]/div/form/div[2]/button").click()
                 time.sleep(1)
                 # Get Billing page
                 driver.get("https://home.arcadia.com/billing")
             except NoSuchElementException:
                 exception = "already signed in"
             try: 
-                driver.find_element_by_xpath('/html/body/div[1]/div[2]/div/div[1]/h1')
+                driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div[1]/h1')
                 num = 4
             except NoSuchElementException:
                 num += 1
@@ -571,7 +576,7 @@ def getEnergyBillAmounts(driver, directory, amount, energy_bill_num):
     statement_found = "no"                     
     while statement_found == "no":
         # Capture statement balance
-        arcadia_balance = driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/div[2]/div[2]/div/div[2]/li[" + str(statement_row) + "]/div[2]/div/p")
+        arcadia_balance = driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/div/div[2]/div[2]/div/div[2]/li[" + str(statement_row) + "]/div[2]/div/p")
         formatted_amount = "{:.2f}".format(abs(amount))
         if arcadia_balance.text.strip('$') == formatted_amount:
             # click to view statement
@@ -587,16 +592,16 @@ def getEnergyBillAmounts(driver, directory, amount, energy_bill_num):
     while arcadia_statement_lines_left:
         try:
             # read the header to get transaction description
-            statement_trans = driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/h2").text
+            statement_trans = driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/h2").text
             if statement_trans == "Arcadia Membership":
-                arcadia_membership = Decimal(driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.strip('$'))
+                arcadia_membership = Decimal(driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.strip('$'))
                 arcadiaamt = Decimal(arcadia_membership)
             elif statement_trans == "Free Trial":
-                arcadia_membership = arcadia_membership + Decimal(driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.strip('$'))
+                arcadia_membership = arcadia_membership + Decimal(driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.strip('$'))
             elif statement_trans == "Community Solar":
-                solar = solar + Decimal(driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.replace('$',''))
+                solar = solar + Decimal(driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.replace('$',''))
             elif statement_trans == "WE Energies Utility":
-                we_bill = driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text
+                we_bill = driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text
             statement_row += 1
         except NoSuchElementException:
             arcadia_statement_lines_left = False
@@ -609,17 +614,17 @@ def getEnergyBillAmounts(driver, directory, amount, energy_bill_num):
         driver.switch_to.window(driver.window_handles[len(driver.window_handles)-1])
         try:
             ## LOGIN
-            driver.find_element_by_xpath("//*[@id='signInName']").send_keys(getUsername(directory, 'WE-Energies (Home)'))
-            driver.find_element_by_xpath("//*[@id='password']").send_keys(getPassword(directory, 'WE-Energies (Home)'))
+            driver.find_element(By.XPATH, "//*[@id='signInName']").send_keys(getUsername(directory, 'WE-Energies (Home)'))
+            driver.find_element(By.XPATH, "//*[@id='password']").send_keys(getPassword(directory, 'WE-Energies (Home)'))
             # click Login
-            driver.find_element_by_xpath("//*[@id='next']").click()
+            driver.find_element(By.XPATH, "//*[@id='next']").click()
             time.sleep(4)
             # close out of app notice
-            driver.find_element_by_xpath("//*[@id='notInterested']/a").click
+            driver.find_element(By.XPATH, "//*[@id='notInterested']/a").click
         except NoSuchElementException:
             exception = "caught"
         # Click View bill history
-        driver.find_element_by_xpath("//*[@id='mainContentCopyInner']/ul/li[2]/a").click()
+        driver.find_element(By.XPATH, "//*[@id='mainContentCopyInner']/ul/li[2]/a").click()
         time.sleep(4)
     bill_row = 2
     bill_column = 7
@@ -628,7 +633,7 @@ def getEnergyBillAmounts(driver, directory, amount, energy_bill_num):
     while bill_found == "no":
         # capture date
         we_bill_path = "/html/body/div[1]/div[1]/form/div[5]/div/div/div/div/div[6]/div[2]/div[2]/div/table/tbody/tr[" + str(bill_row) + "]/td[" + str(bill_column) + "]/span/span"
-        we_bill_amount = driver.find_element_by_xpath(we_bill_path).text
+        we_bill_amount = driver.find_element(By.XPATH, we_bill_path).text
         if we_bill == we_bill_amount:
             bill_found = "yes"
         else:
@@ -636,9 +641,9 @@ def getEnergyBillAmounts(driver, directory, amount, energy_bill_num):
     # capture gas charges
     bill_column -= 2
     we_amt_path = "/html/body/div[1]/div[1]/form/div[5]/div/div/div/div/div[6]/div[2]/div[2]/div/table/tbody/tr[" + str(bill_row) + "]/td[" + str(bill_column) + "]/span"
-    gasamt = Decimal(driver.find_element_by_xpath(we_amt_path).text.strip('$'))
+    gasamt = Decimal(driver.find_element(By.XPATH, we_amt_path).text.strip('$'))
     # capture electricity charges
     bill_column -= 2
     we_amt_path = "/html/body/div[1]/div[1]/form/div[5]/div/div/div/div/div[6]/div[2]/div[2]/div/table/tbody/tr[" + str(bill_row) + "]/td[" + str(bill_column) + "]/span"
-    electricityamt = Decimal(driver.find_element_by_xpath(we_amt_path).text.strip('$'))
+    electricityamt = Decimal(driver.find_element(By.XPATH, we_amt_path).text.strip('$'))
     return [arcadiaamt, solaramt, electricityamt, gasamt, amount]
