@@ -81,13 +81,13 @@ def updateSpreadsheet(directory, account, month, value, accounts='p'):
     json_creds = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\creds.json"
     sheetTitle = 'Asset Allocation' if accounts == 'p' else 'Home'
     sheet = gspread.service_account(filename=json_creds).open(sheetTitle)
-    worksheetTitle = 'Goals Updated' if accounts == 'p' else 'Finances'
+    worksheetTitle = 'Goals' if accounts == 'p' else 'Finances'
     worksheet = sheet.worksheet(worksheetTitle)
     cell = getCell(account, month, accounts)
     worksheet.update(cell, value)
 
 def getCell(account, month, accounts='p'):
-    row_start = 49 if accounts == 'p' else 28
+    row_start = 49 if accounts == 'p' else 25
     row = str(row_start + (month - 1))
     match account:
         case 'Amazon':
@@ -147,7 +147,7 @@ def runUpdateMonthlyGoals(accounts):
         Dividends = compileGnuTransactions('Dividends', mybook, directory, date_range)
         Interest = compileGnuTransactions('Interest', mybook, directory, date_range)
         MarketResearch = compileGnuTransactions('Market Research', mybook, directory, date_range)
-
+        
         updateSpreadsheet(directory, 'Joint Expenses', month, JointExpenses)
         updateSpreadsheet(directory, 'CC Rewards', month, CCRewards)
         updateSpreadsheet(directory, 'Dividends', month, Dividends)
@@ -188,8 +188,8 @@ def runUpdateMonthlyGoals(accounts):
     driver = chromeDriverAsUser(directory)
     driver.implicitly_wait(3)
     # Display Asset Allocation spreadsheet
-    spreadsheet = '1sWJuxtYI-fJ6bUHBWHZTQwcggd30RcOSTMlqIzd1BBo/edit#gid=1813404638' if accounts == 'p' else '1oP3U7y8qywvXG9U_zYXgjFfqHrCyPtUDl4zPDftFCdM/edit#gid=1436385671'
-    driver.get('https://docs.google.com/spreadsheets/d/' + spreadsheet)
+    driver.get('https://docs.google.com/spreadsheets/d/1sWJuxtYI-fJ6bUHBWHZTQwcggd30RcOSTMlqIzd1BBo/edit#gid=1813404638') if accounts == 'p' else driver.get('https://docs.google.com/spreadsheets/d/1oP3U7y8qywvXG9U_zYXgjFfqHrCyPtUDl4zPDftFCdM/edit#gid=1436385671')
     showMessage('Review Spreadsheet', 'Once complete, click OK to close')
+    driver.close()
 
-runUpdateMonthlyGoals('p')
+runUpdateMonthlyGoals('j')

@@ -8,7 +8,6 @@ from Presearch import runPresearch
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
-driver.implicitly_wait(3)
 m1 = runM1(directory, driver)
 tiaa = runTIAA(directory, driver)
 staked_pre = runPresearch(driver)

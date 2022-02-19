@@ -13,10 +13,9 @@ driver.get("https://www.barclaycardus.com/servicing/home?secureLogin=")
 driver.maximize_window()
 
 # Login
-driver.find_element(By.NAME, "uxLoginForm.username").send_keys(getUsername(directory, 'Barclay Card'))
-driver.find_element(By.NAME, "uxLoginForm.password").send_keys(getPassword(directory, 'Barclay Card'))
-driver.find_element(By.NAME, "login").click()
-
+driver.find_element(By.ID, "username").send_keys(getUsername(directory, 'Barclay Card'))
+driver.find_element(By.ID, "password").send_keys(getPassword(directory, 'Barclay Card'))
+driver.find_element(By.ID, "loginButton").click()
 # handle security questions
 try:
     question1 = driver.find_element(By.ID, "question1TxtbxLabel").text
@@ -49,7 +48,7 @@ try:
 except NoSuchElementException:
     exception = "Caught"
 # # Capture Statement balance
-barclays = driver.find_element(By.XPATH, "/html/body/section[2]/div[4]/div[2]/div[1]/section[2]/div/div/div[2]/div/div[2]/div[2]/div[2]/div[2]").text.strip('-')
+barclays = driver.find_element(By.XPATH, "/html/body/section[2]/div[4]/div[2]/div[1]/section[2]/div/div/div[2]/div/div[2]/div[2]/div[2]/div[2]").text.strip('-').strip('$')
 # Capture Rewards balance
 rewards_balance = driver.find_element(By.XPATH, "//*[@id='rewardsTile']/div[2]/div/div[2]/div[1]/div").text.strip('$')
 # # EXPORT TRANSACTIONS
@@ -114,7 +113,7 @@ if float(rewards_balance) > 50:
 # switch worksheets if running in December (to next year's worksheet)
 if month == 12:
     year = year + 1
-barclays_neg = float(barclays.strip('$')) * -1
+barclays_neg = float(barclays) * -1
 updateSpreadsheet(directory, 'Checking Balance', year, 'Barclays', month, barclays_neg)
 updateSpreadsheet(directory, 'Checking Balance', year, 'Barclays', month, barclays_neg, True)
 # Display Checking Balance spreadsheet

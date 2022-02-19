@@ -121,6 +121,7 @@ def chromeDriverAsUser(directory):
     options = webdriver.ChromeOptions()
     options.add_argument(r"user-data-dir=C:\Users\dmagn\AppData\Local\Google\Chrome\User Data")
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    options.add_experimental_option("detach", True)
     return webdriver.Chrome(service=chromedriver, options=options)
 
 def chromeDriverBlank(directory):
@@ -290,7 +291,7 @@ def setToAccount(account, row):
         to_account = "Income:Market Research"
     elif "NM Paycheck" in row[row_num]:
         to_account = "Income:Salary"
-    elif "GOOGLE FI" in row[row_num].upper():
+    elif "GOOGLE FI" in row[row_num].upper() or "GOOGLE *FI" in row[row_num].upper():
         to_account = "Expenses:Utilities:Phone"
     elif "TIAA Transfer" in row[row_num]:
         to_account = "Assets:Liquid Assets:TIAA"
@@ -362,7 +363,7 @@ def setToAccount(account, row):
             if row[3] == "Food & Drink" or row[4] == "Restaurants":
                 to_account = "Expenses:Bars & Restaurants"
         if not to_account:
-            for i in ['MCDONALD', 'GRUBHUB', 'JIMMY JOHN', 'COLECTIVO', 'INSOMNIA', 'EATSTREET', "KOPP'S CUSTARD"]:
+            for i in ['MCDONALD', 'GRUBHUB', 'JIMMY JOHN', 'COLECTIVO', 'INSOMNIA', 'EATSTREET', "KOPP'S CUSTARD", 'MAHARAJA', 'STARBUCKS', "PIETRO'S PIZZA"]:
                 if i in row[row_num].upper():
                     to_account = "Expenses:Bars & Restaurants"
     
@@ -514,7 +515,7 @@ def writeGnuTransaction(mybook, description, postdate, amount, from_account, to_
         elif "NM Paycheck" in description:
             split = [Split(value=round(Decimal(1410.20), 2), memo="scripted",account=mybook.accounts(fullname=from_account)),
                     Split(value=round(Decimal(173.36), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Non-Liquid Assets:401k")),
-                    Split(value=round(Decimal(500.00), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Liquid Assets:Promos")),
+                    Split(value=round(Decimal(400.00), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Liquid Assets:Promos")),
                     Split(value=round(Decimal(5.49), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Medical:Dental")),
                     Split(value=round(Decimal(34.10), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Medical:Health")),
                     Split(value=round(Decimal(2.67), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Medical:Vision")),

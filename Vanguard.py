@@ -78,7 +78,7 @@ updateSpreadsheet(directory, 'Asset Allocation', year, 'VanguardPension', month,
 # Start Gnu cash
 os.startfile(directory + r"\Finances\Personal Finances\Finance.gnucash")
 # Display Asset Allocation spreadsheet
-driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1sWJuxtYI-fJ6bUHBWHZTQwcggd30RcOSTMlqIzd1BBo/edit#gid=953264104');")
+driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1sWJuxtYI-fJ6bUHBWHZTQwcggd30RcOSTMlqIzd1BBo/edit#gid=2058576150');")
 # display Balances
 showMessage("Balances",f'Pension Balance: {vanguard} \n'f'GnuCash Pension Balance: {vanguard_gnu} \n'f'Interest earned: {interest} \n'f'Total monthly contributions: {emp_contribution} \n')
 driver.quit()

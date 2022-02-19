@@ -25,8 +25,8 @@ def runAlly(directory, driver):
 
     # get current date
     today = datetime.today()
-
     date_range = getDateRange(today, 8)
+    
     table = 2
     transaction = 1
     column = 1
@@ -36,6 +36,8 @@ def runAlly(directory, driver):
     open(ally_activity, 'w', newline='').truncate()
     open(gnu_ally_activity, 'w', newline='').truncate()
     time.sleep(6)
+    # Set Gnucash Book
+    mybook = openGnuCashBook(directory, 'Home', False, False)
     inside_date_range = True
     while inside_date_range:
         try:
@@ -62,8 +64,6 @@ def runAlly(directory, driver):
             element = "//*[@id='form-elements-section']/section/section/table[" + str(table) + "]/tbody/tr[" + str(transaction) + "]/td[" + str(column) + "]"
         except ValueError:
             inside_date_range = False
-    # Set Gnucash Book
-    mybook = openGnuCashBook(directory, 'Home', False, False)
     # Compare against existing transactions in GnuCash and import new ones
     review_trans = compileGnuTransactions('Ally', ally_activity, gnu_ally_activity, mybook, driver, directory, date_range, 0)
     return [ally, review_trans]
