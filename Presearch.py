@@ -28,7 +28,7 @@ def runPresearch(driver):
         node_found = False
         while not node_found:
             name = driver.find_element(By.XPATH, '/html/body/div[2]/div[2]/div[3]/div[5]/div/table/tbody/tr[' + str(num) + ']/td[1]/a[1]').text
-            if name.lower() == 'digital ocean':
+            if name.lower() == 'aws':
                 stake_amount = avail_to_stake
                 driver.find_element(By.XPATH, '/html/body/div[2]/div[2]/div[3]/div[5]/div/table/tbody/tr[' + str(num) + ']/td[9]/a[1]').click()
                 while stake_amount > 0:
