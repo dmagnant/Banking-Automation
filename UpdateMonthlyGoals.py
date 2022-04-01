@@ -192,4 +192,4 @@ def runUpdateMonthlyGoals(accounts):
     showMessage('Review Spreadsheet', 'Once complete, click OK to close')
     driver.close()
 
-runUpdateMonthlyGoals('j')
+runUpdateMonthlyGoals('p')

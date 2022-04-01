@@ -3,7 +3,7 @@ from selenium.common.exceptions import NoSuchElementException
 from datetime import datetime
 import time
 import csv
-from Functions import getPassword, closeExpressVPN, openGnuCashBook, getDateRange, modifyTransactionDescription, compileGnuTransactions
+from Functions import getPassword, closeExpressVPN, openGnuCashBook, getDateRange, modifyTransactionDescription, compileGnuTransactions, showMessage
 
 def runAlly(directory, driver):
     closeExpressVPN()
@@ -14,11 +14,13 @@ def runAlly(directory, driver):
     # login
     # enter password # changed 1/21/22
     driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/main/div/div/div/div/div[1]/form/div[2]/div/span/input").send_keys(getPassword(directory, 'Ally Bank'))
+    time.sleep(1)
     # click Log In
     driver.find_element(By.XPATH, "/html/body/div/div[1]/main/div/div/div/div/div[1]/form/div[3]/button/span").click()
-    time.sleep(4)
+    time.sleep(5)
+    showMessage('confirm login',"manually login if necessary")
     # capture balance
-    ally = driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/main/div/div/div/div[2]/div/div[2]/div/table/tbody/tr/td[2]/div").text.replace('$', '').replace(',', '')
+    ally = driver.find_element(By.XPATH, "/html/body/div/div[1]/main/div/div/div/div[2]/div/div[2]/div/table/tbody/tr/td[2]/div").text.replace('$', '').replace(',', '')   
     # click Joint Checking link
     driver.find_element(By.PARTIAL_LINK_TEXT, "Joint Checking").click()
     time.sleep(3)
