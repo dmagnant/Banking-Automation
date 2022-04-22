@@ -150,4 +150,4 @@ def runBoA(account):
     driver.quit()
     # startExpressVPN()
 
-runBoA('J')
+runBoA('j')

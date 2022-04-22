@@ -30,7 +30,7 @@ def runPresearch(driver):
             name = driver.find_element(By.XPATH, '/html/body/div[2]/div[2]/div[3]/div[5]/div/table/tbody/tr[' + str(num) + ']/td[1]/a[1]').text
             if name.lower() == 'aws':
                 stake_amount = avail_to_stake
-                driver.find_element(By.XPATH, '/html/body/div[2]/div[2]/div[3]/div[5]/div/table/tbody/tr[' + str(num) + ']/td[9]/a[1]').click()
+                driver.find_element(By.XPATH, '/html/body/div[2]/div[2]/div[3]/div[5]/div/table/tbody/tr[' + str(num) + ']/td[11]/a[1]').click()
                 while stake_amount > 0:
                     driver.find_element(By.ID, 'stake_amount').send_keys(Keys.ARROW_UP)
                     stake_amount -= 1

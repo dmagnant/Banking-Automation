@@ -87,7 +87,7 @@ def updateSpreadsheet(directory, account, month, value, accounts='p'):
     worksheet.update(cell, value)
 
 def getCell(account, month, accounts='p'):
-    row_start = 49 if accounts == 'p' else 25
+    row_start = 48 if accounts == 'p' else 25
     row = str(row_start + (month - 1))
     match account:
         case 'Amazon':

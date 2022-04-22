@@ -20,13 +20,13 @@ def runM1(directory, driver):
     showMessage('CAPTCHA',"Verify captcha, then click OK")
     try: 
         # click Spend
-        driver.find_element(By.XPATH, "//*[@id='root']/div/div/div/div[1]/div[2]/div/div[1]/nav/a[2]/div/div/span").click()
+        driver.find_element(By.XPATH, "//*[@id='root']/div/div/div/div[1]/div[2]/div/div[1]/nav/a[3]/div/div/span").click()
     except NoSuchElementException:
         # handle captcha
         showMessage('CAPTCHA',"Verify captcha, then click OK")
         # click Spend
-        driver.find_element(By.XPATH, "//*[@id='root']/div/div/div/div[1]/div[2]/div/div[1]/nav/a[2]/div/div/span").click()
-
+        driver.find_element(By.XPATH, "//*[@id='root']/div/div/div/div[1]/div[2]/div/div[1]/nav/a[3]/div/div/span").click()
+        
     m1_balance = driver.find_element(By.XPATH, "//*[@id='root']/div/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/h1").text.strip('$').replace(',', '')
     # get current date
     today = datetime.today()

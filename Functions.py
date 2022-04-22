@@ -216,6 +216,8 @@ def getDateRange(today, num_days):
 def modifyTransactionDescription(description, amount="0.00"):
     if "INTERNET TRANSFER FROM ONLINE SAVINGS ACCOUNT XXXXXX9703" in description.upper():
         description = "Tessa Deposit"
+    elif "PRIME TRUST LLC" in description.upper():
+        description = "MyConstant transfer"
     elif "ALLY BANK $TRANSFER DAN" in description.upper():
         description = "Ally Transfer"
     elif "CITY OF MILWAUKE B2P*MILWWA" in description.upper():
@@ -281,6 +283,8 @@ def setToAccount(account, row):
         to_account = ""
     elif "Tessa Deposit" in row[row_num]:
         to_account = "Tessa's Contributions"
+    elif "MyConstant transfer" in row[row_num]:
+        to_account = "Assets:Liquid Assets:My Constant"
     elif "Water Bill" in row[row_num]:
         to_account = "Expenses:Utilities:Water"
     elif "Dan Deposit" in row[row_num]:
@@ -559,7 +563,7 @@ def getEnergyBillAmounts(driver, directory, amount, energy_bill_num):
                 driver.find_element(By.XPATH, "/html/body/div[1]/main/div[1]/div/form/div[2]/button").click()
                 time.sleep(1)
                 # Get Billing page
-                driver.get("https://home.arcadia.com/billing")
+                driver.get("https://home.arcadia.com/dashboard/2072648/billing")
             except NoSuchElementException:
                 exception = "already signed in"
             try: 
@@ -572,7 +576,7 @@ def getEnergyBillAmounts(driver, directory, amount, energy_bill_num):
     else:
         # switch to last window
         driver.switch_to.window(driver.window_handles[len(driver.window_handles)-1])
-        driver.get("https://home.arcadia.com/billing")
+        driver.get("https://home.arcadia.com/dashboard/2072648/billing")
     statement_row = 1
     statement_found = "no"                     
     while statement_found == "no":
