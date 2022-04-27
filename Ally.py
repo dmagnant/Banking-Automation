@@ -9,7 +9,6 @@ def runAlly(directory, driver):
     closeExpressVPN()
     driver.implicitly_wait(5)
     driver.get("https://secure.ally.com/")
-    driver.maximize_window()
     time.sleep(1)
     # login
     # enter password # changed 1/21/22

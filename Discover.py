@@ -10,7 +10,6 @@ driver = chromeDriverAsUser(directory)
 driver.implicitly_wait(6)
 
 driver.get("https://portal.discover.com/customersvcs/universalLogin/ac_main")
-driver.maximize_window()
 # login
 driver.find_element(By.ID, 'userid-content').send_keys(getUsername(directory, 'Discover'))
 driver.find_element(By.ID, 'password-content').send_keys(getPassword(directory, 'Discover'))

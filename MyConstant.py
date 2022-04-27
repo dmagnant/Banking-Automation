@@ -7,7 +7,6 @@ from Functions import showMessage, getUsername, getPassword, getOTP
 
 def runMyConstant(directory, driver):
     driver.get("https://www.myconstant.com/log-in")
-    driver.maximize_window()
     #login
     try:
         driver.find_element(By.ID, "lg_username").send_keys(getUsername(directory, 'My Constant'))
@@ -17,7 +16,6 @@ def runMyConstant(directory, driver):
         pyautogui.press('tab')
         pyautogui.press('space')
         showMessage("CAPTCHA", "Verify captcha, then click OK")
-        driver.maximize_window()
         driver.find_element(By.XPATH, "//*[@id='submit-btn']").click()
         token = getOTP('my_constant')
         char = 0

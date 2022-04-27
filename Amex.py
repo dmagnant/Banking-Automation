@@ -11,8 +11,6 @@ driver = chromeDriverAsUser(directory)
 driver.implicitly_wait(5)
 time.sleep(1)
 driver.get("https://www.americanexpress.com/")
-driver.maximize_window()
-print('here')
 # login
 driver.find_element(By.XPATH, "/html/body/div[1]/div/div/header/div[2]/div[1]/div[3]/div/div[5]/ul/li[3]/span/a[1]").click()
 driver.find_element(By.ID, "eliloUserID").send_keys(getUsername(directory, 'Amex'))

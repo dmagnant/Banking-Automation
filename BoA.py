@@ -12,7 +12,6 @@ def runBoA(account):
     driver = chromeDriverAsUser(directory)
     driver.implicitly_wait(3)
     driver.get("https://www.bankofamerica.com/")
-    driver.maximize_window()
     # login
     driver.find_element(By.ID, "onlineId1").send_keys(getUsername(directory, 'BoA CC'))
     driver.find_element(By.ID, "passcode1").send_keys(getPassword(directory, 'BoA CC'))

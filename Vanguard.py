@@ -11,7 +11,6 @@ directory = setDirectory()
 driver = chromeDriverAsUser(directory)
 driver.implicitly_wait(5)
 driver.get("https://ownyourfuture.vanguard.com/login#/")
-driver.maximize_window()
 # Enter username
 driver.find_element(By.ID, "username").send_keys(getUsername(directory, 'Vanguard'))
 time.sleep(1)

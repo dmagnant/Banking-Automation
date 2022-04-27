@@ -10,7 +10,6 @@ directory = setDirectory()
 driver = chromeDriverAsUser(directory)
 driver.implicitly_wait(3)
 driver.get("https://www.barclaycardus.com/servicing/home?secureLogin=")
-driver.maximize_window()
 
 # Login
 driver.find_element(By.ID, "username").send_keys(getUsername(directory, 'Barclay Card'))

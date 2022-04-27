@@ -8,7 +8,6 @@ from Functions import getUsername, getPassword, openGnuCashBook, showMessage, ge
 def runM1(directory, driver):
     driver.get("https://dashboard.m1finance.com/login")
     driver.implicitly_wait(3)
-    driver.maximize_window()
     # login
     # enter email
     driver.find_element(By.NAME, "username").send_keys(getUsername(directory, 'M1 Finance'))

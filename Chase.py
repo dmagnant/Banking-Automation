@@ -9,7 +9,6 @@ directory = setDirectory()
 driver = chromeDriverAsUser(directory)
 driver.implicitly_wait(5)
 driver.get("https://www.chase.com/")
-driver.maximize_window()
 time.sleep(2)
 # login
 showMessage("Login Manually", 'login manually \n' 'Then click OK \n')

@@ -122,6 +122,7 @@ def chromeDriverAsUser(directory):
     options.add_argument(r"user-data-dir=C:\Users\dmagn\AppData\Local\Google\Chrome\User Data")
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     options.add_experimental_option("detach", True)
+    options.add_argument("start-maximized")
     return webdriver.Chrome(service=chromedriver, options=options)
 
 def chromeDriverBlank(directory):
