@@ -36,19 +36,18 @@ def runMyConstant(directory, driver):
     constant_balance_dec = Decimal(constant_balance_raw)
     constant_balance = float(round(constant_balance_dec, 2))
     driver.get('https://www.myconstant.com/lend-crypto-to-earn-interest')
-    time.sleep(1)
-    # get BTC balance
+    time.sleep(2)
+    # get coin balances
     def getCoinBalance(coin):
         # click dropdown menu
-        driver.find_element(By.XPATH, "//*[@id='layout']/div[3]/div/div/div/div[2]/div/form/div[1]/div[2]/div/div/button").click()
+        driver.find_element(By.XPATH, "//*[@id='layout']/div[2]/div/div/div/div[2]/div/form/div[1]/div[2]/div/div/button/div").click()
         # search for coin
         driver.find_element(By.ID, 'dropdown-search-selectedSymbol').send_keys(coin)
         # select coin
-        driver.find_element(By.XPATH, "//*[@id='layout']/div[3]/div/div/div/div[2]/div/form/div[1]/div[2]/div/div/div/a/div").click()
+        driver.find_element(By.XPATH, "//*[@id='layout']/div[2]/div/div/div/div[2]/div/form/div[1]/div[2]/div/div/div/a/div/div[1]").click()
         time.sleep(6)
-        return driver.find_element(By.XPATH, "//*[@id='layout']/div[3]/div/div/div/div[2]/div/form/div[2]/div[2]/span/span/span").text
+        return driver.find_element(By.XPATH, "//*[@id='layout']/div[2]/div/div/div/div[2]/div/form/div[2]/div[2]/span/span/span").text
+
     btc_balance = getCoinBalance('BTC')
-    print(btc_balance)
     eth_balance = getCoinBalance('ETHEREUM')
-    print(eth_balance)
     return [constant_balance, float(btc_balance), float(eth_balance)]

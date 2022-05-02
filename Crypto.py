@@ -1,8 +1,8 @@
-from CCVault import runCCVault
-from Kraken import runKraken
-from MyConstant import runMyConstant
-from IoPay import runIoPay
-from Presearch import runPresearch
+from Orgs.CCVault import runCCVault
+from Orgs.Kraken import runKraken
+from Orgs.MyConstant import runMyConstant
+from Orgs.IoPay import runIoPay
+from Orgs.Presearch import runPresearch
 from Functions import updateSpreadsheet, setDirectory, chromeDriverAsUser, showMessage
 
 directory = setDirectory()

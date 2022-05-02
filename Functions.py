@@ -1,5 +1,4 @@
 import gspread
-import selenium
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -518,18 +517,18 @@ def writeGnuTransaction(mybook, description, postdate, amount, from_account, to_
                     Split(value=amount[3], account=mybook.accounts(fullname="Expenses:Utilities:Gas")),
                     Split(value=amount[4], account=mybook.accounts(fullname=from_account))]
         # elif "NM Paycheck" in description:
-        #     split = [Split(value=round(Decimal(1510.20), 2), memo="scripted",account=mybook.accounts(fullname=from_account)),
-        #             Split(value=round(Decimal(173.36), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Non-Liquid Assets:401k")),
+        #     split = [Split(value=round(Decimal(2229.20), 2), memo="scripted",account=mybook.accounts(fullname=from_account)),
+        #             Split(value=round(Decimal(206.00), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Non-Liquid Assets:401k")),
         #             Split(value=round(Decimal(400.00), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Liquid Assets:Promos")),
         #             Split(value=round(Decimal(5.49), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Medical:Dental")),
         #             Split(value=round(Decimal(34.10), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Medical:Health")),
         #             Split(value=round(Decimal(2.67), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Medical:Vision")),
-        #             Split(value=round(Decimal(168.59), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:Social Security")),
-        #             Split(value=round(Decimal(39.43), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:Medicare")),
-        #             Split(value=round(Decimal(296.12), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:Federal Tax")),
-        #             Split(value=round(Decimal(128.00), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:State Tax")),
+        #             Split(value=round(Decimal(202.39), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:Social Security")),
+        #             Split(value=round(Decimal(47.33), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:Medicare")),
+        #             Split(value=round(Decimal(415.83), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:Federal Tax")),
+        #             Split(value=round(Decimal(159.07), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:State Tax")),
         #             Split(value=round(Decimal(131.25), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Non-Liquid Assets:HSA")),
-        #             Split(value=-round(Decimal(2889.21), 2), memo="scripted",account=mybook.accounts(fullname=to_account))]
+        #             Split(value=-round(Decimal(3433.33), 2), memo="scripted",account=mybook.accounts(fullname=to_account))]
         else:
             split = [Split(value=-amount, memo="scripted", account=mybook.accounts(fullname=to_account)),
                     Split(value=amount, memo="scripted", account=mybook.accounts(fullname=from_account))]

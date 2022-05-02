@@ -8,7 +8,7 @@ def runWorthy(directory, driver):
     driver.execute_script("window.open('https://worthy.capital/start');")
     # switch to last window
     driver.switch_to.window(driver.window_handles[len(driver.window_handles)-1])
-    time.sleep(2)
+    time.sleep(3)
     try:
         # login
         # click Login button
