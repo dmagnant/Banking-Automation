@@ -3,7 +3,7 @@ from selenium.common.exceptions import NoSuchElementException
 import time
 from decimal import Decimal
 import pyautogui
-from Functions import showMessage, getUsername, getPassword, getOTP
+from Functions import showMessage, getUsername, getPassword, getOTP, updateSpreadsheet
 
 def runMyConstant(directory, driver):
     driver.get("https://www.myconstant.com/log-in")
@@ -50,4 +50,7 @@ def runMyConstant(directory, driver):
 
     btc_balance = getCoinBalance('BTC')
     eth_balance = getCoinBalance('ETHEREUM')
+
+    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC', 1, my_constant_balances[1])
+
     return [constant_balance, float(btc_balance), float(eth_balance)]

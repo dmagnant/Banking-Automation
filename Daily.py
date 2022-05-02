@@ -1,9 +1,9 @@
 import os
 import os.path
-from Orgs.Ally import runAlly
-from Orgs.M1Finance import runM1
-from Orgs.TIAA import runTIAA
-from Orgs.Presearch import runPresearch
+from Ally import runAlly
+from M1Finance import runM1
+from TIAA import runTIAA
+from Presearch import runPresearch
 
 from Functions import setDirectory, chromeDriverAsUser, openGnuCashBook, getGnuCashBalance, showMessage, startExpressVPN
 

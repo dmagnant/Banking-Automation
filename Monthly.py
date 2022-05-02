@@ -1,8 +1,8 @@
 from datetime import datetime
 from decimal import Decimal
-from Orgs.MyConstant import runMyConstant
-from Orgs.Worthy import runWorthy
-from Orgs.HealthEquity import runHealthEquity
+from MyConstant import runMyConstant
+from Worthy import runWorthy
+from HealthEquity import runHealthEquity
 from Functions import setDirectory, chromeDriverAsUser, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, getStartAndEndOfPreviousMonth, writeGnuTransaction
 
 # Get current date
