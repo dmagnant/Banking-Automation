@@ -10,8 +10,8 @@ import os
 import pyotp
 import psutil
 import ctypes
-import pygetwindow
 import pyautogui
+import pygetwindow
 from decimal import Decimal
 import csv
 import piecash
