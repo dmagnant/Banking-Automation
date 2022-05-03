@@ -1,4 +1,5 @@
 import gspread
+from pycoingecko import CoinGeckoAPI
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -49,13 +50,14 @@ def startExpressVPN():
     os.startfile(r'C:\Program Files (x86)\ExpressVPN\expressvpn-ui\ExpressVPN.exe')
     time.sleep(3)
     EVPN = pygetwindow.getWindowsWithTitle('ExpressVPN')[0]
+    time.sleep(1)
     EVPN.close()
     # stays open in system tray
 
 def closeExpressVPN():
     if checkIfProcessRunning('ExpressVPN.exe'):
         os.startfile(r'C:\Program Files (x86)\ExpressVPN\expressvpn-ui\ExpressVPN.exe')
-        time.sleep(1)
+        time.sleep(3)
         EVPN = pygetwindow.getWindowsWithTitle('ExpressVPN')[0]
         EVPN.restore()
         EVPN.move(0, 0)
@@ -63,7 +65,6 @@ def closeExpressVPN():
         pyautogui.leftClick(40, 50)
         time.sleep(1)
         pyautogui.leftClick(40, 280)
-        time.sleep(1)
 
 def openGnuCashBook(directory, type, readOnly, openIfLocked):
     if type == 'Finance':
@@ -130,14 +131,21 @@ def chromeDriverBlank(directory):
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     return webdriver.Chrome(service=chromedriver, options=options)
 
-def updateSpreadsheet(directory, sheetTitle, tabTitle, account, month, value, modified=False):
+def updateSpreadsheet(directory, sheetTitle, tabTitle, account, month, value, symbol="$", modified=False):
     json_creds = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\creds.json"
     sheet = gspread.service_account(filename=json_creds).open(sheetTitle)
     worksheet = sheet.worksheet(str(tabTitle))
     cell = getCell(account, month)
     if modified:
         cell = cell.replace(cell[0], chr(ord(cell[0]) + 3))
-    worksheet.update(cell, value)
+    sheetKey = getSheetKey(sheetTitle, tabTitle, worksheet, cell)
+    if symbol == "$" or symbol == sheetKey:
+        worksheet.update(cell, value)
+    else:
+        showMessage('Key Mismatch',     
+        f'the given key: {symbol} does not match the sheet key: {sheetKey} for the cell that is being updated: {cell} \n'
+        f'This is likely due to an update on the spreadsheet: {sheetTitle} > {tabTitle} \n'
+        f'Check spreadsheet and verify the getCell method is getting the correct Cell')
 
 def getCell(account, month):
     def getCellArray(account):
@@ -165,27 +173,49 @@ def getCell(account, month):
             case 'VanguardPension':
                 return ['B8', 'I8', 'P8', 'B30', 'I30', 'P30', 'B52', 'I52', 'P52', 'B74', 'I74', 'P74']
             case 'ADA':
-                return ['J4']
+                return ['J5', 'L5']
             case 'ALGO':
-                return ['J2']
+                return ['J2', 'L2']
             case 'ATOM':
-                return ['J5']
-            case 'BTC':
-                return ['J3']
+                return ['J6', 'L6']
+            case 'BTC_midas':
+                return ['J3', 'L3']
+            case 'BTC_myconstant':
+                return ['J4', 'L4']
             case 'DOT':
-                return ['J12']
-            case 'ETH':
-                return ['J7']
+                return ['J12', 'L12']
+            case 'ETH_kraken':
+                return ['J9', 'L9']
+            case 'ETH_midas':
+                return ['J7', 'L7']
+            case 'ETH_myconstant':
+                return ['J8', 'L8']
             case 'ETH2':
-                return ['J8']
+                return ['J10', 'L10']
             case 'IOTX':
-                return ['J11']
+                return ['J11', 'L11']
             case 'PRE':
-                return ['J13']
+                return ['J13', 'L13']
             case 'SOL':
-                return ['J14']
+                return ['J14', 'L14']
     cell = (getCellArray(account))[month - 1]
     return cell
+
+def getSheetKey(sheetTitle, tabTitle, worksheet, cellToUpdate):
+    if sheetTitle == "Asset Allocation":
+        if tabTitle == "Cryptocurrency":
+            keyColumn = "B"
+        else:
+            keyColumn = "A"
+    elif sheetTitle == "Checking Balance":
+        keyColumn = "B"
+    elif sheetTitle == "Home":
+        if tabTitle == "Finances":
+            keyColumn = "A"
+        else:
+            keyColumn = "B"
+    worksheetKey = worksheet.acell(keyColumn + cellToUpdate[1:]).value
+    return worksheetKey
 
 def getStartAndEndOfPreviousMonth(today, month, year):
     if month == 1:
@@ -306,7 +336,7 @@ def setToAccount(account, row):
     elif "IRA Transfer" in row[row_num]:
         to_account = "Assets:Non-Liquid Assets:Roth IRA"
     elif "Lending Club" in row[row_num]:
-        to_account = "Assets:Non-Liquid Assets:MicroLoans"
+        to_account = "Income:Investments:Interest"
     elif "Chase CC Rewards" in row[row_num]:
         to_account = "Income:Credit Card Rewards"
     elif "Chase CC" in row[row_num]:
@@ -652,3 +682,8 @@ def getEnergyBillAmounts(driver, directory, amount, energy_bill_num):
     we_amt_path = "/html/body/div[1]/div[1]/form/div[5]/div/div/div/div/div[6]/div[2]/div[2]/div/table/tbody/tr[" + str(bill_row) + "]/td[" + str(bill_column) + "]/span"
     electricityamt = Decimal(driver.find_element(By.XPATH, we_amt_path).text.strip('$'))
     return [arcadiaamt, solaramt, electricityamt, gasamt, amount]
+
+def getCryptocurrencyPrice(coinList):
+    coinGecko = CoinGeckoAPI()
+    currency = 'usd'
+    return coinGecko.get_price(ids=coinList, vs_currencies=currency)

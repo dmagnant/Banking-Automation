@@ -15,7 +15,7 @@ directory = setDirectory()
 driver = chromeDriverAsUser(directory)
 driver.implicitly_wait(6)
 
-my_constant_balances = runMyConstant(directory, driver)
+my_constant_balances = runMyConstant(directory, driver, 'usd')
 worthy_balance = runWorthy(directory, driver)
 HE_balances = runHealthEquity(driver, lastmonth)
 
@@ -32,10 +32,10 @@ writeGnuTransaction(mybook, "HSA Statement", lastmonth[1], [HE_hsa_change, -HE_b
 
 liq_assets = getGnuCashBalance(mybook, 'Liquid Assets')
 
-updateSpreadsheet(directory, 'Asset Allocation', year, 'Bonds', month, (worthy_balance + my_constant_balances[0]))
-updateSpreadsheet(directory, 'Asset Allocation', year, 'HE_HSA', month, HE_balances[0])
-updateSpreadsheet(directory, 'Asset Allocation', year, 'Liquid Assets', month, float(liq_assets))
-updateSpreadsheet(directory, 'Asset Allocation', year, 'Vanguard401k', month, HE_balances[2])
+updateSpreadsheet(directory, 'Asset Allocation', year, 'Bonds', month, (worthy_balance + my_constant_balances[0]), 'Liquid Assets')
+updateSpreadsheet(directory, 'Asset Allocation', year, 'HE_HSA', month, HE_balances[0], 'NM HSA')
+updateSpreadsheet(directory, 'Asset Allocation', year, 'Liquid Assets', month, float(liq_assets), 'Liquid Assets')
+updateSpreadsheet(directory, 'Asset Allocation', year, 'Vanguard401k', month, HE_balances[2], '401k')
 
 driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1sWJuxtYI-fJ6bUHBWHZTQwcggd30RcOSTMlqIzd1BBo/edit#gid=2058576150');")
 showMessage("Balances + Review", f'MyConstant: {my_constant_balances[0]} \n' f'Worthy: {worthy_balance} \n' f'Liquid Assets: {liq_assets} \n' f'401k: {HE_balances[2]}')

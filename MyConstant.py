@@ -3,7 +3,7 @@ from selenium.common.exceptions import NoSuchElementException
 import time
 from decimal import Decimal
 import pyautogui
-from Functions import showMessage, getUsername, getPassword, getOTP, updateSpreadsheet
+from Functions import showMessage, getUsername, getPassword, getOTP, updateSpreadsheet, getCryptocurrencyPrice
 
 def runMyConstant(directory, driver):
     driver.get("https://www.myconstant.com/log-in")
@@ -48,9 +48,15 @@ def runMyConstant(directory, driver):
         time.sleep(6)
         return driver.find_element(By.XPATH, "//*[@id='layout']/div[2]/div/div/div/div[2]/div/form/div[2]/div[2]/span/span/span").text
 
-    btc_balance = getCoinBalance('BTC')
-    eth_balance = getCoinBalance('ETHEREUM')
+    btcBalance = float(getCoinBalance('BTC'))
+    ethBalance = float(getCoinBalance('ETHEREUM'))
 
-    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC', 1, my_constant_balances[1])
+    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC_myconstant', 1, btcBalance, "BTC")
+    btcPrice = getCryptocurrencyPrice('bitcoin')['bitcoin']['usd']
+    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC_myconstant', 2, btcPrice, "BTC")
 
-    return [constant_balance, float(btc_balance), float(eth_balance)]
+    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH_myconstant', 1, ethBalance, "ETH")
+    ethPrice = getCryptocurrencyPrice('ethereum')['ethereum']['usd']
+    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH_myconstant', 2, ethPrice, "ETH")
+
+    return [constant_balance, btcBalance, ethBalance]

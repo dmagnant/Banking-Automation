@@ -131,12 +131,12 @@ def runBoA(account):
     BoA_neg = float(BoA) * -1
 
     if account == 'p':
-        updateSpreadsheet(directory, 'Checking Balance', year, 'BoA', month, BoA_neg)
-        updateSpreadsheet(directory, 'Checking Balance', year, 'BoA', month, BoA_neg, True)
+        updateSpreadsheet(directory, 'Checking Balance', year, 'BoA', month, BoA_neg, 'BoA CC')
+        updateSpreadsheet(directory, 'Checking Balance', year, 'BoA', month, BoA_neg, 'BoA CC', True)
         driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1684fQ-gW5A0uOf7s45p9tC4GiEE5s5_fjO5E7dgVI1s/edit#gid=1688093622');")
     else:
-        updateSpreadsheet(directory, 'Home', str(year) + ' Balance', 'BoA-joint', month, BoA_neg)
-        updateSpreadsheet(directory, 'Home', str(year) + ' Balance', 'BoA-joint', month, BoA_neg, True)
+        updateSpreadsheet(directory, 'Home', str(year) + ' Balance', 'BoA-joint', month, BoA_neg, 'BoA CC')
+        updateSpreadsheet(directory, 'Home', str(year) + ' Balance', 'BoA-joint', month, BoA_neg, 'BoA CC', True)
         # Display Home spreadsheet
         driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1oP3U7y8qywvXG9U_zYXgjFfqHrCyPtUDl4zPDftFCdM/edit#gid=317262693');")
 

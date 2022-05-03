@@ -113,8 +113,8 @@ if float(rewards_balance) > 50:
 if month == 12:
     year = year + 1
 barclays_neg = float(barclays) * -1
-updateSpreadsheet(directory, 'Checking Balance', year, 'Barclays', month, barclays_neg)
-updateSpreadsheet(directory, 'Checking Balance', year, 'Barclays', month, barclays_neg, True)
+updateSpreadsheet(directory, 'Checking Balance', year, 'Barclays', month, barclays_neg, 'Barclays CC')
+updateSpreadsheet(directory, 'Checking Balance', year, 'Barclays', month, barclays_neg, 'Barclays CC', True)
 # Display Checking Balance spreadsheet
 driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1684fQ-gW5A0uOf7s45p9tC4GiEE5s5_fjO5E7dgVI1s/edit#gid=1688093622');")
 # Open GnuCash if there are transactions to review

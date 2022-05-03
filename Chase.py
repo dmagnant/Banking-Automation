@@ -72,8 +72,8 @@ chase_gnu = getGnuCashBalance(mybook, 'Chase')
 if month == 12:
     year = year + 1
 chase_neg = float(chase) * -1
-updateSpreadsheet(directory, 'Checking Balance', year, 'Chase', month, chase_neg)
-updateSpreadsheet(directory, 'Checking Balance', year, 'Chase', month, chase_neg, True)
+updateSpreadsheet(directory, 'Checking Balance', year, 'Chase', month, chase_neg, 'Chase CC')
+updateSpreadsheet(directory, 'Checking Balance', year, 'Chase', month, chase_neg, 'Chase CC', True)
 
 # Display Checking Balance spreadsheet
 driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1684fQ-gW5A0uOf7s45p9tC4GiEE5s5_fjO5E7dgVI1s/edit#gid=1688093622');")

@@ -83,8 +83,8 @@ discover_gnu = getGnuCashBalance(mybook, 'Discover')
 if month == 12:
     year = year + 1
 discover_neg = float(discover.strip('$')) * -1
-updateSpreadsheet(directory, 'Checking Balance', year, 'Discover', month, discover_neg)
-updateSpreadsheet(directory, 'Checking Balance', year, 'Discover', month, discover_neg, True)
+updateSpreadsheet(directory, 'Checking Balance', year, 'Discover', month, discover_neg, 'Discover CC')
+updateSpreadsheet(directory, 'Checking Balance', year, 'Discover', month, discover_neg, 'Discover CC', True)
 
 # Display Checking Balance spreadsheet
 driver.execute_script("window.open('hhttps://docs.google.com/spreadsheets/d/1684fQ-gW5A0uOf7s45p9tC4GiEE5s5_fjO5E7dgVI1s/edit#gid=1688093622');")

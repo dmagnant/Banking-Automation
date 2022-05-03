@@ -1,28 +1,38 @@
-from CCVault import runCCVault
-from Kraken import runKraken
-from MyConstant import runMyConstant
+from Eternl import runEternl
+from Exodus import runExodus
 from IoPay import runIoPay
+from Kraken import runKraken
+from Midas import runMidas
+from MyConstant import runMyConstant
 from Presearch import runPresearch
-from Functions import updateSpreadsheet, setDirectory, chromeDriverAsUser, showMessage
+from Functions import setDirectory, chromeDriverAsUser, showMessage
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
 driver.implicitly_wait(3)
 
-my_constant_balances = runMyConstant(directory, driver)
-ada_balance = runCCVault(directory, driver)
-kraken_balances = runKraken(directory, driver)
-pre_balance = runPresearch(driver)
-iotx_balance = runIoPay(directory)
-
-updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ALGO', 1, kraken_balances[3])
-updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'DOT', 1, kraken_balances[2])
-updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH', 1, my_constant_balances[2])
-updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH2', 1, kraken_balances[0])
-updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'PRE', 1, pre_balance[0])
-updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'SOL', 1, kraken_balances[1])
+myConstantBalances = runMyConstant(directory, driver)
+adaBalance = runEternl(directory, driver)
+krakenBalances = runKraken(directory, driver)
+preBalance = runPresearch(directory, driver)
+midasBalances = runMidas(directory, driver)
+atomBalance = runExodus(directory)
+iotxBalance = runIoPay(directory)
 
 driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1sWJuxtYI-fJ6bUHBWHZTQwcggd30RcOSTMlqIzd1BBo/edit#gid=623829469');")
+showMessage("Coin Balances",
+f"ALGO:                         {round(krakenBalances[0], 4)} \n"
+f"BTC_Midas:                    {round(midasBalances[0], 4)} \n"
+f"BTC_MyConstant:           {round(myConstantBalances[1], 4)} \n"
+f"ADA:                          {round(adaBalance, 4)} \n"
+f"ATOM:                         {round(atomBalance, 4)} \n"
+f"ETH_Midas:                    {round(midasBalances[1], 4)} \n"
+f"ETH_MyConstant:           {round(myConstantBalances[2], 4)} \n"
+f"ETH2:                         {round(krakenBalances[2], 4)} \n"
+f"IOTX:                         {round(iotxBalance, 4)} \n"
+f"DOT:                          {round(krakenBalances[1], 4)} \n"
+f"PRE:                          {round(preBalance[0], 4)} \n"
+f"SOL:                          {round(krakenBalances[3], 4)} \n")
 
 # # write cardano transaction from coinbase
 # mybook = openGnuCashBook(directory, 'Finance', False, False)
