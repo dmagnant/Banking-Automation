@@ -1,5 +1,5 @@
 from selenium.webdriver.common.by import By
-from Functions import updateSpreadsheet, getCryptocurrencyPrice
+from Functions import updateSpreadsheet, getCryptocurrencyPrice, setDirectory, chromeDriverAsUser
 
 def runEternl(directory, driver):
     driver.execute_script("window.open('https://eternl.io/app/mainnet/wallet/xpub1wxalshqc32m-ml/summary');")
@@ -11,3 +11,9 @@ def runEternl(directory, driver):
     adaPrice = getCryptocurrencyPrice('cardano')['cardano']['usd']
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ADA', 2, adaPrice, "ADA")
     return adaBalance
+
+if __name__ == '__main__':
+    directory = setDirectory()
+    driver = chromeDriverAsUser()
+    response = runEternl(directory, driver)
+    print('balance: ' + response)

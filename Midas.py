@@ -1,7 +1,7 @@
 import time
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
-from Functions import updateSpreadsheet, showMessage, getCryptocurrencyPrice
+from Functions import updateSpreadsheet, showMessage, getCryptocurrencyPrice, setDirectory, chromeDriverAsUser
 
 def runMidas(directory, driver):
     driver.get("https://midas.investments/?login=true")
@@ -25,3 +25,11 @@ def runMidas(directory, driver):
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH_midas', 2, ethPrice, "ETH")
 
     return [btcBalance, ethBalance]
+
+if __name__ == '__main__':
+    directory = setDirectory()
+    driver = chromeDriverAsUser()
+    response = runMidas(directory, driver)
+    print('btc balance: ' + response[0])
+    print('eth balance: ' + response[1])
+

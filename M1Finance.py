@@ -3,7 +3,7 @@ from selenium.common.exceptions import NoSuchElementException
 from datetime import datetime
 import time
 import csv
-from Functions import getUsername, getPassword, openGnuCashBook, showMessage, getDateRange, modifyTransactionDescription, compileGnuTransactions
+from Functions import getUsername, getPassword, openGnuCashBook, showMessage, getDateRange, modifyTransactionDescription, compileGnuTransactions, setDirectory, chromeDriverAsUser
 
 def runM1(directory, driver):
     driver.get("https://dashboard.m1finance.com/login")
@@ -93,3 +93,9 @@ def runM1(directory, driver):
     review_trans = compileGnuTransactions('M1', m1_activity, gnu_m1_activity, mybook, driver, directory, date_range, 0)
     return [m1_balance, review_trans]
     
+if __name__ == '__main__':
+    directory = setDirectory()
+    driver = chromeDriverAsUser()
+    response = runM1(directory, driver)
+    print('balance: ' + response[0])
+    print('transactions to review: ' + response[1])

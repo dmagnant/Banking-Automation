@@ -1,7 +1,7 @@
 import time
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
-from Functions import getUsername, getPassword, getOTP, updateSpreadsheet, getCryptocurrencyPrice
+from Functions import getUsername, getPassword, getOTP, updateSpreadsheet, getCryptocurrencyPrice, setDirectory, chromeDriverAsUser
 
 def runKraken(directory, driver):    
     driver.execute_script("window.open('https://www.kraken.com/sign-in');")
@@ -64,3 +64,12 @@ def runKraken(directory, driver):
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'SOL', 2, solPrice, "SOL")
 
     return [algoBalance, dotBalance, eth2Balance, solBalance]
+
+if __name__ == '__main__':
+    directory = setDirectory()
+    driver = chromeDriverAsUser()
+    response = runKraken(directory, driver)
+    print('algo balance: ' + response[0])
+    print('dot balance: ' + response[1])
+    print('eth2 balance: ' + response[2])
+    print('sol balance: ' + response[3])

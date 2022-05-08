@@ -4,7 +4,7 @@ from selenium.webdriver.common.keys import Keys
 import time
 from decimal import Decimal
 from datetime import datetime
-from Functions import showMessage
+from Functions import showMessage, chromeDriverAsUser, getStartAndEndOfPreviousMonth
 
 def runHealthEquity(driver, lastmonth):
     # # # Health Equity HSA
@@ -60,3 +60,13 @@ def runHealthEquity(driver, lastmonth):
     # Capture Dividends
     HE_hsa_dividends = Decimal(driver.find_element(By.XPATH, "//*[@id='EditPortfolioTab-panel']/member-portfolio-edit-display/member-overall-portfolio-performance-display/div[1]/div/div[3]/div/span").text.strip('$').strip(','))
     return [HE_hsa_balance, HE_hsa_dividends, vanguard401kbal]
+
+if __name__ == '__main__':
+    driver = chromeDriverAsUser()
+    today = datetime.today()
+    year = today.year
+    month = today.month
+    lastmonth = getStartAndEndOfPreviousMonth(today, month, year)
+    response = runHealthEquity(driver, lastmonth)
+    print('HSA balance: ' + response[0])
+    print('401k balance: ' + response[2])

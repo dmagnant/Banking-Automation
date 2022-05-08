@@ -116,7 +116,7 @@ def getGnuCashBalance(mybook, account):
 def setDirectory():
     return os.environ.get('StorageDirectory')
 
-def chromeDriverAsUser(directory):
+def chromeDriverAsUser(directory=setDirectory()):
     chromedriver = Service(directory + r"\Projects\Coding\webdrivers\chromedriver.exe")
     options = webdriver.ChromeOptions()
     options.add_argument(r"user-data-dir=C:\Users\dmagn\AppData\Local\Google\Chrome\User Data")

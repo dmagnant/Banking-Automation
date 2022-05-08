@@ -6,10 +6,8 @@ import time
 import os
 from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, importGnuTransaction, startExpressVPN
 
-def runBoA(account):
+def runBoA(directory, driver, account):
     # account = p for personal or j for joint
-    directory = setDirectory()
-    driver = chromeDriverAsUser(directory)
     driver.implicitly_wait(3)
     driver.get("https://www.bankofamerica.com/")
     # login
@@ -149,4 +147,8 @@ def runBoA(account):
     driver.quit()
     # startExpressVPN()
 
-runBoA('j')
+if __name__ == '__main__':
+    directory = setDirectory()
+    driver = chromeDriverAsUser()
+    account = 'j'
+    runBoA(directory, driver, account)

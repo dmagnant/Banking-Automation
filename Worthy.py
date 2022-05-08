@@ -2,7 +2,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 import time
 from decimal import Decimal
-from Functions import getUsername, getPassword
+from Functions import getUsername, getPassword, setDirectory, chromeDriverAsUser
 
 def runWorthy(directory, driver):    
     driver.execute_script("window.open('https://worthy.capital/start');")
@@ -36,3 +36,9 @@ def runWorthy(directory, driver):
     # convert from decimal to float
     worthy_balance = float(worthy_balance_dec)
     return worthy_balance
+
+if __name__ == '__main__':
+    directory = setDirectory()
+    driver = chromeDriverAsUser()
+    response = runWorthy(directory, driver)
+    print('balance: ' + response)

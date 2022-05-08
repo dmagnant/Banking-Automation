@@ -1,9 +1,10 @@
+from tkinter import N
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from datetime import datetime
 import time
 import csv
-from Functions import getPassword, closeExpressVPN, openGnuCashBook, getDateRange, modifyTransactionDescription, compileGnuTransactions, showMessage
+from Functions import getPassword, closeExpressVPN, openGnuCashBook, getDateRange, modifyTransactionDescription, compileGnuTransactions, showMessage, setDirectory, chromeDriverAsUser
 
 def runAlly(directory, driver):
     closeExpressVPN()
@@ -68,4 +69,10 @@ def runAlly(directory, driver):
     # Compare against existing transactions in GnuCash and import new ones
     review_trans = compileGnuTransactions('Ally', ally_activity, gnu_ally_activity, mybook, driver, directory, date_range, 0)
     return [ally, review_trans]
-    
+
+if __name__ == '__main__':
+    directory = setDirectory()
+    driver = chromeDriverAsUser()
+    response = runAlly(directory, driver)
+    print('balance: ' + response[0])
+    print('transactions to review: ' + response[1])

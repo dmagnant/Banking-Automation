@@ -192,4 +192,8 @@ def runUpdateMonthlyGoals(accounts):
     showMessage('Review Spreadsheet', 'Once complete, click OK to close')
     driver.close()
 
-runUpdateMonthlyGoals('j')
+if __name__ == '__main__':
+    directory = setDirectory()
+    driver = chromeDriverAsUser()
+    accounts = 'j'
+    runUpdateMonthlyGoals(accounts)

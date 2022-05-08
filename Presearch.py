@@ -2,7 +2,7 @@ import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import time
-from Functions import updateSpreadsheet, setDirectory, getCryptocurrencyPrice
+from Functions import updateSpreadsheet, setDirectory, getCryptocurrencyPrice, chromeDriverAsUser
 
 def runPresearch(directory, driver):    
     driver.execute_script("window.open('https://nodes.presearch.org/dashboard');")
@@ -47,3 +47,9 @@ def runPresearch(directory, driver):
     prePrice = getCryptocurrencyPrice('presearch')['presearch']['usd']
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'PRE', 2, prePrice, "PRE")
     return [preTotal, stakedTokens]
+
+if __name__ == '__main__':
+    directory = setDirectory()
+    driver = chromeDriverAsUser()
+    response = runPresearch(directory, driver)
+    print('balance: ' + response[0])

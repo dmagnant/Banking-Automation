@@ -5,7 +5,7 @@ from Kraken import runKraken
 from Midas import runMidas
 from MyConstant import runMyConstant
 from Presearch import runPresearch
-from Functions import setDirectory, chromeDriverAsUser, showMessage
+from Functions import setDirectory, chromeDriverAsUser, showMessage, openGnuCashBook
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
@@ -61,19 +61,19 @@ f"SOL:                          {round(krakenBalances[3], 4)} \n")
 # book.close()
 
 # get dollars invested balance (must be run per coin)
-# mybook = openGnuCashBook(directory, 'Finance', True, True)
-# gnu_account = "Assets:Non-Liquid Assets:CryptoCurrency"
-# total = 0
-# # retrieve transactions from GnuCash
-# transactions = [tr for tr in mybook.transactions
-#                 for spl in tr.splits
-#                 if spl.account.fullname == gnu_account]
-# for tr in transactions:
-#     for spl in tr.splits:
-#         amount = format(spl.value, ".2f")
-#         if spl.account.fullname == gnu_account:
-#             total += abs(float(amount))
-# print(total)
+mybook = openGnuCashBook(directory, 'Finance', True, True)
+gnu_account = "Assets:Non-Liquid Assets:CryptoCurrency:Cardano"
+total = 0
+# retrieve transactions from GnuCash
+transactions = [tr for tr in mybook.transactions
+                for spl in tr.splits
+                if spl.account.fullname == gnu_account]
+for tr in transactions:
+    for spl in tr.splits:
+        amount = format(spl.value, ".2f")
+        if spl.account.fullname == gnu_account:
+            total += abs(float(amount))
+print(total)
 
 # # get total investment (dollars) # # 
 # def sumDollarInvestment(mybook, gnu_account):

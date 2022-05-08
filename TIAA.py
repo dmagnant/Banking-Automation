@@ -1,7 +1,7 @@
 import time
 from selenium.webdriver.common.by import By
 from Functions import closeExpressVPN
-from Functions import getPassword, showMessage, closeExpressVPN
+from Functions import getPassword, showMessage, closeExpressVPN, setDirectory, chromeDriverAsUser
 
 def runTIAA(directory, driver):
     closeExpressVPN()
@@ -20,4 +20,10 @@ def runTIAA(directory, driver):
     driver.get("https://shared.tiaa.org/private/banktxns/tiaabank?number=f2745d23d777a9b7f1378c1cb00d36c2")
     tiaa = driver.find_element(By.XPATH, "//*[@id='hero-balance']/div[1]/div[2]").text.strip('$').replace(',','')
     return tiaa
+
+if __name__ == '__main__':
+    directory = setDirectory()
+    driver = chromeDriverAsUser()
+    response = runTIAA(directory, driver)
+    print('balance: ' + response)
     
