@@ -9,34 +9,33 @@ from Functions import setDirectory, chromeDriverAsUser, openGnuCashBook, showMes
 today = datetime.today()
 year = today.year
 month = today.month
-lastmonth = getStartAndEndOfPreviousMonth(today, month, year)
+lastMonth = getStartAndEndOfPreviousMonth(today, month, year)
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
 driver.implicitly_wait(6)
 
-my_constant_balances = runMyConstant(directory, driver, 'usd')
-worthy_balance = runWorthy(directory, driver)
-HE_balances = runHealthEquity(driver, lastmonth)
+myConstantBalances = runMyConstant(directory, driver, 'usd')
+worthyBalance = runWorthy(directory, driver)
+HEBalances = runHealthEquity(driver, lastMonth)
 
-# Set Gnucash Book
 mybook = openGnuCashBook(directory, 'Finance', False, False)
-constant_interest = Decimal(my_constant_balances[0] - float(getGnuCashBalance(mybook, 'MyConstant')))
-worthy_interest = Decimal(worthy_balance - float(getGnuCashBalance(mybook, 'Worthy')))
-HE_hsa_change = round(Decimal(HE_balances[0] - float(getGnuCashBalance(mybook, 'HSA'))), 2)
-HE_hsa_mkt_change = round(Decimal(HE_hsa_change - HE_balances[1]), 2)
+constantInterest = Decimal(myConstantBalances[0] - float(getGnuCashBalance(mybook, 'MyConstant')))
+worthyInterest = Decimal(worthyBalance - float(getGnuCashBalance(mybook, 'Worthy')))
+HEHSAChange = round(Decimal(HEBalances[0] - float(getGnuCashBalance(mybook, 'HSA'))), 2)
+HEHSAMarketChange = round(Decimal(HEHSAChange - HEBalances[1]), 2)
 
-writeGnuTransaction(mybook, "Interest", lastmonth[1], -round(constant_interest, 2), "Income:Investments:Interest", "Assets:Liquid Assets:My Constant")
-writeGnuTransaction(mybook, "Interest", lastmonth[1], -round(worthy_interest, 2), "Income:Investments:Interest", "Assets:Liquid Assets:Worthy Bonds")
-writeGnuTransaction(mybook, "HSA Statement", lastmonth[1], [HE_hsa_change, -HE_balances[1], -HE_hsa_mkt_change], ["Income:Investments:Dividends", "Income:Investments:Market Change"], "Assets:Non-Liquid Assets:HSA")
+writeGnuTransaction(mybook, "Interest", lastMonth[1], -round(constantInterest, 2), "Income:Investments:Interest", "Assets:Liquid Assets:My Constant")
+writeGnuTransaction(mybook, "Interest", lastMonth[1], -round(worthyInterest, 2), "Income:Investments:Interest", "Assets:Liquid Assets:Worthy Bonds")
+writeGnuTransaction(mybook, "HSA Statement", lastMonth[1], [HEHSAChange, -HEBalances[1], -HEHSAMarketChange], ["Income:Investments:Dividends", "Income:Investments:Market Change"], "Assets:Non-Liquid Assets:HSA")
 
-liq_assets = getGnuCashBalance(mybook, 'Liquid Assets')
+liquidAssets = getGnuCashBalance(mybook, 'Liquid Assets')
 
-updateSpreadsheet(directory, 'Asset Allocation', year, 'Bonds', month, (worthy_balance + my_constant_balances[0]), 'Liquid Assets')
-updateSpreadsheet(directory, 'Asset Allocation', year, 'HE_HSA', month, HE_balances[0], 'NM HSA')
-updateSpreadsheet(directory, 'Asset Allocation', year, 'Liquid Assets', month, float(liq_assets), 'Liquid Assets')
-updateSpreadsheet(directory, 'Asset Allocation', year, 'Vanguard401k', month, HE_balances[2], '401k')
+updateSpreadsheet(directory, 'Asset Allocation', year, 'Bonds', month, (worthyBalance + myConstantBalances[0]), 'Liquid Assets')
+updateSpreadsheet(directory, 'Asset Allocation', year, 'HE_HSA', month, HEBalances[0], 'NM HSA')
+updateSpreadsheet(directory, 'Asset Allocation', year, 'Liquid Assets', month, float(liquidAssets), 'Liquid Assets')
+updateSpreadsheet(directory, 'Asset Allocation', year, 'Vanguard401k', month, HEBalances[2], '401k')
 
 driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1sWJuxtYI-fJ6bUHBWHZTQwcggd30RcOSTMlqIzd1BBo/edit#gid=2058576150');")
-showMessage("Balances + Review", f'MyConstant: {my_constant_balances[0]} \n' f'Worthy: {worthy_balance} \n' f'Liquid Assets: {liq_assets} \n' f'401k: {HE_balances[2]}')
+showMessage("Balances + Review", f'MyConstant: {myConstantBalances[0]} \n' f'Worthy: {worthyBalance} \n' f'Liquid Assets: {liquidAssets} \n' f'401k: {HEBalances[2]}')
 driver.quit()

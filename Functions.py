@@ -26,13 +26,13 @@ def getOTP(account):
     return pyotp.TOTP(os.environ.get(account)).now()
 
 def getUsername(directory, name):
-    keepass_file = directory + r"\Other\KeePass.kdbx"
-    KeePass = PyKeePass(keepass_file, password=os.environ.get('KeePass'))
+    keepassFile = directory + r"\Other\KeePass.kdbx"
+    KeePass = PyKeePass(keepassFile, password=os.environ.get('KeePass'))
     return KeePass.find_entries(title=name, first=True).username
 
 def getPassword(directory, name):
-    keepass_file = directory + r"\Other\KeePass.kdbx"
-    KeePass = PyKeePass(keepass_file, password=os.environ.get('KeePass'))
+    keepassFile = directory + r"\Other\KeePass.kdbx"
+    KeePass = PyKeePass(keepassFile, password=os.environ.get('KeePass'))
     return KeePass.find_entries(title=name, first=True).password
 
 def checkIfProcessRunning(processName):
@@ -72,15 +72,15 @@ def openGnuCashBook(directory, type, readOnly, openIfLocked):
     elif type == 'Home':
         book = directory + r"\Stuff\Home\Finances\Home.gnucash"
     try:
-        mybook = piecash.open_book(book, readonly=readOnly, open_if_lock=openIfLocked)
+        myBook = piecash.open_book(book, readonly=readOnly, open_if_lock=openIfLocked)
     except GnucashException:
         showMessage("Gnucash file open", f'Close Gnucash file then click OK \n')
-        mybook = piecash.open_book(book, readonly=readOnly, open_if_lock=openIfLocked)
-    return mybook
+        myBook = piecash.open_book(book, readonly=readOnly, open_if_lock=openIfLocked)
+    return myBook
 
-def getGnuCashBalance(mybook, account):
+def getGnuCashBalance(myBook, account):
     # Get GnuCash Balances
-    with mybook as book:
+    with myBook as book:
         if account == 'Ally':
             accountpath = "Assets:Ally Checking Account"
         elif account == 'Amex':
@@ -109,7 +109,7 @@ def getGnuCashBalance(mybook, account):
             accountpath = "Assets:Non-Liquid Assets:Pension"
         elif account == 'Worthy':
             accountpath = "Assets:Liquid Assets:Worthy Bonds"
-        balance = mybook.accounts(fullname=accountpath).get_balance()
+        balance = myBook.accounts(fullname=accountpath).get_balance()
     book.close()
     return balance
 
@@ -132,8 +132,8 @@ def chromeDriverBlank(directory):
     return webdriver.Chrome(service=chromedriver, options=options)
 
 def updateSpreadsheet(directory, sheetTitle, tabTitle, account, month, value, symbol="$", modified=False):
-    json_creds = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\creds.json"
-    sheet = gspread.service_account(filename=json_creds).open(sheetTitle)
+    jsonCreds = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\creds.json"
+    sheet = gspread.service_account(filename=jsonCreds).open(sheetTitle)
     worksheet = sheet.worksheet(str(tabTitle))
     cell = getCell(account, month)
     if modified:
@@ -232,16 +232,16 @@ def getStartAndEndOfPreviousMonth(today, month, year):
         enddate = today.replace(month=month - 1, day=31)
     return [startdate, enddate]
 
-def getDateRange(today, num_days):
+def getDateRange(today, numDays):
     # Gather last 3 days worth of transactions
-    current_date = today.date()    
-    date_range = current_date.isoformat()
+    currentDate = today.date()    
+    dateRange = currentDate.isoformat()
     day = 1
-    while day <= num_days:
-        day_before = (current_date - timedelta(days=day)).isoformat()
-        date_range = date_range + day_before
+    while day <= numDays:
+        dayBefore = (currentDate - timedelta(days=day)).isoformat()
+        dateRange = dateRange + dayBefore
         day += 1
-    return date_range
+    return dateRange
 
 def modifyTransactionDescription(description, amount="0.00"):
     if "INTERNET TRANSFER FROM ONLINE SAVINGS ACCOUNT XXXXXX9703" in description.upper():
@@ -299,276 +299,276 @@ def modifyTransactionDescription(description, amount="0.00"):
     return description
 
 def setToAccount(account, row):
-    to_account = ''
-    row_num = 2 if account in ['BoA', 'BoA-joint', 'Chase', 'Discover'] else 1
-    if "BoA CC" in row[row_num]:
-        if "Rewards" in row[row_num]:
-            to_account = "Income:Credit Card Rewards"  
+    toAccount = ''
+    rowNum = 2 if account in ['BoA', 'BoA-joint', 'Chase', 'Discover'] else 1
+    if "BoA CC" in row[rowNum]:
+        if "Rewards" in row[rowNum]:
+            toAccount = "Income:Credit Card Rewards"  
         else: 
             if account == 'Ally':
-                to_account = "Liabilities:BoA Credit Card"
+                toAccount = "Liabilities:BoA Credit Card"
             elif account == 'M1':
-                to_account = "Liabilities:Credit Cards:BankAmericard Cash Rewards"
-    elif "ARCADIA" in row[row_num]:
-        to_account = ""
-    elif "Tessa Deposit" in row[row_num]:
-        to_account = "Tessa's Contributions"
-    elif "MyConstant transfer" in row[row_num]:
-        to_account = "Assets:Liquid Assets:My Constant"
-    elif "Water Bill" in row[row_num]:
-        to_account = "Expenses:Utilities:Water"
-    elif "Dan Deposit" in row[row_num]:
-        to_account = "Dan's Contributions"
-    elif "Mortgage Payment" in row[row_num]:
-        to_account = "Liabilities:Mortgage Loan"
-    elif "Swagbucks" in row[row_num]:
-        to_account = "Income:Market Research"
-    elif "NM Paycheck" in row[row_num]:
-        to_account = "Income:Salary"
-    elif "GOOGLE FI" in row[row_num].upper() or "GOOGLE *FI" in row[row_num].upper():
-        to_account = "Expenses:Utilities:Phone"
-    elif "TIAA Transfer" in row[row_num]:
-        to_account = "Assets:Liquid Assets:TIAA"
-    elif "ADA PURCHASE" in row[row_num].upper():
-        to_account = "Assets:Non-Liquid Assets:CryptoCurrency"
-    elif "Pinecone Research" in row[row_num]:
-        to_account = "Income:Market Research"
-    elif "IRA Transfer" in row[row_num]:
-        to_account = "Assets:Non-Liquid Assets:Roth IRA"
-    elif "Lending Club" in row[row_num]:
-        to_account = "Income:Investments:Interest"
-    elif "Chase CC Rewards" in row[row_num]:
-        to_account = "Income:Credit Card Rewards"
-    elif "Chase CC" in row[row_num]:
-        to_account = "Liabilities:Credit Cards:Chase Freedom"
-    elif "Discover CC Rewards" in row[row_num]:
-        to_account = "Income:Credit Card Rewards"        
-    elif "Discover CC" in row[row_num]:
-        to_account = "Liabilities:Credit Cards:Discover It"
-    elif "Amex CC" in row[row_num]:
-        to_account = "Liabilities:Credit Cards:Amex BlueCash Everyday"
-    elif "Barclays CC Rewards" in row[row_num]:
-        to_account = "Income:Credit Card Rewards"
-    elif "Barclays CC" in row[row_num]:
-        to_account = "Liabilities:Credit Cards:BarclayCard CashForward"
-    elif "Ally Transfer" in row[row_num]:
-        to_account = "Expenses:Joint Expenses"
-    elif "BP#" in row[row_num]:
-        to_account = "Expenses:Transportation:Gas (Vehicle)"
-    elif "CAT DOCTOR" in row[row_num]:
-        to_account = "Expenses:Medical:Vet"
-    elif "PARKING" in row[row_num]:
-        to_account = "Expenses:Transportation:Parking"
-    elif "PROGRESSIVE" in row[row_num]:
-        to_account = "Expenses:Transportation:Car Insurance"
-    elif "SPECTRUM" in row[row_num].upper():
-            to_account = "Expenses:Utilities:Internet"     
-    elif "UBER" in row[row_num].upper() and "EATS" in row[row_num].upper():
-        to_account = "Expenses:Bars & Restaurants"
-    elif "UBER" in row[row_num].upper():
-        to_account = "Expenses:Travel:Ride Services" if account in ['BoA-joint', 'Ally'] else "Expenses:Transportation:Ride Services"
-    elif "TECH WAY AUTO SERV" in row[row_num].upper():
-        to_account = "Expenses:Transportation:Car Maintenance"
-    elif "INTEREST PAID" in row[row_num].upper():
-        to_account = "Income:Interest" if account in ['BoA-joint', 'Ally'] else "Income:Investments:Interest"
+                toAccount = "Liabilities:Credit Cards:BankAmericard Cash Rewards"
+    elif "ARCADIA" in row[rowNum]:
+        toAccount = ""
+    elif "Tessa Deposit" in row[rowNum]:
+        toAccount = "Tessa's Contributions"
+    elif "MyConstant transfer" in row[rowNum]:
+        toAccount = "Assets:Liquid Assets:My Constant"
+    elif "Water Bill" in row[rowNum]:
+        toAccount = "Expenses:Utilities:Water"
+    elif "Dan Deposit" in row[rowNum]:
+        toAccount = "Dan's Contributions"
+    elif "Mortgage Payment" in row[rowNum]:
+        toAccount = "Liabilities:Mortgage Loan"
+    elif "Swagbucks" in row[rowNum]:
+        toAccount = "Income:Market Research"
+    elif "NM Paycheck" in row[rowNum]:
+        toAccount = "Income:Salary"
+    elif "GOOGLE FI" in row[rowNum].upper() or "GOOGLE *FI" in row[rowNum].upper():
+        toAccount = "Expenses:Utilities:Phone"
+    elif "TIAA Transfer" in row[rowNum]:
+        toAccount = "Assets:Liquid Assets:TIAA"
+    elif "ADA PURCHASE" in row[rowNum].upper():
+        toAccount = "Assets:Non-Liquid Assets:CryptoCurrency"
+    elif "Pinecone Research" in row[rowNum]:
+        toAccount = "Income:Market Research"
+    elif "IRA Transfer" in row[rowNum]:
+        toAccount = "Assets:Non-Liquid Assets:Roth IRA"
+    elif "Lending Club" in row[rowNum]:
+        toAccount = "Income:Investments:Interest"
+    elif "Chase CC Rewards" in row[rowNum]:
+        toAccount = "Income:Credit Card Rewards"
+    elif "Chase CC" in row[rowNum]:
+        toAccount = "Liabilities:Credit Cards:Chase Freedom"
+    elif "Discover CC Rewards" in row[rowNum]:
+        toAccount = "Income:Credit Card Rewards"        
+    elif "Discover CC" in row[rowNum]:
+        toAccount = "Liabilities:Credit Cards:Discover It"
+    elif "Amex CC" in row[rowNum]:
+        toAccount = "Liabilities:Credit Cards:Amex BlueCash Everyday"
+    elif "Barclays CC Rewards" in row[rowNum]:
+        toAccount = "Income:Credit Card Rewards"
+    elif "Barclays CC" in row[rowNum]:
+        toAccount = "Liabilities:Credit Cards:BarclayCard CashForward"
+    elif "Ally Transfer" in row[rowNum]:
+        toAccount = "Expenses:Joint Expenses"
+    elif "BP#" in row[rowNum]:
+        toAccount = "Expenses:Transportation:Gas (Vehicle)"
+    elif "CAT DOCTOR" in row[rowNum]:
+        toAccount = "Expenses:Medical:Vet"
+    elif "PARKING" in row[rowNum]:
+        toAccount = "Expenses:Transportation:Parking"
+    elif "PROGRESSIVE" in row[rowNum]:
+        toAccount = "Expenses:Transportation:Car Insurance"
+    elif "SPECTRUM" in row[rowNum].upper():
+            toAccount = "Expenses:Utilities:Internet"     
+    elif "UBER" in row[rowNum].upper() and "EATS" in row[rowNum].upper():
+        toAccount = "Expenses:Bars & Restaurants"
+    elif "UBER" in row[rowNum].upper():
+        toAccount = "Expenses:Travel:Ride Services" if account in ['BoA-joint', 'Ally'] else "Expenses:Transportation:Ride Services"
+    elif "TECH WAY AUTO SERV" in row[rowNum].upper():
+        toAccount = "Expenses:Transportation:Car Maintenance"
+    elif "INTEREST PAID" in row[rowNum].upper():
+        toAccount = "Income:Interest" if account in ['BoA-joint', 'Ally'] else "Income:Investments:Interest"
 
-    if not to_account:
+    if not toAccount:
         for i in ['HOMEDEPOT.COM', 'THE HOME DEPOT']:
-            if i in row[row_num].upper():
+            if i in row[rowNum].upper():
                 if account in ['BoA-joint', 'Ally']:
-                    to_account = "Expenses:Home Depot"
+                    toAccount = "Expenses:Home Depot"
     
-    if not to_account:
+    if not toAccount:
         for i in ['AMAZON', 'AMZN']:
-            if i in row[row_num].upper():
-                to_account = "Expenses:Amazon"
+            if i in row[rowNum].upper():
+                toAccount = "Expenses:Amazon"
 
-    if not to_account:
+    if not toAccount:
         if len(row) >= 5:
             if row[3] == "Groceries" or row[4] == "Supermarkets":
-                to_account = "Expenses:Groceries"
-        if not to_account:
+                toAccount = "Expenses:Groceries"
+        if not toAccount:
             for i in ['PICK N SAVE', 'KOPPA', 'KETTLE RANGE', 'WHOLE FOODS', 'WHOLEFDS', 'TARGET']:
-                if i in row[row_num].upper():
-                    to_account = "Expenses:Groceries"
+                if i in row[rowNum].upper():
+                    toAccount = "Expenses:Groceries"
 
-    if not to_account:
+    if not toAccount:
         if len(row) >= 5:
             if row[3] == "Food & Drink" or row[4] == "Restaurants":
-                to_account = "Expenses:Bars & Restaurants"
-        if not to_account:
+                toAccount = "Expenses:Bars & Restaurants"
+        if not toAccount:
             for i in ['MCDONALD', 'GRUBHUB', 'JIMMY JOHN', 'COLECTIVO', 'INSOMNIA', 'EATSTREET', "KOPP'S CUSTARD", 'MAHARAJA', 'STARBUCKS', "PIETRO'S PIZZA", 'SPROCKET CAFE']:
-                if i in row[row_num].upper():
-                    to_account = "Expenses:Bars & Restaurants"
+                if i in row[rowNum].upper():
+                    toAccount = "Expenses:Bars & Restaurants"
     
-    if not to_account:
-            to_account = "Expenses:Other"
-    return to_account
+    if not toAccount:
+            toAccount = "Expenses:Other"
+    return toAccount
 
 def formatTransactionVariables(account, row):
-    cc_payment = False
+    ccPayment = False
     description = row[1]
     if account == 'Ally':
-        postdate = datetime.strptime(row[0], '%Y-%m-%d')
+        postDate = datetime.strptime(row[0], '%Y-%m-%d')
         description = row[1]
         amount = Decimal(row[2])
-        from_account = "Assets:Ally Checking Account"
-        review_trans_path = row[0] + ", " + row[1] + ", " + row[2] + "\n"
+        fromAccount = "Assets:Ally Checking Account"
+        reviewTransPath = row[0] + ", " + row[1] + ", " + row[2] + "\n"
     elif account == 'Amex':
-        postdate = datetime.strptime(row[0], '%m/%d/%Y')
+        postDate = datetime.strptime(row[0], '%m/%d/%Y')
         description = row[1]
         amount = -Decimal(row[2])
         if "AUTOPAY PAYMENT" in row[1]:
-            cc_payment = True
-        from_account = "Liabilities:Credit Cards:Amex BlueCash Everyday"
-        review_trans_path = row[0] + ", " + row[1] + ", " + row[2] + "\n"
+            ccPayment = True
+        fromAccount = "Liabilities:Credit Cards:Amex BlueCash Everyday"
+        reviewTransPath = row[0] + ", " + row[1] + ", " + row[2] + "\n"
     elif account == 'Barclays':
-        postdate = datetime.strptime(row[0], '%m/%d/%Y')
+        postDate = datetime.strptime(row[0], '%m/%d/%Y')
         description = row[1]
         amount = Decimal(row[3])
         if "Payment Received" in row[1]:
-            cc_payment = True
-        from_account = "Liabilities:Credit Cards:BarclayCard CashForward"
-        review_trans_path = row[0] + ", " + row[1] + ", " + row[3] + "\n"
+            ccPayment = True
+        fromAccount = "Liabilities:Credit Cards:BarclayCard CashForward"
+        reviewTransPath = row[0] + ", " + row[1] + ", " + row[3] + "\n"
     elif account == 'BoA':
-        postdate = datetime.strptime(row[0], '%m/%d/%Y')
+        postDate = datetime.strptime(row[0], '%m/%d/%Y')
         description = row[2]
         amount = Decimal(row[4])
         if "BA ELECTRONIC PAYMENT" in row[2]:
-            cc_payment = True
-        from_account = "Liabilities:Credit Cards:BankAmericard Cash Rewards"
-        review_trans_path = row[0] + ", " + row[2] + ", " + row[4] + "\n"
+            ccPayment = True
+        fromAccount = "Liabilities:Credit Cards:BankAmericard Cash Rewards"
+        reviewTransPath = row[0] + ", " + row[2] + ", " + row[4] + "\n"
     elif account == 'BoA-joint':
-        postdate = datetime.strptime(row[0], '%m/%d/%Y')
+        postDate = datetime.strptime(row[0], '%m/%d/%Y')
         description = row[2]
         amount = Decimal(row[4])
         if "BA ELECTRONIC PAYMENT" in row[2]:
-            cc_payment = True
-        from_account = "Liabilities:BoA Credit Card"
-        review_trans_path = row[0] + ", " + row[2] + ", " + row[4] + "\n"
+            ccPayment = True
+        fromAccount = "Liabilities:BoA Credit Card"
+        reviewTransPath = row[0] + ", " + row[2] + ", " + row[4] + "\n"
     elif account == 'Chase':
-        postdate = datetime.strptime(row[1], '%m/%d/%Y')
+        postDate = datetime.strptime(row[1], '%m/%d/%Y')
         description = row[2]
         amount = Decimal(row[5])
         if "AUTOMATIC PAYMENT" in row[2]:
-            cc_payment = True
-        from_account = "Liabilities:Credit Cards:Chase Freedom"
-        review_trans_path = row[1] + ", " + row[2] + ", " + row[5] + "\n"
+            ccPayment = True
+        fromAccount = "Liabilities:Credit Cards:Chase Freedom"
+        reviewTransPath = row[1] + ", " + row[2] + ", " + row[5] + "\n"
     elif account == 'Discover':
-        postdate = datetime.strptime(row[1], '%m/%d/%Y')
+        postDate = datetime.strptime(row[1], '%m/%d/%Y')
         description = row[2]
         amount = -Decimal(row[3])
         if "DIRECTPAY FULL BALANCE" in row[2]:
-            cc_payment = True
-        from_account = "Liabilities:Credit Cards:Discover It"
-        review_trans_path = row[1] + ", " + row[2] + ", " + row[3] + "\n"
+            ccPayment = True
+        fromAccount = "Liabilities:Credit Cards:Discover It"
+        reviewTransPath = row[1] + ", " + row[2] + ", " + row[3] + "\n"
     elif account == 'M1':
-        postdate = datetime.strptime(row[0], '%Y-%m-%d')
+        postDate = datetime.strptime(row[0], '%Y-%m-%d')
         description = row[1]
         amount = Decimal(row[2])
-        from_account = "Assets:Liquid Assets:M1 Spend"
-        review_trans_path = row[0] + ", " + row[1] + ", " + row[2] + "\n"
-    return [postdate, description, amount, cc_payment, from_account, review_trans_path]
+        fromAccount = "Assets:Liquid Assets:M1 Spend"
+        reviewTransPath = row[0] + ", " + row[1] + ", " + row[2] + "\n"
+    return [postDate, description, amount, ccPayment, fromAccount, reviewTransPath]
 
-def compileGnuTransactions(account, transactions_csv, gnu_csv, mybook, driver, directory, date_range, line_start=1):
-    import_csv = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\import.csv"
-    open(import_csv, 'w', newline='').truncate()
+def compileGnuTransactions(account, transactionsCSV, gnuCSV, myBook, driver, directory, dateRange, lineStart=1):
+    importCSV = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\import.csv"
+    open(importCSV, 'w', newline='').truncate()
     if account == 'Ally':
-        gnu_account = "Assets:Ally Checking Account"
+        gnuAccount = "Assets:Ally Checking Account"
     elif account == 'M1':
-        gnu_account = "Assets:Liquid Assets:M1 Spend"
+        gnuAccount = "Assets:Liquid Assets:M1 Spend"
     
     # retrieve transactions from GnuCash
-    transactions = [tr for tr in mybook.transactions
-                    if str(tr.post_date.strftime('%Y-%m-%d')) in date_range
+    transactions = [tr for tr in myBook.transactions
+                    if str(tr.post_date.strftime('%Y-%m-%d')) in dateRange
                     for spl in tr.splits
-                    if spl.account.fullname == gnu_account]
+                    if spl.account.fullname == gnuAccount]
     for tr in transactions:
         date = str(tr.post_date.strftime('%Y-%m-%d'))
         description = str(tr.description)
         for spl in tr.splits:
             amount = format(spl.value, ".2f")
-            if spl.account.fullname == gnu_account:
+            if spl.account.fullname == gnuAccount:
                 row = date, description, str(amount)
-                csv.writer(open(gnu_csv, 'a', newline='')).writerow(row)
+                csv.writer(open(gnuCSV, 'a', newline='')).writerow(row)
 
-    for row in csv.reader(open(transactions_csv, 'r'), delimiter=','):
-        if row not in csv.reader(open(gnu_csv, 'r'), delimiter=','):
-            csv.writer(open(import_csv, 'a', newline='')).writerow(row)
-    review_trans = importGnuTransaction(account, import_csv, mybook, driver, directory, line_start)
-    return review_trans
+    for row in csv.reader(open(transactionsCSV, 'r'), delimiter=','):
+        if row not in csv.reader(open(gnuCSV, 'r'), delimiter=','):
+            csv.writer(open(importCSV, 'a', newline='')).writerow(row)
+    reviewTrans = importGnuTransaction(account, importCSV, myBook, driver, directory, lineStart)
+    return reviewTrans
 
-def importGnuTransaction(account, transactions_csv, mybook, driver, directory, line_start=1):
-    review_trans = ''
-    row_count = 0
-    line_count = 0
-    energy_bill_num = 0
-    for row in csv.reader(open(transactions_csv), delimiter=','):
-        row_count += 1
+def importGnuTransaction(account, transactionsCSV, myBook, driver, directory, lineStart=1):
+    reviewTrans = ''
+    rowCount = 0
+    lineCount = 0
+    energyBillNum = 0
+    for row in csv.reader(open(transactionsCSV), delimiter=','):
+        rowCount += 1
         # skip header line
-        if line_count < line_start:
-            line_count += 1
+        if lineCount < lineStart:
+            lineCount += 1
         else:
-            transaction_variables = formatTransactionVariables(account, row)
+            transactionVariables = formatTransactionVariables(account, row)
             # Skip credit card payments from CC bills (already captured through Checking accounts)
-            if transaction_variables[3]:
+            if transactionVariables[3]:
                 continue
             else:
-                description = transaction_variables[1]
-                postdate = transaction_variables[0]
-                from_account = transaction_variables[4]
-                amount = transaction_variables[2]
-                to_account = setToAccount(account, row)
+                description = transactionVariables[1]
+                postDate = transactionVariables[0]
+                fromAccount = transactionVariables[4]
+                amount = transactionVariables[2]
+                toAccount = setToAccount(account, row)
                 if 'ARCADIA' in description.upper():
-                    energy_bill_num += 1
-                    amount = getEnergyBillAmounts(driver, directory, transaction_variables[2], energy_bill_num)
+                    energyBillNum += 1
+                    amount = getEnergyBillAmounts(driver, directory, transactionVariables[2], energyBillNum)
                 elif 'NM PAYCHECK' in description.upper() or "ADA PURCHASE" in description.upper():
-                    review_trans = review_trans + transaction_variables[5]
+                    reviewTrans = reviewTrans + transactionVariables[5]
                 else:
-                    if to_account == "Expenses:Other":
-                        review_trans = review_trans + transaction_variables[5]
-                writeGnuTransaction(mybook, description, postdate, amount, from_account, to_account)
-    return review_trans
+                    if toAccount == "Expenses:Other":
+                        reviewTrans = reviewTrans + transactionVariables[5]
+                writeGnuTransaction(myBook, description, postDate, amount, fromAccount, toAccount)
+    return reviewTrans
 
-def writeGnuTransaction(mybook, description, postdate, amount, from_account, to_account=''):
-    with mybook as book:
+def writeGnuTransaction(myBook, description, postDate, amount, fromAccount, toAccount=''):
+    with myBook as book:
         if "Contribution + Interest" in description:
-            split = [Split(value=amount[0], memo="scripted", account=mybook.accounts(fullname="Income:Investments:Interest")),
-                    Split(value=amount[1], memo="scripted",account=mybook.accounts(fullname="Income:Employer Pension Contributions")),
-                    Split(value=amount[2], memo="scripted",account=mybook.accounts(fullname=from_account))]
+            split = [Split(value=amount[0], memo="scripted", account=myBook.accounts(fullname="Income:Investments:Interest")),
+                    Split(value=amount[1], memo="scripted",account=myBook.accounts(fullname="Income:Employer Pension Contributions")),
+                    Split(value=amount[2], memo="scripted",account=myBook.accounts(fullname=fromAccount))]
         elif "HSA Statement" in description:
-            split = [Split(value=amount[0], account=mybook.accounts(fullname=to_account)),
-                    Split(value=amount[1], account=mybook.accounts(fullname=from_account[0])),
-                    Split(value=amount[2], account=mybook.accounts(fullname=from_account[1]))]
+            split = [Split(value=amount[0], account=myBook.accounts(fullname=toAccount)),
+                    Split(value=amount[1], account=myBook.accounts(fullname=fromAccount[0])),
+                    Split(value=amount[2], account=myBook.accounts(fullname=fromAccount[1]))]
         elif "ARCADIA" in description:
-            split=[Split(value=amount[0], memo="Arcadia Membership Fee", account=mybook.accounts(fullname="Expenses:Utilities:Arcadia Membership")),
-                    Split(value=amount[1], memo="Solar Rebate", account=mybook.accounts(fullname="Expenses:Utilities:Arcadia Membership")),
-                    Split(value=amount[2], account=mybook.accounts(fullname="Expenses:Utilities:Electricity")),
-                    Split(value=amount[3], account=mybook.accounts(fullname="Expenses:Utilities:Gas")),
-                    Split(value=amount[4], account=mybook.accounts(fullname=from_account))]
+            split=[Split(value=amount[0], memo="Arcadia Membership Fee", account=myBook.accounts(fullname="Expenses:Utilities:Arcadia Membership")),
+                    Split(value=amount[1], memo="Solar Rebate", account=myBook.accounts(fullname="Expenses:Utilities:Arcadia Membership")),
+                    Split(value=amount[2], account=myBook.accounts(fullname="Expenses:Utilities:Electricity")),
+                    Split(value=amount[3], account=myBook.accounts(fullname="Expenses:Utilities:Gas")),
+                    Split(value=amount[4], account=myBook.accounts(fullname=fromAccount))]
         # elif "NM Paycheck" in description:
-        #     split = [Split(value=round(Decimal(2229.20), 2), memo="scripted",account=mybook.accounts(fullname=from_account)),
-        #             Split(value=round(Decimal(206.00), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Non-Liquid Assets:401k")),
-        #             Split(value=round(Decimal(400.00), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Liquid Assets:Promos")),
-        #             Split(value=round(Decimal(5.49), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Medical:Dental")),
-        #             Split(value=round(Decimal(34.10), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Medical:Health")),
-        #             Split(value=round(Decimal(2.67), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Medical:Vision")),
-        #             Split(value=round(Decimal(202.39), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:Social Security")),
-        #             Split(value=round(Decimal(47.33), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:Medicare")),
-        #             Split(value=round(Decimal(415.83), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:Federal Tax")),
-        #             Split(value=round(Decimal(159.07), 2), memo="scripted",account=mybook.accounts(fullname="Expenses:Income Taxes:State Tax")),
-        #             Split(value=round(Decimal(131.25), 2), memo="scripted",account=mybook.accounts(fullname="Assets:Non-Liquid Assets:HSA")),
-        #             Split(value=-round(Decimal(3433.33), 2), memo="scripted",account=mybook.accounts(fullname=to_account))]
+        #     split = [Split(value=round(Decimal(2229.20), 2), memo="scripted",account=myBook.accounts(fullname=fromAccount)),
+        #             Split(value=round(Decimal(206.00), 2), memo="scripted",account=myBook.accounts(fullname="Assets:Non-Liquid Assets:401k")),
+        #             Split(value=round(Decimal(400.00), 2), memo="scripted",account=myBook.accounts(fullname="Assets:Liquid Assets:Promos")),
+        #             Split(value=round(Decimal(5.49), 2), memo="scripted",account=myBook.accounts(fullname="Expenses:Medical:Dental")),
+        #             Split(value=round(Decimal(34.10), 2), memo="scripted",account=myBook.accounts(fullname="Expenses:Medical:Health")),
+        #             Split(value=round(Decimal(2.67), 2), memo="scripted",account=myBook.accounts(fullname="Expenses:Medical:Vision")),
+        #             Split(value=round(Decimal(202.39), 2), memo="scripted",account=myBook.accounts(fullname="Expenses:Income Taxes:Social Security")),
+        #             Split(value=round(Decimal(47.33), 2), memo="scripted",account=myBook.accounts(fullname="Expenses:Income Taxes:Medicare")),
+        #             Split(value=round(Decimal(415.83), 2), memo="scripted",account=myBook.accounts(fullname="Expenses:Income Taxes:Federal Tax")),
+        #             Split(value=round(Decimal(159.07), 2), memo="scripted",account=myBook.accounts(fullname="Expenses:Income Taxes:State Tax")),
+        #             Split(value=round(Decimal(131.25), 2), memo="scripted",account=myBook.accounts(fullname="Assets:Non-Liquid Assets:HSA")),
+        #             Split(value=-round(Decimal(3433.33), 2), memo="scripted",account=myBook.accounts(fullname=toAccount))]
         else:
-            split = [Split(value=-amount, memo="scripted", account=mybook.accounts(fullname=to_account)),
-                    Split(value=amount, memo="scripted", account=mybook.accounts(fullname=from_account))]
-        Transaction(post_date=postdate.date(), currency=mybook.currencies(mnemonic="USD"), description=description, splits=split)
+            split = [Split(value=-amount, memo="scripted", account=myBook.accounts(fullname=toAccount)),
+                    Split(value=amount, memo="scripted", account=myBook.accounts(fullname=fromAccount))]
+        Transaction(post_date=postDate.date(), currency=myBook.currencies(mnemonic="USD"), description=description, splits=split)
         book.save()
         book.flush()
     book.close()
 
-def getEnergyBillAmounts(driver, directory, amount, energy_bill_num):
-    if energy_bill_num == 1:
+def getEnergyBillAmounts(driver, directory, amount, energyBillNum):
+    if energyBillNum == 1:
         closeExpressVPN()
         # Get balances from Arcadia
         driver.execute_script("window.open('https://login.arcadia.com/email');")
@@ -607,43 +607,43 @@ def getEnergyBillAmounts(driver, directory, amount, energy_bill_num):
         # switch to last window
         driver.switch_to.window(driver.window_handles[len(driver.window_handles)-1])
         driver.get("https://home.arcadia.com/dashboard/2072648/billing")
-    statement_row = 1
-    statement_found = "no"                     
-    while statement_found == "no":
+    statementRow = 1
+    statementFound = "no"                     
+    while statementFound == "no":
         # Capture statement balance
-        arcadia_balance = driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/div/div[2]/div[2]/div/div[2]/li[" + str(statement_row) + "]/div[2]/div/p")
-        formatted_amount = "{:.2f}".format(abs(amount))
-        if arcadia_balance.text.strip('$') == formatted_amount:
+        arcadiaBalance = driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/div/div[2]/div[2]/div/div[2]/li[" + str(statementRow) + "]/div[2]/div/p")
+        formattedAmount = "{:.2f}".format(abs(amount))
+        if arcadiaBalance.text.strip('$') == formattedAmount:
             # click to view statement
-            arcadia_balance.click()
-            statement_found = "yes"
+            arcadiaBalance.click()
+            statementFound = "yes"
         else:
-            statement_row += 1
+            statementRow += 1
     # comb through lines of Arcadia Statement for Arcadia Membership (and Free trial rebate), Community Solar lines (3)
-    arcadia_statement_lines_left = True
-    statement_row = 1
+    arcadiaStatementLinesLeft = True
+    statementRow = 1
     solar = 0
-    arcadia_membership = 0
-    while arcadia_statement_lines_left:
+    arcadiaMembership = 0
+    while arcadiaStatementLinesLeft:
         try:
             # read the header to get transaction description
-            statement_trans = driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/h2").text
-            if statement_trans == "Arcadia Membership":
-                arcadia_membership = Decimal(driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.strip('$'))
-                arcadiaamt = Decimal(arcadia_membership)
-            elif statement_trans == "Free Trial":
-                arcadia_membership = arcadia_membership + Decimal(driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.strip('$'))
-            elif statement_trans == "Community Solar":
-                solar = solar + Decimal(driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text.replace('$',''))
-            elif statement_trans == "WE Energies Utility":
-                we_bill = driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statement_row) + "]/div/p").text
-            statement_row += 1
+            statementTrans = driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statementRow) + "]/div/h2").text
+            if statementTrans == "Arcadia Membership":
+                arcadiaMembership = Decimal(driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statementRow) + "]/div/p").text.strip('$'))
+                arcadiaamt = Decimal(arcadiaMembership)
+            elif statementTrans == "Free Trial":
+                arcadiaMembership = arcadiaMembership + Decimal(driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statementRow) + "]/div/p").text.strip('$'))
+            elif statementTrans == "Community Solar":
+                solar = solar + Decimal(driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statementRow) + "]/div/p").text.replace('$',''))
+            elif statementTrans == "WE Energies Utility":
+                weBill = driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/div[2]/div[5]/ul/li[" + str(statementRow) + "]/div/p").text
+            statementRow += 1
         except NoSuchElementException:
-            arcadia_statement_lines_left = False
-    arcadiaamt = Decimal(arcadia_membership)
-    solaramt = Decimal(solar)
+            arcadiaStatementLinesLeft = False
+    arcadiaamt = Decimal(arcadiaMembership)
+    solarAmount = Decimal(solar)
     # Get balances from WE Energies
-    if energy_bill_num == 1:
+    if energyBillNum == 1:
         driver.execute_script("window.open('https://www.we-energies.com/secure/auth/l/acct/summary_accounts.aspx');")
         # switch to last window
         driver.switch_to.window(driver.window_handles[len(driver.window_handles)-1])
@@ -661,27 +661,27 @@ def getEnergyBillAmounts(driver, directory, amount, energy_bill_num):
         # Click View bill history
         driver.find_element(By.XPATH, "//*[@id='mainContentCopyInner']/ul/li[2]/a").click()
         time.sleep(4)
-    bill_row = 2
-    bill_column = 7
-    bill_found = "no"
-    # find bill based on comparing amount from Arcadia (we_bill)
-    while bill_found == "no":
+    billRow = 2
+    billColumn = 7
+    billFound = "no"
+    # find bill based on comparing amount from Arcadia (weBill)
+    while billFound == "no":
         # capture date
-        we_bill_path = "/html/body/div[1]/div[1]/form/div[5]/div/div/div/div/div[6]/div[2]/div[2]/div/table/tbody/tr[" + str(bill_row) + "]/td[" + str(bill_column) + "]/span/span"
-        we_bill_amount = driver.find_element(By.XPATH, we_bill_path).text
-        if we_bill == we_bill_amount:
-            bill_found = "yes"
+        weBillPath = "/html/body/div[1]/div[1]/form/div[5]/div/div/div/div/div[6]/div[2]/div[2]/div/table/tbody/tr[" + str(billRow) + "]/td[" + str(billColumn) + "]/span/span"
+        weBillAmount = driver.find_element(By.XPATH, weBillPath).text
+        if weBill == weBillAmount:
+            billFound = "yes"
         else:
-            bill_row += 1
+            billRow += 1
     # capture gas charges
-    bill_column -= 2
-    we_amt_path = "/html/body/div[1]/div[1]/form/div[5]/div/div/div/div/div[6]/div[2]/div[2]/div/table/tbody/tr[" + str(bill_row) + "]/td[" + str(bill_column) + "]/span"
-    gasamt = Decimal(driver.find_element(By.XPATH, we_amt_path).text.strip('$'))
+    billColumn -= 2
+    weAmountPath = "/html/body/div[1]/div[1]/form/div[5]/div/div/div/div/div[6]/div[2]/div[2]/div/table/tbody/tr[" + str(billRow) + "]/td[" + str(billColumn) + "]/span"
+    gasAmount = Decimal(driver.find_element(By.XPATH, weAmountPath).text.strip('$'))
     # capture electricity charges
-    bill_column -= 2
-    we_amt_path = "/html/body/div[1]/div[1]/form/div[5]/div/div/div/div/div[6]/div[2]/div[2]/div/table/tbody/tr[" + str(bill_row) + "]/td[" + str(bill_column) + "]/span"
-    electricityamt = Decimal(driver.find_element(By.XPATH, we_amt_path).text.strip('$'))
-    return [arcadiaamt, solaramt, electricityamt, gasamt, amount]
+    billColumn -= 2
+    weAmountPath = "/html/body/div[1]/div[1]/form/div[5]/div/div/div/div/div[6]/div[2]/div[2]/div/table/tbody/tr[" + str(billRow) + "]/td[" + str(billColumn) + "]/span"
+    electricityAmount = Decimal(driver.find_element(By.XPATH, weAmountPath).text.strip('$'))
+    return [arcadiaamt, solarAmount, electricityAmount, gasAmount, amount]
 
 def getCryptocurrencyPrice(coinList):
     coinGecko = CoinGeckoAPI()

@@ -5,7 +5,8 @@ from decimal import Decimal
 import pyautogui
 from Functions import showMessage, getUsername, getPassword, getOTP, updateSpreadsheet, getCryptocurrencyPrice, setDirectory, chromeDriverAsUser
 
-def runMyConstant(directory, driver):
+
+def login(directory, driver):
     driver.get("https://www.myconstant.com/log-in")
     #login
     try:
@@ -27,18 +28,9 @@ def runMyConstant(directory, driver):
         time.sleep(6)
     except NoSuchElementException:
         exception = "caught"
-    pyautogui.moveTo(1650, 167)
-    pyautogui.moveTo(1670, 167)
-    pyautogui.moveTo(1650, 167)
-    time.sleep(8)
-    # capture and format Bonds balance
-    constant_balance_raw = driver.find_element(By.ID, "acc_balance").text.strip('$').replace(',','')
-    constant_balance_dec = Decimal(constant_balance_raw)
-    constant_balance = float(round(constant_balance_dec, 2))
-    driver.get('https://www.myconstant.com/lend-crypto-to-earn-interest')
-    time.sleep(2)
-    # get coin balances
-    def getCoinBalance(coin):
+
+
+def getCoinBalance(coin):
         # click dropdown menu
         driver.find_element(By.XPATH, "//*[@id='layout']/div[2]/div/div/div/div[2]/div/form/div[1]/div[2]/div/div/button/div").click()
         # search for coin
@@ -48,18 +40,38 @@ def runMyConstant(directory, driver):
         time.sleep(6)
         return driver.find_element(By.XPATH, "//*[@id='layout']/div[2]/div/div/div/div[2]/div/form/div[2]/div[2]/span/span/span").text
 
+
+def captureBalances(driver):
+    pyautogui.moveTo(1650, 167)
+    pyautogui.moveTo(1670, 167)
+    pyautogui.moveTo(1650, 167)
+    time.sleep(8)
+    # capture and format Bonds balance
+    constantBalanceRaw = driver.find_element(By.ID, "acc_balance").text.strip('$').replace(',','')
+    constantBalanceDec = Decimal(constantBalanceRaw)
+    constantBalance = float(round(constantBalanceDec, 2))
+    driver.get('https://www.myconstant.com/lend-crypto-to-earn-interest')
+    time.sleep(2)
+    # get coin balances
     btcBalance = float(getCoinBalance('BTC'))
     ethBalance = float(getCoinBalance('ETHEREUM'))
 
-    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC_myconstant', 1, btcBalance, "BTC")
+    return [constantBalance, btcBalance, ethBalance]
+
+
+def runMyConstant(directory, driver):
+    login(directory, driver)
+    balances = captureBalances(driver)
+    
+    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC_myconstant', 1, balances[1], "BTC")
     btcPrice = getCryptocurrencyPrice('bitcoin')['bitcoin']['usd']
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC_myconstant', 2, btcPrice, "BTC")
 
-    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH_myconstant', 1, ethBalance, "ETH")
+    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH_myconstant', 1, balances[2], "ETH")
     ethPrice = getCryptocurrencyPrice('ethereum')['ethereum']['usd']
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH_myconstant', 2, ethPrice, "ETH")
 
-    return [constant_balance, btcBalance, ethBalance]
+    return balances
 
 if __name__ == '__main__':
     directory = setDirectory()

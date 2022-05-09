@@ -6,9 +6,8 @@ import time
 import os
 from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, importGnuTransaction, startExpressVPN
 
-def runBoA(directory, driver, account):
+def login(directory, driver, account):
     # account = p for personal or j for joint
-    driver.implicitly_wait(3)
     driver.get("https://www.bankofamerica.com/")
     # login
     driver.find_element(By.ID, "onlineId1").send_keys(getUsername(directory, 'BoA CC'))
@@ -51,16 +50,16 @@ def runBoA(directory, driver, account):
         driver.find_element(By.XPATH, "//*[@id='sasi-overlay-module-modalClose']/span[1]").click()
     except NoSuchElementException:
         exception = "Caught"
-
-    # account = p for personal or j for joint
-    partial_link = 'Customized Cash Rewards Visa Signature - 8549' if account == 'p' else 'Travel Rewards Visa Signature - 8955'
-
-    driver.find_element(By.PARTIAL_LINK_TEXT, partial_link).click()
-    # # Capture Statement balance
-    BoA = driver.find_element(By.XPATH, "/html/body/div[1]/div/div[2]/div/div[2]/div[2]/div/div/div[3]/div[4]/div[3]/div/div[2]/div[2]/div[2]").text.replace('$','').replace(',','')
-    # # EXPORT TRANSACTIONS
-    # click Previous transactions
+    partialLink = 'Customized Cash Rewards Visa Signature - 8549' if account == 'p' else 'Travel Rewards Visa Signature - 8955'
+    driver.find_element(By.PARTIAL_LINK_TEXT, partialLink).click()
     time.sleep(3)
+
+def captureBalance(driver):
+    return driver.find_element(By.XPATH, "/html/body/div[1]/div/div[2]/div/div[2]/div[2]/div/div/div[3]/div[4]/div[3]/div/div[2]/div[2]/div[2]").text.replace('$','').replace(',','')
+
+
+def exportTransactions(driver, account, today):
+    # click Previous transactions
     driver.find_element(By.PARTIAL_LINK_TEXT, "Previous transactions").click()
     # click Download, select microsoft excel
     ## had to edit div1/div2 on 1/19/22
@@ -76,22 +75,15 @@ def runBoA(directory, driver, account):
         driver.find_element(By.XPATH, "/html/body/div[1]/div/div[4]/div[1]/div/div[5]/div[2]/div[1]/div/div[3]/div/div[4]/div[2]/a/span").click()
     except NoSuchElementException:
         driver.find_element(By.XPATH, "/html/body/div[1]/div/div[4]/div[1]/div/div[5]/div[2]/div[2]/div/div[3]/div/div[4]/div[2]/a/span").click()
-    # get current date
-    today = datetime.today()
     year = today.year
-    month = today.month
-    stmtmonth = today.strftime("%B")
-    stmtyear = str(year)
-    account_num = "_8549.csv" if account == 'p' else "_8955.csv"
-    transactions_csv = os.path.join(r"C:\Users\dmagn\Downloads", stmtmonth + stmtyear + account_num)
-    time.sleep(2)
-    # Set Gnucash Book
-    mybook = openGnuCashBook(directory, 'Finance', False, False) if account == 'p' else openGnuCashBook(directory, 'Home', False, False)
+    stmtMonth = today.strftime("%B")
+    stmtYear = str(year)
+    accountNum = "_8549.csv" if account == 'p' else "_8955.csv"
+    return os.path.join(r"C:\Users\dmagn\Downloads", stmtMonth + stmtYear + accountNum)
+    # time.sleep(2)
 
-    import_acct = 'BoA' if account == 'p' else 'BoA-joint'
-    review_trans = importGnuTransaction(import_acct, transactions_csv, mybook, driver, directory)
-    BoA_gnu = getGnuCashBalance(mybook, import_acct)
 
+def claimRewards(driver, account):
     if account == 'p':
         # # REDEEM REWARDS
         # click on View/Redeem menu
@@ -123,32 +115,46 @@ def runBoA(directory, driver, account):
         except ElementNotInteractableException:
             exception = "caught"
 
+
+def locateAndUpdateSpreadsheet(driver, BoA, account, today):
+    month = today.month
+    year = today.year
     # switch worksheets if running in December (to next year's worksheet)
     if month == 12:
         year = year + 1
-    BoA_neg = float(BoA) * -1
+    BoANeg = float(BoA) * -1
 
     if account == 'p':
-        updateSpreadsheet(directory, 'Checking Balance', year, 'BoA', month, BoA_neg, 'BoA CC')
-        updateSpreadsheet(directory, 'Checking Balance', year, 'BoA', month, BoA_neg, 'BoA CC', True)
+        updateSpreadsheet(directory, 'Checking Balance', year, 'BoA', month, BoANeg, 'BoA CC')
+        updateSpreadsheet(directory, 'Checking Balance', year, 'BoA', month, BoANeg, 'BoA CC', True)
         driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1684fQ-gW5A0uOf7s45p9tC4GiEE5s5_fjO5E7dgVI1s/edit#gid=1688093622');")
     else:
-        updateSpreadsheet(directory, 'Home', str(year) + ' Balance', 'BoA-joint', month, BoA_neg, 'BoA CC')
-        updateSpreadsheet(directory, 'Home', str(year) + ' Balance', 'BoA-joint', month, BoA_neg, 'BoA CC', True)
+        updateSpreadsheet(directory, 'Home', str(year) + ' Balance', 'BoA-joint', month, BoANeg, 'BoA CC')
+        updateSpreadsheet(directory, 'Home', str(year) + ' Balance', 'BoA-joint', month, BoANeg, 'BoA CC', True)
         # Display Home spreadsheet
         driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1oP3U7y8qywvXG9U_zYXgjFfqHrCyPtUDl4zPDftFCdM/edit#gid=317262693');")
 
-    # Display Checking Balance spreadsheet
-    # Open GnuCash if there are transactions to review
-    if review_trans:
+def runBoA(directory, driver, account):
+    # account = p for personal or j for joint
+    login(directory, driver, account)
+    BoA = captureBalance(driver)
+    today = datetime.today()
+    transactionsCSV = exportTransactions(driver, account, today)
+    claimRewards(driver, account)
+    myBook = openGnuCashBook(directory, 'Finance', False, False) if account == 'p' else openGnuCashBook(directory, 'Home', False, False)
+    importAccount = 'BoA' if account == 'p' else 'BoA-joint'
+    reviewTrans = importGnuTransaction(importAccount, transactionsCSV, myBook, driver, directory)
+    BoAGnu = getGnuCashBalance(myBook, importAccount)
+    locateAndUpdateSpreadsheet(driver, BoA, account, today)
+    if reviewTrans:
         os.startfile(directory + r"\Finances\Personal Finances\Finance.gnucash") if account == 'p' else os.startfile(directory + r"\Stuff\Home\Finances\Home.gnucash")
-    # Display Balance
-    showMessage("Balances + Review", f'BoA Balance: {BoA} \n' f'GnuCash BoA Balance: {BoA_gnu} \n \n' f'Review transactions:\n{review_trans}')
+    showMessage("Balances + Review", f'BoA Balance: {BoA} \n' f'GnuCash BoA Balance: {BoAGnu} \n \n' f'Review transactions:\n{reviewTrans}')
     driver.quit()
     # startExpressVPN()
 
 if __name__ == '__main__':
+    SET_ACCOUNT_VARIABLE = 'j'
     directory = setDirectory()
     driver = chromeDriverAsUser()
-    account = 'j'
-    runBoA(directory, driver, account)
+    driver.implicitly_wait(3)
+    runBoA(directory, driver, SET_ACCOUNT_VARIABLE)

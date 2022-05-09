@@ -5,9 +5,8 @@ import os
 from datetime import datetime
 from Functions import setDirectory, chromeDriverAsUser, chromeDriverBlank, getUsername, getPassword, openGnuCashBook, showMessage, importGnuTransaction, getGnuCashBalance, updateSpreadsheet
 
-def runDiscover(directory, driver):
-    driver.implicitly_wait(6)
 
+def login(directory, driver):
     driver.get("https://portal.discover.com/customersvcs/universalLogin/ac_main")
     # login
     driver.find_element(By.ID, 'userid-content').send_keys(getUsername(directory, 'Discover'))
@@ -22,9 +21,12 @@ def runDiscover(directory, driver):
         exception = "caught"
     showMessage("Login Check", 'Confirm Login to , (manually if necessary) \n' 'Then click OK \n')
 
-    # # Capture Statement balance
-    discover = driver.find_element(By.XPATH, "/html/body/div[1]/main/div[4]/div/div[1]/div[1]/p[3]/span[2]").text
-    # # Export Transactions
+
+def captureBalance(driver):
+    return driver.find_element(By.XPATH, "/html/body/div[1]/main/div[4]/div/div[1]/div[1]/p[3]/span[2]").text
+
+
+def exportTransactions(driver, today):
     # Click on All Activity & Statements
     driver.find_element(By.PARTIAL_LINK_TEXT, "All Activity & Statements").click()
     # Click on "Select Activity or Statement Period"
@@ -40,21 +42,13 @@ def runDiscover(directory, driver):
     driver.find_element(By.ID, "submitDownload").click()
     # Click Close
     driver.find_element(By.XPATH, "/html/body/div[1]/main/div[5]/div/form/div/div[4]/a[1]").click()
-    # get current date
-    today = datetime.today()
     year = today.year
-    month = today.month
-    # Set Gnucash Book
-    mybook = openGnuCashBook(directory, 'Finance', False, False)
+    stmtYear = str(year)
+    stmtMonth = today.strftime('%m')
+    return r"C:\Users\dmagn\Downloads\Discover-Statement-" + stmtYear + stmtMonth + "12.csv"
 
-    # # IMPORT TRANSACTIONS
-    stmtyear = str(year)
-    stmtmonth = today.strftime('%m')
-    transactions_csv = r"C:\Users\dmagn\Downloads\Discover-Statement-" + stmtyear + stmtmonth + "12.csv"
 
-    review_trans = importGnuTransaction('Discover', transactions_csv, mybook, driver, directory)
-
-    # Redeem Rewards
+def claimRewards(driver):
     # Click Rewards
     driver.find_element(By.XPATH, "/html/body/div[1]/header/div/div/div[3]/div[1]/ul/li[4]/a").click()
     # Click "Redeem Cashback Bonus"
@@ -77,24 +71,38 @@ def runDiscover(directory, driver):
     except NoSuchElementException:
         exception = "caught"
 
-    discover_gnu = getGnuCashBalance(mybook, 'Discover')
+
+def locateAndUpdateSpreadsheet(driver, discover, today):
     # switch worksheets if running in December (to next year's worksheet)
+    month = today.month
+    year = today.year
     if month == 12:
         year = year + 1
-    discover_neg = float(discover.strip('$')) * -1
-    updateSpreadsheet(directory, 'Checking Balance', year, 'Discover', month, discover_neg, 'Discover CC')
-    updateSpreadsheet(directory, 'Checking Balance', year, 'Discover', month, discover_neg, 'Discover CC', True)
+    discoverNeg = float(discover.strip('$')) * -1
+    updateSpreadsheet(directory, 'Checking Balance', year, 'Discover', month, discoverNeg, 'Discover CC')
+    updateSpreadsheet(directory, 'Checking Balance', year, 'Discover', month, discoverNeg, 'Discover CC', True)
 
     # Display Checking Balance spreadsheet
     driver.execute_script("window.open('hhttps://docs.google.com/spreadsheets/d/1684fQ-gW5A0uOf7s45p9tC4GiEE5s5_fjO5E7dgVI1s/edit#gid=1688093622');")
-    # Open GnuCash if there are transactions to review
-    if review_trans:
+
+
+def runDiscover(directory, driver):
+    login(directory, driver)
+    discover = captureBalance(driver)
+    today = datetime.today()
+    transactionsCSV = exportTransactions(driver, today)
+    claimRewards(driver)
+    myBook = openGnuCashBook(directory, 'Finance', False, False)
+    reviewTrans = importGnuTransaction('Discover', transactionsCSV, myBook, driver, directory)
+    discoverGnu = getGnuCashBalance(myBook, 'Discover')
+    locateAndUpdateSpreadsheet(driver, discover, today)
+    if reviewTrans:
         os.startfile(directory + r"\Finances\Personal Finances\Finance.gnucash")
-    # Display Statement Balance
-    showMessage("Balances + Review", f'Discover Balance: {discover} \n' f'GnuCash Discover Balance: {discover_gnu} \n \n' f'Review transactions:\n{review_trans}')
+    showMessage("Balances + Review", f'Discover Balance: {discover} \n' f'GnuCash Discover Balance: {discoverGnu} \n \n' f'Review transactions:\n{reviewTrans}')
     driver.quit()
 
 if __name__ == '__main__':
     directory = setDirectory()
     driver = chromeDriverAsUser()
+    driver.implicitly_wait(6)
     runDiscover(directory, driver)

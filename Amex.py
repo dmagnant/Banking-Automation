@@ -6,9 +6,7 @@ import time
 import os
 from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, importGnuTransaction
 
-def runAmex(directory, driver):
-    driver.implicitly_wait(5)
-    time.sleep(1)
+def login(directory, driver):
     driver.get("https://www.americanexpress.com/")
     # login
     driver.find_element(By.XPATH, "/html/body/div[1]/div/div/header/div[2]/div[1]/div[3]/div/div[5]/ul/li[3]/span/a[1]").click()
@@ -21,10 +19,13 @@ def runAmex(directory, driver):
     except NoSuchElementException:
         exception = "caught"
     time.sleep(1)
-    # # Capture Statement balance
-    amex = driver.find_element(By.XPATH, "//*[@id='axp-balance-payment']/div[1]/div[1]/div/div[1]/div/div/span[1]/div").text.replace('$', '')
-    # # EXPORT TRANSACTIONS
-    # click on View Transactions
+
+
+def captureBalance(driver):
+    return driver.find_element(By.XPATH, "//*[@id='axp-balance-payment']/div[1]/div[1]/div/div[1]/div/div/span[1]/div").text.replace('$', '')
+
+
+def exportTransactions(driver):
     driver.find_element(By.XPATH, "//*[@id='axp-balance-payment']/div[2]/div[2]/div/div[1]/div[1]/div/a").click()
     try: 
         # click on View Activity (for previous billing period)
@@ -43,20 +44,9 @@ def runAmex(directory, driver):
         exception = "caught"
     # click on Download
     driver.find_element(By.XPATH, "/html/body/div[1]/div[4]/div/div/div/div/div/div[3]/a").click()
-
-    # # IMPORT TRANSACTIONS
-    # open CSV file at the given path
     time.sleep(3)
 
-    # Set Gnucash Book
-    mybook = openGnuCashBook(directory, 'Finance', False, False)
-    transactions_csv = r'C:\Users\dmagn\Downloads\activity.csv'
-
-    review_trans = importGnuTransaction('Amex', transactions_csv, mybook, driver, directory)
-
-    amex_gnu = getGnuCashBalance(mybook, 'Amex')
-    # # REDEEM REWARDS
-    # click on Rewards
+def claimRewards(driver):
     driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/div/div[2]/div/div/div[4]/div/div[2]/div/div/header/div/div/div/div/div/div/div[1]/div/div[1]/div/ul/li[5]/a/span").click()
     time.sleep(10)
     rewards = driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/div/div[2]/div/div[3]/div/div[3]/div/div/div[2]/div[2]/div[1]/div/div/div/div/div/div[1]/div").text.strip('$').strip(',')
@@ -79,26 +69,38 @@ def runAmex(directory, driver):
         driver.find_element(By.XPATH, "/html/body/div[1]/div/div[4]/div/div/div[2]/div/div/div/div/div/form/div[2]/input[3]").click()
     except NoSuchElementException:
         exception = "caught"
+
+def locateAndUpdateSpreadsheet(driver, amex):
     # get current date
     today = datetime.today()
-    year = today.year
     month = today.month
+    year = today.year
     # switch worksheets if running in December (to next year's worksheet)
     if month == 12:
         year = year + 1
-    amex_neg = float(amex.strip('$')) * -1
-    updateSpreadsheet(directory, 'Checking Balance', year, 'Amex', month, amex_neg, "Amex CC")
-    updateSpreadsheet(directory, 'Checking Balance', year, 'Amex', month, amex_neg, "Amex CC", True)
+    amexNeg = float(amex.strip('$')) * -1
+    updateSpreadsheet(directory, 'Checking Balance', year, 'Amex', month, amexNeg, "Amex CC")
+    updateSpreadsheet(directory, 'Checking Balance', year, 'Amex', month, amexNeg, "Amex CC", True)
     # Display Checking Balance spreadsheet
     driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1684fQ-gW5A0uOf7s45p9tC4GiEE5s5_fjO5E7dgVI1s/edit#gid=1688093622');")
-    # Open GnuCash if there are transactions to review
-    if review_trans:
+
+
+def runAmex(directory, driver):
+    login(directory, driver)
+    amex = captureBalance(driver)
+    exportTransactions(driver)
+    claimRewards(driver)
+    myBook = openGnuCashBook(directory, 'Finance', False, False)
+    reviewTrans = importGnuTransaction('Amex', r'C:\Users\dmagn\Downloads\activity.csv', myBook, driver, directory)
+    amexGnu = getGnuCashBalance(myBook, 'Amex')
+    locateAndUpdateSpreadsheet(driver, amex)
+    if reviewTrans:
         os.startfile(directory + r"\Finances\Personal Finances\Finance.gnucash")
-    # Display Balance
-    showMessage("Balances + Review", f'Amex Balance: {amex} \n' f'GnuCash Amex Balance: {amex_gnu} \n \n' f'Review transactions:\n{review_trans}')
+    showMessage("Balances + Review", f'Amex Balance: {amex} \n' f'GnuCash Amex Balance: {amexGnu} \n \n' f'Review transactions:\n{reviewTrans}')
     driver.quit()
 
 if __name__ == '__main__':
     directory = setDirectory()
     driver = chromeDriverAsUser()
+    driver.implicitly_wait(5)
     runAmex(directory, driver)

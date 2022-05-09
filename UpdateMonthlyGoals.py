@@ -3,9 +3,9 @@ from datetime import datetime, timedelta
 import gspread
 from Functions import openGnuCashBook, setDirectory, getStartAndEndOfPreviousMonth, chromeDriverAsUser, showMessage
 
-def compileGnuTransactions(account, mybook, directory, date_range):
-    import_csv = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\import.csv"
-    open(import_csv, 'w', newline='').truncate()
+def compileGnuTransactions(account, mybook, directory, dateRange):
+    importCSV = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\import.csv"
+    open(importCSV, 'w', newline='').truncate()
     def matchAccount():
         match account:
             case 'Amazon':
@@ -44,51 +44,51 @@ def compileGnuTransactions(account, mybook, directory, date_range):
                 return 'Expenses:Travel'
             case 'Utilities':
                 return 'Expenses:Utilities'
-    gnu_account = matchAccount()
+    gnuAccount = matchAccount()
     
     total = 0
     # retrieve transactions from GnuCash
     transactions = [tr for tr in mybook.transactions
-                    if str(tr.post_date.strftime('%Y-%m-%d')) in date_range
+                    if str(tr.post_date.strftime('%Y-%m-%d')) in dateRange
                     for spl in tr.splits
-                    if spl.account.fullname == gnu_account]
+                    if spl.account.fullname == gnuAccount]
     for tr in transactions:
         date = str(tr.post_date.strftime('%Y-%m-%d'))
         description = str(tr.description)
         for spl in tr.splits:
             amount = format(spl.value, ".2f")
-            if spl.account.fullname == gnu_account:
+            if spl.account.fullname == gnuAccount:
                 row = date, description, str(amount)
                 total += abs(float(amount))
-                csv.writer(open(import_csv, 'a', newline='')).writerow(row)
+                csv.writer(open(importCSV, 'a', newline='')).writerow(row)
     return total
 
 def getDateRange(lastDay):
     # Gather last 3 days worth of transactions
-    current_date = lastDay.date()
-    date_range = current_date.isoformat()
+    currentDate = lastDay.date()
+    dateRange = currentDate.isoformat()
     num = 1
     month = lastDay.month
     while month == lastDay.month:
-        day_before = (current_date - timedelta(days=num))
+        dayBefore = (currentDate - timedelta(days=num))
         num += 1
-        month = day_before.month
+        month = dayBefore.month
         if month == lastDay.month:
-            date_range = date_range + day_before.isoformat()
-    return date_range
+            dateRange = dateRange + dayBefore.isoformat()
+    return dateRange
 
 def updateSpreadsheet(directory, account, month, value, accounts='p'):
-    json_creds = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\creds.json"
+    jsonCreds = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\creds.json"
     sheetTitle = 'Asset Allocation' if accounts == 'p' else 'Home'
-    sheet = gspread.service_account(filename=json_creds).open(sheetTitle)
+    sheet = gspread.service_account(filename=jsonCreds).open(sheetTitle)
     worksheetTitle = 'Goals' if accounts == 'p' else 'Finances'
     worksheet = sheet.worksheet(worksheetTitle)
     cell = getCell(account, month, accounts)
     worksheet.update(cell, value)
 
 def getCell(account, month, accounts='p'):
-    row_start = 48 if accounts == 'p' else 25
-    row = str(row_start + (month - 1))
+    rowStart = 48 if accounts == 'p' else 25
+    row = str(rowStart + (month - 1))
     match account:
         case 'Amazon':
             return 'C' + row if accounts == 'p' else 'B' + row
@@ -134,7 +134,7 @@ def runUpdateMonthlyGoals(accounts):
     year = today.year
     month = today.month
     lastmonth = getStartAndEndOfPreviousMonth(today, month, year)
-    date_range = getDateRange(lastmonth[1])
+    dateRange = getDateRange(lastmonth[1])
     month = lastmonth[1].month
 
     directory = setDirectory()
@@ -142,11 +142,11 @@ def runUpdateMonthlyGoals(accounts):
     mybook = openGnuCashBook(directory, 'Finance', True, True) if accounts == 'p' else openGnuCashBook(directory, 'Home', False, False)
 
     if accounts == 'p': 
-        JointExpenses = compileGnuTransactions('Joint Expenses', mybook, directory, date_range)
-        CCRewards = compileGnuTransactions('CC Rewards', mybook, directory, date_range)
-        Dividends = compileGnuTransactions('Dividends', mybook, directory, date_range)
-        Interest = compileGnuTransactions('Interest', mybook, directory, date_range)
-        MarketResearch = compileGnuTransactions('Market Research', mybook, directory, date_range)
+        JointExpenses = compileGnuTransactions('Joint Expenses', mybook, directory, dateRange)
+        CCRewards = compileGnuTransactions('CC Rewards', mybook, directory, dateRange)
+        Dividends = compileGnuTransactions('Dividends', mybook, directory, dateRange)
+        Interest = compileGnuTransactions('Interest', mybook, directory, dateRange)
+        MarketResearch = compileGnuTransactions('Market Research', mybook, directory, dateRange)
         
         updateSpreadsheet(directory, 'Joint Expenses', month, JointExpenses)
         updateSpreadsheet(directory, 'CC Rewards', month, CCRewards)
@@ -154,15 +154,15 @@ def runUpdateMonthlyGoals(accounts):
         updateSpreadsheet(directory, 'Interest', month, Interest)
         updateSpreadsheet(directory, 'Market Research', month, MarketResearch)
     else:
-        Groceries = compileGnuTransactions('Groceries', mybook, directory, date_range)
-        HomeDepot = compileGnuTransactions('Home Depot', mybook, directory, date_range)
-        HomeExpenses = compileGnuTransactions('Home Expenses', mybook, directory, date_range)
-        HomeFurnishings = compileGnuTransactions('Home Furnishings', mybook, directory, date_range)
-        Pet = compileGnuTransactions('Pet', mybook, directory, date_range)
-        Travel = compileGnuTransactions('Travel', mybook, directory, date_range)
-        Utilities = compileGnuTransactions('Utilities', mybook, directory, date_range)
-        Dan = compileGnuTransactions('Dan', mybook, directory, date_range)
-        Tessa = compileGnuTransactions('Tessa', mybook, directory, date_range)
+        Groceries = compileGnuTransactions('Groceries', mybook, directory, dateRange)
+        HomeDepot = compileGnuTransactions('Home Depot', mybook, directory, dateRange)
+        HomeExpenses = compileGnuTransactions('Home Expenses', mybook, directory, dateRange)
+        HomeFurnishings = compileGnuTransactions('Home Furnishings', mybook, directory, dateRange)
+        Pet = compileGnuTransactions('Pet', mybook, directory, dateRange)
+        Travel = compileGnuTransactions('Travel', mybook, directory, dateRange)
+        Utilities = compileGnuTransactions('Utilities', mybook, directory, dateRange)
+        Dan = compileGnuTransactions('Dan', mybook, directory, dateRange)
+        Tessa = compileGnuTransactions('Tessa', mybook, directory, dateRange)
 
         updateSpreadsheet(directory, 'Groceries', month, Groceries, accounts)
         updateSpreadsheet(directory, 'Home Depot', month, HomeDepot, accounts)
@@ -174,10 +174,10 @@ def runUpdateMonthlyGoals(accounts):
         updateSpreadsheet(directory, 'Dan', month, Dan, accounts)
         updateSpreadsheet(directory, 'Tessa', month, Tessa, accounts)
 
-    Amazon = compileGnuTransactions('Amazon', mybook, directory, date_range)
-    BarsRestaurants = compileGnuTransactions('Bars & Restaurants', mybook, directory, date_range)
-    Entertainment = compileGnuTransactions('Entertainment', mybook, directory, date_range)
-    Other = compileGnuTransactions('Other', mybook, directory, date_range)
+    Amazon = compileGnuTransactions('Amazon', mybook, directory, dateRange)
+    BarsRestaurants = compileGnuTransactions('Bars & Restaurants', mybook, directory, dateRange)
+    Entertainment = compileGnuTransactions('Entertainment', mybook, directory, dateRange)
+    Other = compileGnuTransactions('Other', mybook, directory, dateRange)
 
     updateSpreadsheet(directory, 'Amazon', month, Amazon, accounts)
     updateSpreadsheet(directory, 'Bars & Restaurants', month, BarsRestaurants, accounts)

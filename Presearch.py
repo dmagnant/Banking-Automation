@@ -4,7 +4,8 @@ from selenium.webdriver.common.keys import Keys
 import time
 from Functions import updateSpreadsheet, setDirectory, getCryptocurrencyPrice, chromeDriverAsUser
 
-def runPresearch(directory, driver):    
+
+def claimRewards(driver):
     driver.execute_script("window.open('https://nodes.presearch.org/dashboard');")
     # switch to last window
     driver.switch_to.window(driver.window_handles[len(driver.window_handles)-1])
@@ -40,14 +41,26 @@ def runPresearch(directory, driver):
                 driver.get('https://nodes.presearch.org/dashboard')
                 node_found = True
             num += 1
+
+
+def captureBalance(driver):
     searchRewards = float(driver.find_element(By.XPATH, '/html/body/div[1]/header/div[2]/div[2]/div/div[1]/div/div[1]/div/span[1]').text.strip(' PRE'))
     stakedTokens = float(driver.find_element(By.XPATH, '/html/body/div[2]/div[2]/div[3]/div[1]/div[2]/div/div[1]/div/h2').text.strip(' PRE').replace(',', ''))
     preTotal = searchRewards + stakedTokens
-    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'PRE', 1, preTotal, "PRE")
+    return [preTotal, stakedTokens]
+     
+
+def runPresearch(directory, driver):    
+    claimRewards(driver)
+    balances = captureBalance(driver)
+
+    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'PRE', 1, balances[0], "PRE")
     prePrice = getCryptocurrencyPrice('presearch')['presearch']['usd']
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'PRE', 2, prePrice, "PRE")
-    return [preTotal, stakedTokens]
 
+    return balances
+    
+    
 if __name__ == '__main__':
     directory = setDirectory()
     driver = chromeDriverAsUser()

@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from Functions import closeExpressVPN
 from Functions import getPassword, showMessage, closeExpressVPN, setDirectory, chromeDriverAsUser
 
-def runTIAA(directory, driver):
+def login(directory, driver):
     closeExpressVPN()
     # # # TIAA
     driver.execute_script("window.open('https://www.tiaabank.com/');")
@@ -17,9 +17,14 @@ def runTIAA(directory, driver):
     # handle captcha
     showMessage('CAPTCHA', "Verify captcha, then click OK")
     time.sleep(3)
+
+def captureBalance(driver):
     driver.get("https://shared.tiaa.org/private/banktxns/tiaabank?number=f2745d23d777a9b7f1378c1cb00d36c2")
-    tiaa = driver.find_element(By.XPATH, "//*[@id='hero-balance']/div[1]/div[2]").text.strip('$').replace(',','')
-    return tiaa
+    return driver.find_element(By.XPATH, "//*[@id='hero-balance']/div[1]/div[2]").text.strip('$').replace(',','')
+
+def runTIAA(directory, driver):
+    login(directory, driver)
+    return captureBalance(driver)
 
 if __name__ == '__main__':
     directory = setDirectory()

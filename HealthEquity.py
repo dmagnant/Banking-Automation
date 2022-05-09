@@ -6,8 +6,7 @@ from decimal import Decimal
 from datetime import datetime
 from Functions import showMessage, chromeDriverAsUser, getStartAndEndOfPreviousMonth
 
-def runHealthEquity(driver, lastmonth):
-    # # # Health Equity HSA
+def login(driver):
     driver.execute_script("window.open('https://member.my.healthequity.com/hsa/21895515-010');")
     # switch to last window
     driver.switch_to.window(driver.window_handles[len(driver.window_handles)-1])
@@ -28,7 +27,9 @@ def runHealthEquity(driver, lastmonth):
         driver.find_element(By.ID, "verifyOtp").click()
     except NoSuchElementException:
         exception = "already verified"
-    # Capture balances
+
+
+def captureBalances(driver, lastmonth):
     HE_hsa_avail_bal = driver.find_element(By.XPATH, "//*[@id='21895515-020']/div/hqy-hsa-tab/div/div[2]/div/span[1]").text.strip('$').replace(',','')
     HE_hsa_invest_bal = driver.find_element(By.XPATH, "//*[@id='21895515-020']/div/hqy-hsa-tab/div/div[2]/span[2]/span[1]").text.strip('$').replace(',','')
     HE_hsa_invest_total = float(HE_hsa_avail_bal) + float(HE_hsa_invest_bal)
@@ -61,6 +62,10 @@ def runHealthEquity(driver, lastmonth):
     HE_hsa_dividends = Decimal(driver.find_element(By.XPATH, "//*[@id='EditPortfolioTab-panel']/member-portfolio-edit-display/member-overall-portfolio-performance-display/div[1]/div/div[3]/div/span").text.strip('$').strip(','))
     return [HE_hsa_balance, HE_hsa_dividends, vanguard401kbal]
 
+def runHealthEquity(driver, lastMonth):
+    login(driver)
+    return captureBalances(driver, lastMonth)
+
 if __name__ == '__main__':
     driver = chromeDriverAsUser()
     today = datetime.today()
@@ -70,3 +75,4 @@ if __name__ == '__main__':
     response = runHealthEquity(driver, lastmonth)
     print('HSA balance: ' + response[0])
     print('401k balance: ' + response[2])
+    
