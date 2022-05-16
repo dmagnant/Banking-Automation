@@ -16,7 +16,7 @@ import pygetwindow
 from decimal import Decimal
 import csv
 import piecash
-from piecash import Transaction, Split, GnucashException
+from piecash import Transaction, Split, GnucashException, Price
 
 def showMessage(header, body): 
     MessageBox = ctypes.windll.user32.MessageBoxW
@@ -48,7 +48,7 @@ def checkIfProcessRunning(processName):
 
 def startExpressVPN():
     os.startfile(r'C:\Program Files (x86)\ExpressVPN\expressvpn-ui\ExpressVPN.exe')
-    time.sleep(3)
+    time.sleep(4)
     EVPN = pygetwindow.getWindowsWithTitle('ExpressVPN')[0]
     time.sleep(1)
     EVPN.close()
@@ -80,35 +80,68 @@ def openGnuCashBook(directory, type, readOnly, openIfLocked):
 
 def getGnuCashBalance(myBook, account):
     # Get GnuCash Balances
+    def getAccountPath(account):
+        match account:
+            case 'ADA':
+                return "Assets:Non-Liquid Assets:CryptoCurrency:Cardano"            
+            case 'ALGO':
+                return "Assets:Non-Liquid Assets:CryptoCurrency:Algorand"
+            case 'Ally':
+                return "Assets:Ally Checking Account"
+            case 'Amex':
+                return "Liabilities:Credit Cards:Amex BlueCash Everyday"
+            case 'ATOM':
+                return "Assets:Non-Liquid Assets:CryptoCurrency:Cosmos"                  
+            case 'Barclays':
+                return "Liabilities:Credit Cards:BarclayCard CashForward"
+            case 'BTC':
+                return "Assets:Non-Liquid Assets:CryptoCurrency:Bitcoin"                
+            case 'BTC_midas':
+                return "Assets:Non-Liquid Assets:CryptoCurrency:Bitcoin:BTC-Midas"
+            case 'BTC_myconstant':
+                return "Assets:Non-Liquid Assets:CryptoCurrency:Bitcoin:BTC-MyConstant"                
+            case 'BoA':
+                return "Liabilities:Credit Cards:BankAmericard Cash Rewards"
+            case 'BoA-joint':
+                return "Liabilities:BoA Credit Card"
+            case 'Chase':
+                return "Liabilities:Credit Cards:Chase Freedom"
+            case 'Discover':
+                return "Liabilities:Credit Cards:Discover It"
+            case 'DOT':
+                return "Assets:Non-Liquid Assets:CryptoCurrency:Polkadot"
+            case 'ETH':
+                return "Assets:Non-Liquid Assets:CryptoCurrency:Ethereum"
+            case 'ETH_kraken':
+                return "Assets:Non-Liquid Assets:CryptoCurrency:Ethereum:ETH-Kraken"
+            case 'ETH_midas':
+                return "Assets:Non-Liquid Assets:CryptoCurrency:Ethereum:ETH-Midas"
+            case 'ETH_myconstant':
+                return "Assets:Non-Liquid Assets:CryptoCurrency:Ethereum:ETH-MyConstant"
+            case 'ETH2':
+                return "Assets:Non-Liquid Assets:CryptoCurrency:Ethereum2"
+            case 'HSA':
+                return "Liabilities:Credit Cards:Discover It"
+            case 'IOTX':
+                return "Assets:Non-Liquid Assets:CryptoCurrency:IoTex"
+            case 'Liquid Assets':
+                return "Assets:Liquid Assets"
+            case 'M1':
+                return "Assets:Liquid Assets:M1 Spend"               
+            case 'MyConstant':
+                return "Assets:Liquid Assets:My Constant"
+            case 'PRE':
+                return "Assets:Non-Liquid Assets:CryptoCurrency:Presearch"
+            case 'SOL':
+                return "Assets:Non-Liquid Assets:CryptoCurrency:Solana"
+            case 'TIAA':
+                return "Assets:Liquid Assets:TIAA"
+            case 'VanguardPension':
+                return "Assets:Non-Liquid Assets:Pension"  
+            case 'Worthy':
+                return "Assets:Liquid Assets:Worthy Bonds"
+    accountpath = getAccountPath(account)
     with myBook as book:
-        if account == 'Ally':
-            accountpath = "Assets:Ally Checking Account"
-        elif account == 'Amex':
-            accountpath = "Liabilities:Credit Cards:Amex BlueCash Everyday"
-        elif account == 'Barclays':
-            accountpath = "Liabilities:Credit Cards:BarclayCard CashForward"
-        elif account == 'BoA':
-            accountpath = "Liabilities:Credit Cards:BankAmericard Cash Rewards"
-        elif account == 'BoA-joint':
-            accountpath = "Liabilities:BoA Credit Card"
-        elif account == 'Chase':
-            accountpath = "Liabilities:Credit Cards:Chase Freedom"
-        elif account == 'Discover':
-            accountpath = "Liabilities:Credit Cards:Discover It"
-        elif account == 'HSA':
-            accountpath = "Assets:Non-Liquid Assets:HSA"
-        elif account == 'Liquid Assets':
-            accountpath = "Assets:Liquid Assets"
-        elif account == 'M1':
-            accountpath = "Assets:Liquid Assets:M1 Spend"
-        elif account == 'MyConstant':
-            accountpath = "Assets:Liquid Assets:My Constant"
-        elif account == 'TIAA':
-            accountpath = "Assets:Liquid Assets:TIAA"
-        elif account == 'VanguardPension':
-            accountpath = "Assets:Non-Liquid Assets:Pension"
-        elif account == 'Worthy':
-            accountpath = "Assets:Liquid Assets:Worthy Bonds"
         balance = myBook.accounts(fullname=accountpath).get_balance()
     book.close()
     return balance
@@ -173,31 +206,31 @@ def getCell(account, month):
             case 'VanguardPension':
                 return ['B8', 'I8', 'P8', 'B30', 'I30', 'P30', 'B52', 'I52', 'P52', 'B74', 'I74', 'P74']
             case 'ADA':
-                return ['J5', 'L5']
+                return ['H5', 'J5']
             case 'ALGO':
-                return ['J2', 'L2']
+                return ['H2', 'J2']
             case 'ATOM':
-                return ['J6', 'L6']
+                return ['H6', 'J6']
             case 'BTC_midas':
-                return ['J3', 'L3']
+                return ['H3', 'J3']
             case 'BTC_myconstant':
-                return ['J4', 'L4']
+                return ['H4', 'J4']
             case 'DOT':
-                return ['J12', 'L12']
+                return ['H12', 'J12']
             case 'ETH_kraken':
-                return ['J9', 'L9']
+                return ['H9', 'J9']
             case 'ETH_midas':
-                return ['J7', 'L7']
+                return ['H7', 'J7']
             case 'ETH_myconstant':
-                return ['J8', 'L8']
+                return ['H8', 'J8']
             case 'ETH2':
-                return ['J10', 'L10']
+                return ['H10', 'J10']
             case 'IOTX':
-                return ['J11', 'L11']
+                return ['H11', 'J11']
             case 'PRE':
-                return ['J13', 'L13']
+                return ['H13', 'J13']
             case 'SOL':
-                return ['J14', 'L14']
+                return ['H14', 'J14']
     cell = (getCellArray(account))[month - 1]
     return cell
 
@@ -357,7 +390,7 @@ def setToAccount(account, row):
         toAccount = "Expenses:Transportation:Gas (Vehicle)"
     elif "CAT DOCTOR" in row[rowNum]:
         toAccount = "Expenses:Medical:Vet"
-    elif "PARKING" in row[rowNum]:
+    elif "PARKING" in row[rowNum] or "SPOTHERO" in row[rowNum].upper():
         toAccount = "Expenses:Transportation:Parking"
     elif "PROGRESSIVE" in row[rowNum]:
         toAccount = "Expenses:Transportation:Car Insurance"
@@ -371,9 +404,8 @@ def setToAccount(account, row):
         toAccount = "Expenses:Transportation:Car Maintenance"
     elif "INTEREST PAID" in row[rowNum].upper():
         toAccount = "Income:Interest" if account in ['BoA-joint', 'Ally'] else "Income:Investments:Interest"
-
     if not toAccount:
-        for i in ['HOMEDEPOT.COM', 'THE HOME DEPOT']:
+        for i in ['HOMEDEPOT.COM', 'HOME DEPOT']:
             if i in row[rowNum].upper():
                 if account in ['BoA-joint', 'Ally']:
                     toAccount = "Expenses:Home Depot"
@@ -388,7 +420,7 @@ def setToAccount(account, row):
             if row[3] == "Groceries" or row[4] == "Supermarkets":
                 toAccount = "Expenses:Groceries"
         if not toAccount:
-            for i in ['PICK N SAVE', 'KOPPA', 'KETTLE RANGE', 'WHOLE FOODS', 'WHOLEFDS', 'TARGET']:
+            for i in ['PICK N SAVE', 'KETTLE RANGE', 'WHOLE FOODS', 'WHOLEFDS', 'TARGET']:
                 if i in row[rowNum].upper():
                     toAccount = "Expenses:Groceries"
 
@@ -402,7 +434,7 @@ def setToAccount(account, row):
                     toAccount = "Expenses:Bars & Restaurants"
     
     if not toAccount:
-            toAccount = "Expenses:Other"
+        toAccount = "Expenses:Other"
     return toAccount
 
 def formatTransactionVariables(account, row):
@@ -687,3 +719,15 @@ def getCryptocurrencyPrice(coinList):
     coinGecko = CoinGeckoAPI()
     currency = 'usd'
     return coinGecko.get_price(ids=coinList, vs_currencies=currency)
+
+def updateCryptoPrice(coin, price, directory=setDirectory()):
+    today = datetime.today()
+    myBook = openGnuCashBook(directory, 'Finance', False, False)
+    with myBook:
+        try:
+            p = Price(commodity=myBook.commodities(mnemonic=coin), currency=myBook.currencies(mnemonic="USD"), date=today.date(), value=Decimal(price), type='last')
+            myBook.save()
+            myBook.flush()
+        except ValueError:
+            print(f'database already has price of {coin} listed for today, or price not formatted correctly')
+    myBook.close()

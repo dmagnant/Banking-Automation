@@ -7,7 +7,6 @@ from Functions import getUsername, getPassword, openGnuCashBook, showMessage, ge
 
 def login(directory, driver):
     driver.get("https://dashboard.m1finance.com/login")
-    driver.implicitly_wait(3)
     # login
     # enter email
     driver.find_element(By.NAME, "username").send_keys(getUsername(directory, 'M1 Finance'))
@@ -17,20 +16,20 @@ def login(directory, driver):
     driver.find_element(By.XPATH, "//*[@id='root']/div/div/div/div[2]/div/div/form/div[4]/div/button").click()
     # handle captcha
     # showMessage('CAPTCHA',"Verify captcha, then click OK")
-    try: 
-        # click Spend
-        driver.find_element(By.XPATH, "//*[@id='root']/div/div/div/div[1]/div[2]/div/div[1]/nav/a[3]/div/div/span").click()
-    except NoSuchElementException:
-        # handle captcha
-        showMessage('CAPTCHA',"Verify captcha, then click OK")
-        # click Spend
-        driver.find_element(By.XPATH, "//*[@id='root']/div/div/div/div[1]/div[2]/div/div[1]/nav/a[3]/div/div/span").click()
-
+    time.sleep(2)
+    driver.get("https://dashboard.m1.com/d/spend/transactions")
+    time.sleep(2)
+    # try: 
+    #     # click Spend
+    #     driver.find_element(By.XPATH, "//*[@id='root']/div/div/div/div[1]/div[2]/div/div[1]/nav/a[3]/div/div/span").click()
+    # except NoSuchElementException:
+    #     # handle captcha
+    #     showMessage('CAPTCHA',"Verify captcha, then click OK")
+    #     # click Spend
+    #     driver.find_element(By.XPATH, "//*[@id='root']/div/div/div/div[1]/div[2]/div/div[1]/nav/a[3]/div/div/span").click()
 
 def captureBalance(driver):
-    return driver.find_element(By.XPATH, "//*[@id='root']/div/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/h1").text.strip('$').replace(',', '')
-
-
+    return driver.find_element(By.XPATH, "//*[@id='root']/div/div/div/div[2]/div/div[1]/div[2]/div[1]/div/div/h1").text.strip('$').replace(',', '')
 def captureTransactions(driver, dateRange, m1Activity, today):
     year = today.year
     transaction = 1
@@ -87,6 +86,7 @@ def captureTransactions(driver, dateRange, m1Activity, today):
 
 
 def runM1(directory, driver):
+    driver.implicitly_wait(3)
     login(directory, driver)
     m1Balance = captureBalance(driver)
     m1Activity = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\m1.csv"
@@ -104,6 +104,7 @@ def runM1(directory, driver):
 if __name__ == '__main__':
     directory = setDirectory()
     driver = chromeDriverAsUser()
+    driver.implicitly_wait(3)
     response = runM1(directory, driver)
     print('balance: ' + response[0])
     print('transactions to review: ' + response[1])

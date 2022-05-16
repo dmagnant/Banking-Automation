@@ -1,4 +1,4 @@
-from Functions import showMessage, updateSpreadsheet, getCryptocurrencyPrice, setDirectory
+from Functions import showMessage, updateSpreadsheet, getCryptocurrencyPrice, setDirectory, updateCryptoPrice
 
 def runExodus(directory):
     showMessage('Cosmos (ATOM) balance via Exodus',"Open Exodus Desktop \n"
@@ -10,6 +10,8 @@ def runExodus(directory):
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ATOM', 1, atomBalance, "ATOM")
     atomPrice = getCryptocurrencyPrice('cosmos')['cosmos']['usd']
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ATOM', 2, atomPrice, "ATOM")
+    updateCryptoPrice('ATOM', format(atomPrice, ".2f"))
+
     return atomBalance
 
 if __name__ == '__main__':

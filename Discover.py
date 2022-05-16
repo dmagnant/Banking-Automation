@@ -1,6 +1,6 @@
 import time
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException
+from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException, ElementClickInterceptedException
 import os
 from datetime import datetime
 from Functions import setDirectory, chromeDriverAsUser, chromeDriverBlank, getUsername, getPassword, openGnuCashBook, showMessage, importGnuTransaction, getGnuCashBalance, updateSpreadsheet
@@ -16,26 +16,20 @@ def login(directory, driver):
 
     #handle pop-up
     try:
-        driver.find_element(By.XPATH, "/html/body/div[1]/main/div[12]/div/div/div[2]/a").click()
+        driver.find_element(By.XPATH, "//*[@id='root']/div[4]/div/div/button/img").click()
     except (NoSuchElementException, ElementNotInteractableException, AttributeError):
         exception = "caught"
     showMessage("Login Check", 'Confirm Login to , (manually if necessary) \n' 'Then click OK \n')
 
 
 def captureBalance(driver):
-    return driver.find_element(By.XPATH, "/html/body/div[1]/main/div[4]/div/div[1]/div[1]/p[3]/span[2]").text
-
+    driver.get("https://card.discover.com/cardmembersvcs/statements/app/activity#/current")
+    time.sleep(1)
+    return driver.find_element(By.ID, "new-balance").text.strip('$')
 
 def exportTransactions(driver, today):
-    # Click on All Activity & Statements
-    driver.find_element(By.PARTIAL_LINK_TEXT, "All Activity & Statements").click()
-    # Click on "Select Activity or Statement Period"
-    driver.find_element(By.XPATH, "/html/body/div[1]/main/div[1]/div[4]/div/div[1]/div/div/div/div/div[1]/a").click()
-    # Click on Current
-    driver.find_element(By.PARTIAL_LINK_TEXT, "Current").click()
-    driver.implicitly_wait(3)
     # Click on Download
-    driver.find_element(By.XPATH, "/html/body/div[1]/main/div[1]/aside/div[2]/div[1]/div/a[2]").click()
+    driver.find_element(By.XPATH, "//*[@id='current-statement']/div[1]/div/a[2]").click()
     # CLick on CSV
     driver.find_element(By.ID, "radio4").click()
     # CLick Download
@@ -49,13 +43,7 @@ def exportTransactions(driver, today):
 
 
 def claimRewards(driver):
-    # Click Rewards
-    driver.find_element(By.XPATH, "/html/body/div[1]/header/div/div/div[3]/div[1]/ul/li[4]/a").click()
-    # Click "Redeem Cashback Bonus"
-    driver.find_element(By.XPATH, "/html/body/div[1]/header/div/div/div[3]/div[1]/ul/li[4]/div/div/div/ul/li[3]/a").click()
-    # Click "Cash It"
-    driver.find_element(By.XPATH, "//*[@id='redemption-module']/li[1]/a").click()
-    time.sleep(1)
+    driver.get("https://card.discover.com/cardmembersvcs/rewards/app/redemption?ICMPGN=AC_NAV_L3_REDEEM#/cash")
     try:
         # Click Electronic Deposit to your bank account
         driver.find_element(By.XPATH, "//*[@id='electronic-deposit']").click()
@@ -64,11 +52,11 @@ def claimRewards(driver):
         driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/main/div/div/section/div[2]/div/form/div[2]/fieldset/div[3]/div[2]/span[2]/button").click()
         time.sleep(1)
         # Click Continue
-        driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/main/div/div/section/div[2]/div/form/div[4]/input").click()
+        driver.find_element(By.XPATH, "//*[@id='cashbackForm']/div[4]/input").click()
         time.sleep(1)
         # Click Submit
         driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/main/div/div/section/div[2]/div/div/div/div[1]/div/div/div[2]/div/button[1]").click()
-    except NoSuchElementException:
+    except (NoSuchElementException, ElementClickInterceptedException):
         exception = "caught"
 
 
@@ -83,12 +71,13 @@ def locateAndUpdateSpreadsheet(driver, discover, today):
     updateSpreadsheet(directory, 'Checking Balance', year, 'Discover', month, discoverNeg, 'Discover CC', True)
 
     # Display Checking Balance spreadsheet
-    driver.execute_script("window.open('hhttps://docs.google.com/spreadsheets/d/1684fQ-gW5A0uOf7s45p9tC4GiEE5s5_fjO5E7dgVI1s/edit#gid=1688093622');")
+    driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1684fQ-gW5A0uOf7s45p9tC4GiEE5s5_fjO5E7dgVI1s/edit#gid=1688093622');")
 
 
 def runDiscover(directory, driver):
     login(directory, driver)
     discover = captureBalance(driver)
+    print(discover)
     today = datetime.today()
     transactionsCSV = exportTransactions(driver, today)
     claimRewards(driver)

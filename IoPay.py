@@ -1,4 +1,4 @@
-from Functions import showMessage, updateSpreadsheet, getCryptocurrencyPrice, setDirectory
+from Functions import showMessage, updateSpreadsheet, getCryptocurrencyPrice, setDirectory, updateCryptoPrice
 
 def runIoPay(directory):
     showMessage('IOTX balance via IoPay Desktop',"Open IoPay Desktop and Connect Ledger \n"
@@ -12,6 +12,8 @@ def runIoPay(directory):
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'IOTX', 1, iotxBalance, "IOTX")
     iotxPrice = getCryptocurrencyPrice('iotex')['iotex']['usd']
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'IOTX', 2, iotxPrice, "IOTX")
+    updateCryptoPrice('IOTX', format(iotxPrice, ".2f"))
+
     return iotxBalance
 
 if __name__ == '__main__':

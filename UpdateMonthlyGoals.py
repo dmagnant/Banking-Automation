@@ -128,6 +128,12 @@ def getCell(account, month, accounts='p'):
             return 'M' + row
 
 def runUpdateMonthlyGoals(accounts):
+    directory = setDirectory()
+    driver = chromeDriverAsUser(directory)
+    driver.implicitly_wait(3)
+    # Display Asset Allocation spreadsheet
+    driver.get('https://docs.google.com/spreadsheets/d/1sWJuxtYI-fJ6bUHBWHZTQwcggd30RcOSTMlqIzd1BBo/edit#gid=1813404638') if accounts == 'p' else driver.get('https://docs.google.com/spreadsheets/d/1oP3U7y8qywvXG9U_zYXgjFfqHrCyPtUDl4zPDftFCdM/edit#gid=1436385671')
+    
     # accounts = p for personal or j for joint
     # get current date
     today = datetime.today()
@@ -137,7 +143,6 @@ def runUpdateMonthlyGoals(accounts):
     dateRange = getDateRange(lastmonth[1])
     month = lastmonth[1].month
 
-    directory = setDirectory()
     # Set Gnucash Book
     mybook = openGnuCashBook(directory, 'Finance', True, True) if accounts == 'p' else openGnuCashBook(directory, 'Home', False, False)
 
@@ -184,16 +189,9 @@ def runUpdateMonthlyGoals(accounts):
     updateSpreadsheet(directory, 'Entertainment', month, Entertainment, accounts)
     updateSpreadsheet(directory, 'Other', month, Other, accounts)
 
-    directory = setDirectory()
-    driver = chromeDriverAsUser(directory)
-    driver.implicitly_wait(3)
-    # Display Asset Allocation spreadsheet
-    driver.get('https://docs.google.com/spreadsheets/d/1sWJuxtYI-fJ6bUHBWHZTQwcggd30RcOSTMlqIzd1BBo/edit#gid=1813404638') if accounts == 'p' else driver.get('https://docs.google.com/spreadsheets/d/1oP3U7y8qywvXG9U_zYXgjFfqHrCyPtUDl4zPDftFCdM/edit#gid=1436385671')
     showMessage('Review Spreadsheet', 'Once complete, click OK to close')
     driver.close()
 
 if __name__ == '__main__':
-    directory = setDirectory()
-    driver = chromeDriverAsUser()
-    accounts = 'j'
+    accounts = 'p'
     runUpdateMonthlyGoals(accounts)

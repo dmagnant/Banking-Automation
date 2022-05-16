@@ -3,11 +3,13 @@ from selenium.common.exceptions import NoSuchElementException
 import time
 from decimal import Decimal
 import pyautogui
-from Functions import showMessage, getUsername, getPassword, getOTP, updateSpreadsheet, getCryptocurrencyPrice, setDirectory, chromeDriverAsUser
+from Functions import showMessage, getUsername, getPassword, getOTP, updateSpreadsheet, getCryptocurrencyPrice, setDirectory, chromeDriverAsUser, updateCryptoPrice
 
 
 def login(directory, driver):
-    driver.get("https://www.myconstant.com/log-in")
+    driver.execute_script("window.open('https://www.myconstant.com/log-in');")
+    # switch to last window
+    driver.switch_to.window(driver.window_handles[len(driver.window_handles)-1])
     #login
     try:
         driver.find_element(By.ID, "lg_username").send_keys(getUsername(directory, 'My Constant'))
@@ -30,7 +32,7 @@ def login(directory, driver):
         exception = "caught"
 
 
-def getCoinBalance(coin):
+def getCoinBalance(driver, coin):
         # click dropdown menu
         driver.find_element(By.XPATH, "//*[@id='layout']/div[2]/div/div/div/div[2]/div/form/div[1]/div[2]/div/div/button/div").click()
         # search for coin
@@ -53,8 +55,8 @@ def captureBalances(driver):
     driver.get('https://www.myconstant.com/lend-crypto-to-earn-interest')
     time.sleep(2)
     # get coin balances
-    btcBalance = float(getCoinBalance('BTC'))
-    ethBalance = float(getCoinBalance('ETHEREUM'))
+    btcBalance = float(getCoinBalance(driver, ('BTC')))
+    ethBalance = float(getCoinBalance(driver, ('ETHEREUM')))
 
     return [constantBalance, btcBalance, ethBalance]
 
@@ -66,10 +68,12 @@ def runMyConstant(directory, driver):
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC_myconstant', 1, balances[1], "BTC")
     btcPrice = getCryptocurrencyPrice('bitcoin')['bitcoin']['usd']
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC_myconstant', 2, btcPrice, "BTC")
+    updateCryptoPrice('BTC', format(btcPrice, ".2f"))
 
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH_myconstant', 1, balances[2], "ETH")
     ethPrice = getCryptocurrencyPrice('ethereum')['ethereum']['usd']
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH_myconstant', 2, ethPrice, "ETH")
+    updateCryptoPrice('ETH', format(ethPrice, ".2f"))
 
     return balances
 

@@ -5,34 +5,40 @@ from Kraken import runKraken
 from Midas import runMidas
 from MyConstant import runMyConstant
 from Presearch import runPresearch
-from Functions import setDirectory, chromeDriverAsUser, showMessage, openGnuCashBook
+from datetime import datetime, timedelta
+from decimal import Decimal
+from piecash import Transaction, Split, GnucashException, Price
+
+import traceback
+
+from Functions import setDirectory, chromeDriverAsUser, showMessage, openGnuCashBook, getCryptocurrencyPrice, updateCryptoPrice
 
 directory = setDirectory()
-driver = chromeDriverAsUser(directory)
-driver.implicitly_wait(3)
+# driver = chromeDriverAsUser(directory)
+# driver.implicitly_wait(3)
+# driver.get("https://docs.google.com/spreadsheets/d/1sWJuxtYI-fJ6bUHBWHZTQwcggd30RcOSTMlqIzd1BBo/edit#gid=623829469")
 
-myConstantBalances = runMyConstant(directory, driver)
-adaBalance = runEternl(directory, driver)
-krakenBalances = runKraken(directory, driver)
-preBalance = runPresearch(directory, driver)
-midasBalances = runMidas(directory, driver)
-atomBalance = runExodus(directory)
-iotxBalance = runIoPay(directory)
+# myConstantBalances = runMyConstant(directory, driver)
+# adaBalance = runEternl(directory, driver)
+# krakenBalances = runKraken(directory, driver)
+# preBalance = runPresearch(directory, driver)
+# midasBalances = runMidas(directory, driver)
+# atomBalance = runExodus(directory)
+# iotxBalance = runIoPay(directory)
 
-driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1sWJuxtYI-fJ6bUHBWHZTQwcggd30RcOSTMlqIzd1BBo/edit#gid=623829469');")
-showMessage("Coin Balances",
-f"ALGO:                         {round(krakenBalances[0], 4)} \n"
-f"BTC_Midas:                    {round(midasBalances[0], 4)} \n"
-f"BTC_MyConstant:           {round(myConstantBalances[1], 4)} \n"
-f"ADA:                          {round(adaBalance, 4)} \n"
-f"ATOM:                         {round(atomBalance, 4)} \n"
-f"ETH_Midas:                    {round(midasBalances[1], 4)} \n"
-f"ETH_MyConstant:           {round(myConstantBalances[2], 4)} \n"
-f"ETH2:                         {round(krakenBalances[2], 4)} \n"
-f"IOTX:                         {round(iotxBalance, 4)} \n"
-f"DOT:                          {round(krakenBalances[1], 4)} \n"
-f"PRE:                          {round(preBalance[0], 4)} \n"
-f"SOL:                          {round(krakenBalances[3], 4)} \n")
+# showMessage("Coin Balances",
+# f"ALGO:                         {round(krakenBalances[0], 4)} \n"
+# f"BTC_Midas:                    {round(midasBalances[0], 4)} \n"
+# f"BTC_MyConstant:           {round(myConstantBalances[1], 4)} \n"
+# f"ADA:                          {round(adaBalance, 4)} \n"
+# f"ATOM:                         {round(atomBalance, 4)} \n"
+# f"ETH_Midas:                    {round(midasBalances[1], 4)} \n"
+# f"ETH_MyConstant:           {round(myConstantBalances[2], 4)} \n"
+# f"ETH2:                         {round(krakenBalances[2], 4)} \n"
+# f"IOTX:                         {round(iotxBalance, 4)} \n"
+# f"DOT:                          {round(krakenBalances[1], 4)} \n"
+# f"PRE:                          {round(preBalance[0], 4)} \n"
+# f"SOL:                          {round(krakenBalances[3], 4)} \n")
 
 # # write cardano transaction from coinbase
 # mybook = openGnuCashBook(directory, 'Finance', False, False)
@@ -53,27 +59,25 @@ f"SOL:                          {round(krakenBalances[3], 4)} \n")
 #     book.flush()
 # book.close()
 
-## update price in gnu cash
-# with mybook as book:
-#     p = Price(commodity=mybook.commodities(mnemonic="ADA"), currency=mybook.currencies(mnemonic="USD"), date=today.date(), value=Decimal('1.99'))
-#     book.save()
-#     book.flush()
-# book.close()
+# update price in gnu cash
+# price = format((getCryptocurrencyPrice('cardano')['cardano']['usd']), ".2f")
+# coin = 'ADA'
+# updateCryptoPrice(coin, price)
 
 # get dollars invested balance (must be run per coin)
-mybook = openGnuCashBook(directory, 'Finance', True, True)
-gnu_account = "Assets:Non-Liquid Assets:CryptoCurrency:Cardano"
-total = 0
-# retrieve transactions from GnuCash
-transactions = [tr for tr in mybook.transactions
-                for spl in tr.splits
-                if spl.account.fullname == gnu_account]
-for tr in transactions:
-    for spl in tr.splits:
-        amount = format(spl.value, ".2f")
-        if spl.account.fullname == gnu_account:
-            total += abs(float(amount))
-print(total)
+# mybook = openGnuCashBook(directory, 'Finance', True, True)
+# gnu_account = "Assets:Non-Liquid Assets:CryptoCurrency:Cardano"
+# total = 0
+# # retrieve transactions from GnuCash
+# transactions = [tr for tr in mybook.transactions
+#                 for spl in tr.splits
+#                 if spl.account.fullname == gnu_account]
+# for tr in transactions:
+#     for spl in tr.splits:
+#         amount = format(spl.value, ".2f")
+#         if spl.account.fullname == gnu_account:
+#             total += abs(float(amount))
+# print('cardano total: ' + str(total))
 
 # # get total investment (dollars) # # 
 # def sumDollarInvestment(mybook, gnu_account):
@@ -86,7 +90,9 @@ print(total)
 #         for spl in tr.splits:
 #             amount = format(spl.value, ".2f")
 #             if spl.account.fullname == gnu_account:
-#                 sum += abs(float(amount))
+#                 if float(amount) > 0:
+#                     print(amount)
+#                     sum += abs(float(amount))
 #     return sum
 
 # def getCryptoInvestmentInDollars():
@@ -103,3 +109,5 @@ print(total)
 #             total += sumDollarInvestment(mybook, gnu_account)
 #     print('total: ', total)
 #     return total
+
+# getCryptoInvestmentInDollars()
