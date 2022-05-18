@@ -78,71 +78,73 @@ def openGnuCashBook(directory, type, readOnly, openIfLocked):
         myBook = piecash.open_book(book, readonly=readOnly, open_if_lock=openIfLocked)
     return myBook
 
+def getAccountPath(account):
+    match account:
+        case 'ADA':
+            return "Assets:Non-Liquid Assets:CryptoCurrency:Cardano"            
+        case 'ALGO':
+            return "Assets:Non-Liquid Assets:CryptoCurrency:Algorand"
+        case 'Ally':
+            return "Assets:Ally Checking Account"
+        case 'Amex':
+            return "Liabilities:Credit Cards:Amex BlueCash Everyday"
+        case 'ATOM':
+            return "Assets:Non-Liquid Assets:CryptoCurrency:Cosmos"                  
+        case 'Barclays':
+            return "Liabilities:Credit Cards:BarclayCard CashForward"
+        case 'BTC':
+            return "Assets:Non-Liquid Assets:CryptoCurrency:Bitcoin"                
+        case 'BTC-Midas':
+            return "Assets:Non-Liquid Assets:CryptoCurrency:Bitcoin:BTC-Midas"
+        case 'BTC-Myconstant':
+            return "Assets:Non-Liquid Assets:CryptoCurrency:Bitcoin:BTC-MyConstant"                
+        case 'BoA':
+            return "Liabilities:Credit Cards:BankAmericard Cash Rewards"
+        case 'BoA-joint':
+            return "Liabilities:BoA Credit Card"
+        case 'Chase':
+            return "Liabilities:Credit Cards:Chase Freedom"
+        case 'Crypto':
+            return "Assets:Non-Liquid Assets:CryptoCurrency"
+        case 'Discover':
+            return "Liabilities:Credit Cards:Discover It"
+        case 'DOT':
+            return "Assets:Non-Liquid Assets:CryptoCurrency:Polkadot"
+        case 'ETH':
+            return "Assets:Non-Liquid Assets:CryptoCurrency:Ethereum"
+        case 'ETH-Kraken':
+            return "Assets:Non-Liquid Assets:CryptoCurrency:Ethereum:ETH-Kraken"
+        case 'ETH-Midas':
+            return "Assets:Non-Liquid Assets:CryptoCurrency:Ethereum:ETH-Midas"
+        case 'ETH-Myconstant':
+            return "Assets:Non-Liquid Assets:CryptoCurrency:Ethereum:ETH-MyConstant"
+        case 'ETH2':
+            return "Assets:Non-Liquid Assets:CryptoCurrency:Ethereum2"
+        case 'HSA':
+            return "Liabilities:Credit Cards:Discover It"
+        case 'IOTX':
+            return "Assets:Non-Liquid Assets:CryptoCurrency:IoTex"
+        case 'Liquid Assets':
+            return "Assets:Liquid Assets"
+        case 'M1':
+            return "Assets:Liquid Assets:M1 Spend"               
+        case 'MyConstant':
+            return "Assets:Liquid Assets:My Constant"
+        case 'PRE':
+            return "Assets:Non-Liquid Assets:CryptoCurrency:Presearch"
+        case 'SOL':
+            return "Assets:Non-Liquid Assets:CryptoCurrency:Solana"
+        case 'TIAA':
+            return "Assets:Liquid Assets:TIAA"
+        case 'VanguardPension':
+            return "Assets:Non-Liquid Assets:Pension"  
+        case 'Worthy':
+            return "Assets:Liquid Assets:Worthy Bonds"
+
 def getGnuCashBalance(myBook, account):
-    # Get GnuCash Balances
-    def getAccountPath(account):
-        match account:
-            case 'ADA':
-                return "Assets:Non-Liquid Assets:CryptoCurrency:Cardano"            
-            case 'ALGO':
-                return "Assets:Non-Liquid Assets:CryptoCurrency:Algorand"
-            case 'Ally':
-                return "Assets:Ally Checking Account"
-            case 'Amex':
-                return "Liabilities:Credit Cards:Amex BlueCash Everyday"
-            case 'ATOM':
-                return "Assets:Non-Liquid Assets:CryptoCurrency:Cosmos"                  
-            case 'Barclays':
-                return "Liabilities:Credit Cards:BarclayCard CashForward"
-            case 'BTC':
-                return "Assets:Non-Liquid Assets:CryptoCurrency:Bitcoin"                
-            case 'BTC_midas':
-                return "Assets:Non-Liquid Assets:CryptoCurrency:Bitcoin:BTC-Midas"
-            case 'BTC_myconstant':
-                return "Assets:Non-Liquid Assets:CryptoCurrency:Bitcoin:BTC-MyConstant"                
-            case 'BoA':
-                return "Liabilities:Credit Cards:BankAmericard Cash Rewards"
-            case 'BoA-joint':
-                return "Liabilities:BoA Credit Card"
-            case 'Chase':
-                return "Liabilities:Credit Cards:Chase Freedom"
-            case 'Discover':
-                return "Liabilities:Credit Cards:Discover It"
-            case 'DOT':
-                return "Assets:Non-Liquid Assets:CryptoCurrency:Polkadot"
-            case 'ETH':
-                return "Assets:Non-Liquid Assets:CryptoCurrency:Ethereum"
-            case 'ETH_kraken':
-                return "Assets:Non-Liquid Assets:CryptoCurrency:Ethereum:ETH-Kraken"
-            case 'ETH_midas':
-                return "Assets:Non-Liquid Assets:CryptoCurrency:Ethereum:ETH-Midas"
-            case 'ETH_myconstant':
-                return "Assets:Non-Liquid Assets:CryptoCurrency:Ethereum:ETH-MyConstant"
-            case 'ETH2':
-                return "Assets:Non-Liquid Assets:CryptoCurrency:Ethereum2"
-            case 'HSA':
-                return "Liabilities:Credit Cards:Discover It"
-            case 'IOTX':
-                return "Assets:Non-Liquid Assets:CryptoCurrency:IoTex"
-            case 'Liquid Assets':
-                return "Assets:Liquid Assets"
-            case 'M1':
-                return "Assets:Liquid Assets:M1 Spend"               
-            case 'MyConstant':
-                return "Assets:Liquid Assets:My Constant"
-            case 'PRE':
-                return "Assets:Non-Liquid Assets:CryptoCurrency:Presearch"
-            case 'SOL':
-                return "Assets:Non-Liquid Assets:CryptoCurrency:Solana"
-            case 'TIAA':
-                return "Assets:Liquid Assets:TIAA"
-            case 'VanguardPension':
-                return "Assets:Non-Liquid Assets:Pension"  
-            case 'Worthy':
-                return "Assets:Liquid Assets:Worthy Bonds"
     accountpath = getAccountPath(account)
     with myBook as book:
-        balance = myBook.accounts(fullname=accountpath).get_balance()
+        balance = book.accounts(fullname=accountpath).get_balance()
     book.close()
     return balance
 
@@ -312,7 +314,7 @@ def modifyTransactionDescription(description, amount="0.00"):
     elif "AMEX EPAYMENT" in description.upper():
         description = "Amex CC"
     elif "COINBASE" in description.upper():
-        description = "ADA purchase"
+        description = "Crypto purchase"
     elif "CHASE CREDIT CRD RWRD" in description.upper():
         description = "Chase CC Rewards"
     elif "CHASE CREDIT CRD AUTOPAY" in description.upper():
@@ -362,7 +364,7 @@ def setToAccount(account, row):
         toAccount = "Expenses:Utilities:Phone"
     elif "TIAA Transfer" in row[rowNum]:
         toAccount = "Assets:Liquid Assets:TIAA"
-    elif "ADA PURCHASE" in row[rowNum].upper():
+    elif "CRYPTO PURCHASE" in row[rowNum].upper():
         toAccount = "Assets:Non-Liquid Assets:CryptoCurrency"
     elif "Pinecone Research" in row[rowNum]:
         toAccount = "Income:Market Research"
@@ -554,7 +556,7 @@ def importGnuTransaction(account, transactionsCSV, myBook, driver, directory, li
                 if 'ARCADIA' in description.upper():
                     energyBillNum += 1
                     amount = getEnergyBillAmounts(driver, directory, transactionVariables[2], energyBillNum)
-                elif 'NM PAYCHECK' in description.upper() or "ADA PURCHASE" in description.upper():
+                elif 'NM PAYCHECK' in description.upper() or "CRYPTO PURCHASE" in description.upper():
                     reviewTrans = reviewTrans + transactionVariables[5]
                 else:
                     if toAccount == "Expenses:Other":
@@ -720,14 +722,77 @@ def getCryptocurrencyPrice(coinList):
     currency = 'usd'
     return coinGecko.get_price(ids=coinList, vs_currencies=currency)
 
-def updateCryptoPrice(coin, price, directory=setDirectory()):
-    today = datetime.today()
+def updateCryptoPriceInGnucash(symbol, coinPrice):
+    directory = setDirectory()
     myBook = openGnuCashBook(directory, 'Finance', False, False)
-    with myBook:
-        try:
-            p = Price(commodity=myBook.commodities(mnemonic=coin), currency=myBook.currencies(mnemonic="USD"), date=today.date(), value=Decimal(price), type='last')
+    try: 
+        gnuCashPrice = myBook.prices(commodity=myBook.commodities(mnemonic=symbol), currency=myBook.currencies(mnemonic="USD"), date=datetime.today().date())  # raise a KeyError if Price does not exist
+        gnuCashPrice.value = coinPrice
+    except KeyError:
+        p = Price(myBook.commodities(mnemonic=symbol), myBook.currencies(mnemonic="USD"), datetime.today().date(), coinPrice, "last")
+    myBook.save()
+    myBook.close()
+
+def updateCryptoPrices():
+    print('updating coin prices')
+    directory = setDirectory()
+    jsonCreds = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\creds.json"
+    sheet = gspread.service_account(filename=jsonCreds).open('Asset Allocation')
+    worksheet = sheet.worksheet(str('Cryptocurrency'))
+    nameColumn = 'A'
+    symbolColumn = 'B'
+    priceColumn = 'J'
+    row = 2
+    stillCoins = True
+    while stillCoins:
+        coinName = worksheet.acell(nameColumn+str(row)).value
+        if coinName != None:
+            coinName = coinName.lower()
+            coinSymbol = worksheet.acell(symbolColumn+str(row)).value
+            if coinName == 'eth2':
+                coinName = 'ethereum'
+                coinSymbol = 'ETH'
+            price = format(getCryptocurrencyPrice(coinName)[coinName]['usd'], ".2f")
+            updateCryptoPriceInGnucash(coinSymbol, price)
+            worksheet.update((priceColumn+str(row)), float(price))
+            row += 1
+        else:
+            stillCoins = False
+
+def updateCoinQuantityFromStakingInGnuCash(coinQuantity, coinSymbol):
+    directory = setDirectory()
+    myBook = openGnuCashBook(directory, 'Finance', False, False)
+    gnuBalance = getGnuCashBalance(myBook, coinSymbol)
+    coinDifference = Decimal(coinQuantity) - gnuBalance
+    if coinDifference > 0:
+        myBook = openGnuCashBook(directory, 'Finance', False, False)
+        with myBook:
+            split = [Split(value=-0, memo="scripted", account=myBook.accounts(fullname='Income:Investments:Staking')),
+                    Split(value=0, quantity=round(Decimal(coinDifference), 6), memo="scripted", account=myBook.accounts(fullname=getAccountPath(coinSymbol)))]
+            Transaction(post_date=datetime.today().date(), currency=myBook.currencies(mnemonic="USD"), description=coinSymbol + ' staking', splits=split)
             myBook.save()
             myBook.flush()
-        except ValueError:
-            print(f'database already has price of {coin} listed for today, or price not formatted correctly')
-    myBook.close()
+        myBook.close()
+    elif coinDifference < 0:
+        showMessage(f'{coinSymbol} unexpected qty mismatch ',
+        f'given balance of {coinQuantity} \n'
+        f'is less than \n'
+        f'gnuCash balance of {gnuBalance}')
+
+def getDollarsInvestedPerCoin(symbol):
+    directory=setDirectory()
+    # get dollars invested balance (must be run per coin)
+    mybook = openGnuCashBook(directory, 'Finance', True, True)
+    gnu_account = getAccountPath(symbol)
+    total = 0
+    # retrieve transactions from GnuCash
+    transactions = [tr for tr in mybook.transactions
+                    for spl in tr.splits
+                    if spl.account.fullname == gnu_account]
+    for tr in transactions:
+        for spl in tr.splits:
+            amount = format(spl.value, ".2f")
+            if spl.account.fullname == gnu_account:
+                total += abs(float(amount))
+    print(f'total $ invested in {symbol}: ' + str(total))
+    return total

@@ -1,4 +1,4 @@
-from Functions import showMessage, updateSpreadsheet, getCryptocurrencyPrice, setDirectory, updateCryptoPrice
+from Functions import showMessage, updateSpreadsheet, getCryptocurrencyPrice, setDirectory, updateCryptoPriceInGnucash, updateCoinQuantityFromStakingInGnuCash
 
 def runIoPay(directory):
     showMessage('IOTX balance via IoPay Desktop',"Open IoPay Desktop and Connect Ledger \n"
@@ -10,9 +10,10 @@ def runIoPay(directory):
     stakedBalance = float(input("copy TOTAL STAKED AMOUNT and paste here:  \n"))
     iotxBalance = walletBalance + stakedBalance
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'IOTX', 1, iotxBalance, "IOTX")
+    updateCoinQuantityFromStakingInGnuCash(iotxBalance, 'IOTX')
     iotxPrice = getCryptocurrencyPrice('iotex')['iotex']['usd']
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'IOTX', 2, iotxPrice, "IOTX")
-    updateCryptoPrice('IOTX', format(iotxPrice, ".2f"))
+    updateCryptoPriceInGnucash('IOTX', format(iotxPrice, ".2f"))
 
     return iotxBalance
 

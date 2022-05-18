@@ -3,7 +3,7 @@ from selenium.common.exceptions import NoSuchElementException
 import time
 from decimal import Decimal
 import pyautogui
-from Functions import showMessage, getUsername, getPassword, getOTP, updateSpreadsheet, getCryptocurrencyPrice, setDirectory, chromeDriverAsUser, updateCryptoPrice
+from Functions import showMessage, getUsername, getPassword, getOTP, updateSpreadsheet, getCryptocurrencyPrice, setDirectory, chromeDriverAsUser, updateCryptoPriceInGnucash, updateCoinQuantityFromStakingInGnuCash
 
 
 def login(directory, driver):
@@ -65,15 +65,17 @@ def runMyConstant(directory, driver):
     login(directory, driver)
     balances = captureBalances(driver)
     
-    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC_myconstant', 1, balances[1], "BTC")
+    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC-Myconstant', 1, balances[1], "BTC")
+    updateCoinQuantityFromStakingInGnuCash(balances[1], 'BTC-Myconstant')
     btcPrice = getCryptocurrencyPrice('bitcoin')['bitcoin']['usd']
-    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC_myconstant', 2, btcPrice, "BTC")
-    updateCryptoPrice('BTC', format(btcPrice, ".2f"))
+    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC-Myconstant', 2, btcPrice, "BTC")
+    updateCryptoPriceInGnucash('BTC', format(btcPrice, ".2f"))
 
-    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH_myconstant', 1, balances[2], "ETH")
+    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH-Myconstant', 1, balances[2], "ETH")
+    updateCoinQuantityFromStakingInGnuCash(balances[2], 'ETH-Myconstant')
     ethPrice = getCryptocurrencyPrice('ethereum')['ethereum']['usd']
-    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH_myconstant', 2, ethPrice, "ETH")
-    updateCryptoPrice('ETH', format(ethPrice, ".2f"))
+    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH-Myconstant', 2, ethPrice, "ETH")
+    updateCryptoPriceInGnucash('ETH', format(ethPrice, ".2f"))
 
     return balances
 

@@ -2,7 +2,7 @@ import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import time
-from Functions import updateSpreadsheet, setDirectory, getCryptocurrencyPrice, chromeDriverAsUser, updateCryptoPrice
+from Functions import updateSpreadsheet, setDirectory, getCryptocurrencyPrice, chromeDriverAsUser, updateCryptoPriceInGnucash, updateCoinQuantityFromStakingInGnuCash
 
 
 def claimRewards(driver):
@@ -55,9 +55,10 @@ def runPresearch(directory, driver):
     balances = captureBalance(driver)
 
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'PRE', 1, balances[0], "PRE")
+    updateCoinQuantityFromStakingInGnuCash(balances[0], 'PRE')
     prePrice = getCryptocurrencyPrice('presearch')['presearch']['usd']
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'PRE', 2, prePrice, "PRE")
-    updateCryptoPrice('PRE', format(prePrice, ".2f"))    
+    updateCryptoPriceInGnucash('PRE', format(prePrice, ".2f"))    
 
     return balances
     

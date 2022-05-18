@@ -1,7 +1,7 @@
 import time
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
-from Functions import getUsername, getPassword, getOTP, updateSpreadsheet, getCryptocurrencyPrice, setDirectory, chromeDriverAsUser, updateCryptoPrice
+from Functions import getUsername, getPassword, getOTP, updateSpreadsheet, getCryptocurrencyPrice, setDirectory, chromeDriverAsUser, updateCryptoPriceInGnucash, updateCoinQuantityFromStakingInGnuCash
 
 def login(directory, driver):
     driver.execute_script("window.open('https://www.kraken.com/sign-in');")
@@ -54,27 +54,31 @@ def runKraken(directory, driver):
     balances = captureBalances(driver)
     
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ALGO', 1, balances[0], "ALGO")
+    updateCoinQuantityFromStakingInGnuCash(balances[0], 'ALGO')
     algoPrice = getCryptocurrencyPrice('algorand')['algorand']['usd']
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ALGO', 2, algoPrice, "ALGO")
-    updateCryptoPrice('ALGO', format(algoPrice, ".2f"))
+    updateCryptoPriceInGnucash('ALGO', format(algoPrice, ".2f"))
 
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'DOT', 1, balances[1], "DOT")
+    updateCoinQuantityFromStakingInGnuCash(balances[1], 'DOT')
     dotPrice = getCryptocurrencyPrice('polkadot')['polkadot']['usd']
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'DOT', 2, dotPrice, "DOT")
-    updateCryptoPrice('DOT', format(dotPrice, ".2f"))
+    updateCryptoPriceInGnucash('DOT', format(dotPrice, ".2f"))
 
 
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH2', 1, balances[2], "ETH2")
+    updateCoinQuantityFromStakingInGnuCash(balances[2], 'ETH2')
     eth2Price = getCryptocurrencyPrice('ethereum')['ethereum']['usd']
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH_kraken', 2, eth2Price, "ETH")
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH2', 2, eth2Price, "ETH2")
-    updateCryptoPrice('ETH', format(eth2Price, ".2f"))
-    updateCryptoPrice('ETH2', format(eth2Price, ".2f"))
+    updateCryptoPriceInGnucash('ETH', format(eth2Price, ".2f"))
+    updateCryptoPriceInGnucash('ETH2', format(eth2Price, ".2f"))
 
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'SOL', 1, balances[3], "SOL")
+    updateCoinQuantityFromStakingInGnuCash(balances[3], 'SOL')
     solPrice = getCryptocurrencyPrice('solana')['solana']['usd']
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'SOL', 2, solPrice, "SOL")
-    updateCryptoPrice('SOL', format(solPrice, ".2f"))
+    updateCryptoPriceInGnucash('SOL', format(solPrice, ".2f"))
 
     return balances
 

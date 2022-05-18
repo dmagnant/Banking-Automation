@@ -1,7 +1,7 @@
 import time
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
-from Functions import updateSpreadsheet, showMessage, getCryptocurrencyPrice, setDirectory, chromeDriverAsUser, updateCryptoPrice
+from Functions import updateSpreadsheet, showMessage, getCryptocurrencyPrice, setDirectory, chromeDriverAsUser, updateCryptoPriceInGnucash, updateCoinQuantityFromStakingInGnuCash
 
 def login(directory, driver):
     driver.execute_script("window.open('https://midas.investments/?login=true');")
@@ -27,15 +27,17 @@ def runMidas(directory, driver):
     login(directory, driver)
     balances = captureBalances(driver)
     
-    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC_midas', 1, balances[0], "BTC")
+    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC-Midas', 1, balances[0], "BTC")
+    updateCoinQuantityFromStakingInGnuCash(balances[0], 'BTC-Midas')
     btcPrice = getCryptocurrencyPrice('bitcoin')['bitcoin']['usd']
-    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC_midas', 2, btcPrice, "BTC")
-    updateCryptoPrice('BTC', format(btcPrice, ".2f"))
+    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC-Midas', 2, btcPrice, "BTC")
+    updateCryptoPriceInGnucash('BTC', format(btcPrice, ".2f"))
 
-    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH_midas', 1, balances[1], "ETH")
+    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH-Midass', 1, balances[1], "ETH")
+    updateCoinQuantityFromStakingInGnuCash(balances[1], 'ETH-Midas')
     ethPrice = getCryptocurrencyPrice('ethereum')['ethereum']['usd']
-    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH_midas', 2, ethPrice, "ETH")
-    updateCryptoPrice('ETH', format(ethPrice, ".2f"))
+    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH-Midas', 2, ethPrice, "ETH")
+    updateCryptoPriceInGnucash('ETH', format(ethPrice, ".2f"))
 
     return balances
 

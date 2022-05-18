@@ -5,7 +5,7 @@ from M1Finance import runM1
 from TIAA import runTIAA
 from Presearch import runPresearch
 
-from Functions import setDirectory, chromeDriverAsUser, openGnuCashBook, getGnuCashBalance, showMessage, startExpressVPN
+from Functions import setDirectory, chromeDriverAsUser, openGnuCashBook, getGnuCashBalance, showMessage, startExpressVPN, updateCryptoPrices
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
@@ -17,6 +17,8 @@ preToGo = abs((stakedPre[1] % 2000) - 2000)
 Finance = openGnuCashBook(directory, 'Finance', True, True)
 m1Gnu = getGnuCashBalance(Finance, 'M1')
 tiaaGnu = getGnuCashBalance(Finance, 'TIAA')
+updateCryptoPrices()
+cryptoBalance = getGnuCashBalance(Finance, 'Crypto')
 driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1684fQ-gW5A0uOf7s45p9tC4GiEE5s5_fjO5E7dgVI1s/edit#gid=1688093622');")
 if m1[1]:
     os.startfile(directory + r"\Finances\Personal Finances\Finance.gnucash")
@@ -25,6 +27,7 @@ showMessage("Balances + Review",
     f'GnuCash Balance: {m1Gnu} \n \n'
     f'TIAA: {tiaa} \n'
     f'GnuCash Balance: {tiaaGnu} \n \n'
+    f'Crypto Balance: {cryptoBalance} \n \n'
     f'{preToGo} PRE until next Node \n \n'
     f'Review transactions:\n {m1[1]}')
 driver.quit()

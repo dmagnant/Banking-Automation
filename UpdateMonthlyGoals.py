@@ -193,5 +193,5 @@ def runUpdateMonthlyGoals(accounts):
     driver.close()
 
 if __name__ == '__main__':
-    accounts = 'p'
+    accounts = 'j'
     runUpdateMonthlyGoals(accounts)
