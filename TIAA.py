@@ -5,6 +5,7 @@ from Functions import getPassword, showMessage, closeExpressVPN, setDirectory, c
 
 def login(directory, driver):
     closeExpressVPN()
+    time.sleep(3)
     # # # TIAA
     driver.execute_script("window.open('https://www.tiaabank.com/');")
     # switch to last window

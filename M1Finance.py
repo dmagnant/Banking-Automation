@@ -19,14 +19,6 @@ def login(directory, driver):
     time.sleep(2)
     driver.get("https://dashboard.m1.com/d/spend/transactions")
     time.sleep(2)
-    # try: 
-    #     # click Spend
-    #     driver.find_element(By.XPATH, "//*[@id='root']/div/div/div/div[1]/div[2]/div/div[1]/nav/a[3]/div/div/span").click()
-    # except NoSuchElementException:
-    #     # handle captcha
-    #     showMessage('CAPTCHA',"Verify captcha, then click OK")
-    #     # click Spend
-    #     driver.find_element(By.XPATH, "//*[@id='root']/div/div/div/div[1]/div[2]/div/div[1]/nav/a[3]/div/div/span").click()
 
 def captureBalance(driver):
     return driver.find_element(By.XPATH, "//*[@id='root']/div/div/div/div[2]/div/div[1]/div[2]/div[1]/div/div/h1").text.strip('$').replace(',', '')

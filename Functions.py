@@ -311,6 +311,8 @@ def modifyTransactionDescription(description, amount="0.00"):
         description = "TIAA Transfer"
     elif "TRANSFER FROM LINKED BANK" in description.upper():
         description = "TIAA Transfer"
+    elif "ALLIANT CU XFER" in description.upper():
+        description = "Alliant Transfer"        
     elif "AMEX EPAYMENT" in description.upper():
         description = "Amex CC"
     elif "COINBASE" in description.upper():
@@ -364,6 +366,8 @@ def setToAccount(account, row):
         toAccount = "Expenses:Utilities:Phone"
     elif "TIAA Transfer" in row[rowNum]:
         toAccount = "Assets:Liquid Assets:TIAA"
+    elif "Alliant Transfer" in row[rowNum]:
+        toAccount = "Assets:Liquid Assets:Promos"        
     elif "CRYPTO PURCHASE" in row[rowNum].upper():
         toAccount = "Assets:Non-Liquid Assets:CryptoCurrency"
     elif "Pinecone Research" in row[rowNum]:

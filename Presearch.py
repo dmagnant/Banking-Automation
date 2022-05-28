@@ -29,10 +29,11 @@ def claimRewards(driver):
         num = 1
         node_found = False
         while not node_found:
-            name = driver.find_element(By.XPATH, '/html/body/div[2]/div[2]/div[3]/div[5]/div/table/tbody/tr[' + str(num) + ']/td[1]/a[1]').text
+            name = driver.find_element(By.XPATH, '/html/body/div[2]/div[2]/div[3]/div[6]/div/table/tbody/tr[' + str(num) + ']/td[1]').text
             if name.lower() == 'aws':
                 stakeAmount = availToStake
-                driver.find_element(By.XPATH, '/html/body/div[2]/div[2]/div[3]/div[5]/div/table/tbody/tr[' + str(num) + ']/td[11]/a[1]').click()
+                # click Stake button
+                driver.find_element(By.XPATH, '/html/body/div[2]/div[2]/div[3]/div[6]/div/table/tbody/tr[' + str(num) + ']/td[12]/a[1]').click()
                 while stakeAmount > 0:
                     driver.find_element(By.ID, 'stake_amount').send_keys(Keys.ARROW_UP)
                     stakeAmount -= 1
@@ -53,7 +54,6 @@ def captureBalance(driver):
 def runPresearch(directory, driver):    
     claimRewards(driver)
     balances = captureBalance(driver)
-
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'PRE', 1, balances[0], "PRE")
     updateCoinQuantityFromStakingInGnuCash(balances[0], 'PRE')
     prePrice = getCryptocurrencyPrice('presearch')['presearch']['usd']
