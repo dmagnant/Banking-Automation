@@ -6,8 +6,8 @@ def runIoPay(directory):
                                 "My Stakes > Action > Add Stake \n"
                                 "stake available balance (may need 100 minimum) \n"
                                 "After clicking OK, see python window for inputs \n")
-    walletBalance = float(input("copy WALLET BALANCE and paste here:  \n"))
-    stakedBalance = float(input("copy TOTAL STAKED AMOUNT and paste here:  \n"))
+    walletBalance = float(input("copy WALLET BALANCE and paste here:  \n").strip("IOTX"))
+    stakedBalance = float(input("copy TOTAL STAKED AMOUNT and paste here:  \n").strip("IOTX"))
     iotxBalance = walletBalance + stakedBalance
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'IOTX', 1, iotxBalance, "IOTX")
     updateCoinQuantityFromStakingInGnuCash(iotxBalance, 'IOTX')
@@ -20,4 +20,4 @@ def runIoPay(directory):
 if __name__ == '__main__':
     directory = setDirectory()
     response = runIoPay(directory)
-    print('balance: ' + response)
+    print('balance: ' + str(response))

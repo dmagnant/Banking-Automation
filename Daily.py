@@ -24,11 +24,11 @@ driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1sWJu
 if m1[1]:
     os.startfile(directory + r"\Finances\Personal Finances\Finance.gnucash")
 showMessage("Balances + Review", 
-    f'   M1 Spend Balance: {m1[0]} \n' 
-    f'    GnuCash Balance: {m1Gnu} \n \n'
-    f'               TIAA: {tiaa} \n'
-    f'    GnuCash Balance: {tiaaGnu} \n \n'
-    f'     Crypto Balance: {cryptoBalance} \n \n'
+    f'M1 Spend Balance: {m1[0]} \n' 
+    f'GnuCash Balance: {m1Gnu} \n \n'
+    f'TIAA: {tiaa} \n'
+    f'GnuCash Balance: {tiaaGnu} \n \n'
+    f'Crypto Balance: {cryptoBalance} \n \n'
     f'{preToGo} PRE until next Node \n \n'
     f'Review transactions:\n {m1[1]}')
 driver.quit()

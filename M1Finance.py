@@ -14,11 +14,14 @@ def login(directory, driver):
     driver.find_element(By.NAME, "password").send_keys(getPassword(directory, 'M1 Finance'))
     # click Log In
     driver.find_element(By.XPATH, "//*[@id='root']/div/div/div/div[2]/div/div/form/div[4]/div/button").click()
-    # handle captcha
-    # showMessage('CAPTCHA',"Verify captcha, then click OK")
+    time.sleep(3)
+    driver.get("https://dashboard.m1.com/d/spend/checking/transactions")
     time.sleep(2)
-    driver.get("https://dashboard.m1.com/d/spend/transactions")
-    time.sleep(2)
+    try:
+        driver.find_element(By.XPATH, "//*[@id='root']/div/div/div/div[2]/div/div[1]/div[2]/div[1]/div/div/h1")
+    except NoSuchElementException:
+        showMessage('login fail',"try manually - may need to edit code")
+
 
 def captureBalance(driver):
     return driver.find_element(By.XPATH, "//*[@id='root']/div/div/div/div[2]/div/div[1]/div[2]/div[1]/div/div/h1").text.strip('$').replace(',', '')

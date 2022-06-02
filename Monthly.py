@@ -3,7 +3,8 @@ from decimal import Decimal
 from MyConstant import runMyConstant
 from Worthy import runWorthy
 from HealthEquity import runHealthEquity
-from Functions import setDirectory, chromeDriverAsUser, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, getStartAndEndOfPreviousMonth, writeGnuTransaction
+from Crypto import runCrypto
+from Functions import setDirectory, chromeDriverAsUser, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, getStartAndEndOfPreviousMonth, writeGnuTransaction, updateCryptoPrices
 
 # Get current date
 today = datetime.today()
@@ -15,7 +16,7 @@ directory = setDirectory()
 driver = chromeDriverAsUser(directory)
 driver.implicitly_wait(6)
 
-myConstantBalances = runMyConstant(directory, driver, 'usd')
+myConstantBalances = runMyConstant(directory, driver)
 worthyBalance = runWorthy(directory, driver)
 HEBalances = runHealthEquity(driver, lastMonth)
 
@@ -38,4 +39,9 @@ updateSpreadsheet(directory, 'Asset Allocation', year, 'Vanguard401k', month, HE
 
 driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1sWJuxtYI-fJ6bUHBWHZTQwcggd30RcOSTMlqIzd1BBo/edit#gid=2058576150');")
 showMessage("Balances + Review", f'MyConstant: {myConstantBalances[0]} \n' f'Worthy: {worthyBalance} \n' f'Liquid Assets: {liquidAssets} \n' f'401k: {HEBalances[2]}')
+
+updateCryptoPrices()
+cryptoBalance = runCrypto(directory, driver)
+updateSpreadsheet(directory, 'Asset Allocation', year, 'Cryptocurrency', month, float(cryptoBalance), 'Cryptocurrency')
+
 driver.quit()

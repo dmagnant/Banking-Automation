@@ -33,7 +33,7 @@ def runMidas(directory, driver):
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC-Midas', 2, btcPrice, "BTC")
     updateCryptoPriceInGnucash('BTC', format(btcPrice, ".2f"))
 
-    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH-Midass', 1, balances[1], "ETH")
+    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH-Midas', 1, balances[1], "ETH")
     updateCoinQuantityFromStakingInGnuCash(balances[1], 'ETH-Midas')
     ethPrice = getCryptocurrencyPrice('ethereum')['ethereum']['usd']
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH-Midas', 2, ethPrice, "ETH")

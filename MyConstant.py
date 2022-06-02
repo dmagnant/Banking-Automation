@@ -53,6 +53,7 @@ def captureBalances(driver):
     constantBalanceDec = Decimal(constantBalanceRaw)
     constantBalance = float(round(constantBalanceDec, 2))
     driver.get('https://www.myconstant.com/lend-crypto-to-earn-interest')
+    pyautogui.moveTo(1700, 145)
     time.sleep(2)
     # get coin balances
     btcBalance = float(getCoinBalance(driver, ('BTC')))
@@ -65,16 +66,16 @@ def runMyConstant(directory, driver):
     login(directory, driver)
     balances = captureBalances(driver)
     
-    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC-Myconstant', 1, balances[1], "BTC")
-    updateCoinQuantityFromStakingInGnuCash(balances[1], 'BTC-Myconstant')
+    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC-MyConstant', 1, balances[1], "BTC")
+    updateCoinQuantityFromStakingInGnuCash(balances[1], 'BTC-MyConstant')
     btcPrice = getCryptocurrencyPrice('bitcoin')['bitcoin']['usd']
-    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC-Myconstant', 2, btcPrice, "BTC")
+    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'BTC-MyConstant', 2, btcPrice, "BTC")
     updateCryptoPriceInGnucash('BTC', format(btcPrice, ".2f"))
 
-    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH-Myconstant', 1, balances[2], "ETH")
-    updateCoinQuantityFromStakingInGnuCash(balances[2], 'ETH-Myconstant')
+    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH-MyConstant', 1, balances[2], "ETH")
+    updateCoinQuantityFromStakingInGnuCash(balances[2], 'ETH-MyConstant')
     ethPrice = getCryptocurrencyPrice('ethereum')['ethereum']['usd']
-    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH-Myconstant', 2, ethPrice, "ETH")
+    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH-MyConstant', 2, ethPrice, "ETH")
     updateCryptoPriceInGnucash('ETH', format(ethPrice, ".2f"))
 
     return balances
@@ -83,6 +84,6 @@ if __name__ == '__main__':
     directory = setDirectory()
     driver = chromeDriverAsUser()
     response = runMyConstant(directory, driver)
-    print('myconstant balance: ' + response[0])
-    print('btc balance: ' + response[1])
-    print('eth balance: ' + response[2])
+    print('myconstant balance: ' + str(response[0]))
+    print('btc balance: ' + str(response[1]))
+    print('eth balance: ' + str(response[2]))

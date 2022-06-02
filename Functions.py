@@ -96,7 +96,7 @@ def getAccountPath(account):
             return "Assets:Non-Liquid Assets:CryptoCurrency:Bitcoin"                
         case 'BTC-Midas':
             return "Assets:Non-Liquid Assets:CryptoCurrency:Bitcoin:BTC-Midas"
-        case 'BTC-Myconstant':
+        case 'BTC-MyConstant':
             return "Assets:Non-Liquid Assets:CryptoCurrency:Bitcoin:BTC-MyConstant"                
         case 'BoA':
             return "Liabilities:Credit Cards:BankAmericard Cash Rewards"
@@ -116,7 +116,7 @@ def getAccountPath(account):
             return "Assets:Non-Liquid Assets:CryptoCurrency:Ethereum:ETH-Kraken"
         case 'ETH-Midas':
             return "Assets:Non-Liquid Assets:CryptoCurrency:Ethereum:ETH-Midas"
-        case 'ETH-Myconstant':
+        case 'ETH-MyConstant':
             return "Assets:Non-Liquid Assets:CryptoCurrency:Ethereum:ETH-MyConstant"
         case 'ETH2':
             return "Assets:Non-Liquid Assets:CryptoCurrency:Ethereum2"
@@ -140,6 +140,9 @@ def getAccountPath(account):
             return "Assets:Non-Liquid Assets:Pension"  
         case 'Worthy':
             return "Assets:Liquid Assets:Worthy Bonds"
+        case _:
+            print(f'account: {account} not found in "getAccountPath" function')
+
 
 def getGnuCashBalance(myBook, account):
     accountpath = getAccountPath(account)
@@ -197,6 +200,8 @@ def getCell(account, month):
                 return ['F4', 'M4', 'T4', 'F26', 'M26', 'T26', 'F48', 'M48', 'T48', 'F70', 'M70', 'T70']
             case 'Chase':
                 return ['F8', 'S8', 'C43', 'K43', 'S43', 'C78', 'K78', 'S78', 'C113', 'K113', 'S113', 'C8']
+            case 'Cryptocurrency':
+                return ['B16', 'I16', 'P16', 'B38', 'I38', 'P38', 'B60', 'I60', 'P60', 'B82', 'I82', 'P82']
             case 'Discover':
                 return ['K6', 'S6', 'C41', 'K41', 'S41', 'C76', 'K76', 'S76', 'C111', 'K111', 'S111', 'C6']
             case 'HE_HSA':
@@ -213,17 +218,17 @@ def getCell(account, month):
                 return ['H2', 'J2']
             case 'ATOM':
                 return ['H6', 'J6']
-            case 'BTC_midas':
+            case 'BTC-Midas':
                 return ['H3', 'J3']
-            case 'BTC_myconstant':
+            case 'BTC-MyConstant':
                 return ['H4', 'J4']
             case 'DOT':
                 return ['H12', 'J12']
-            case 'ETH_kraken':
+            case 'ETH-Kraken':
                 return ['H9', 'J9']
-            case 'ETH_midas':
+            case 'ETH-Midas':
                 return ['H7', 'J7']
-            case 'ETH_myconstant':
+            case 'ETH-MyConstant':
                 return ['H8', 'J8']
             case 'ETH2':
                 return ['H10', 'J10']
@@ -778,10 +783,10 @@ def updateCoinQuantityFromStakingInGnuCash(coinQuantity, coinSymbol):
             myBook.flush()
         myBook.close()
     elif coinDifference < 0:
-        showMessage(f'{coinSymbol} unexpected qty mismatch ',
-        f'given balance of {coinQuantity} \n'
-        f'is less than \n'
-        f'gnuCash balance of {gnuBalance}')
+        print(f'given balance of {coinQuantity} {coinSymbol}'
+        f'minus gnuCash balance of {gnuBalance}'
+        f'leaves unexpected coin difference of {coinDifference}'
+        f'is it rounding issue?')
 
 def getDollarsInvestedPerCoin(symbol):
     directory=setDirectory()

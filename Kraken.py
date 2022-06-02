@@ -69,7 +69,7 @@ def runKraken(directory, driver):
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH2', 1, balances[2], "ETH2")
     updateCoinQuantityFromStakingInGnuCash(balances[2], 'ETH2')
     eth2Price = getCryptocurrencyPrice('ethereum')['ethereum']['usd']
-    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH_kraken', 2, eth2Price, "ETH")
+    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH-Kraken', 2, eth2Price, "ETH")
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'ETH2', 2, eth2Price, "ETH2")
     updateCryptoPriceInGnucash('ETH', format(eth2Price, ".2f"))
     updateCryptoPriceInGnucash('ETH2', format(eth2Price, ".2f"))
