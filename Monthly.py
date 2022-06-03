@@ -1,10 +1,14 @@
 from datetime import datetime
 from decimal import Decimal
+
+from Crypto import runCrypto
+from Functions import (chromeDriverAsUser, getGnuCashBalance,
+                       getStartAndEndOfPreviousMonth, openGnuCashBook,
+                       setDirectory, showMessage, updateCryptoPrices,
+                       updateSpreadsheet, writeGnuTransaction)
+from HealthEquity import runHealthEquity
 from MyConstant import runMyConstant
 from Worthy import runWorthy
-from HealthEquity import runHealthEquity
-from Crypto import runCrypto
-from Functions import setDirectory, chromeDriverAsUser, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, getStartAndEndOfPreviousMonth, writeGnuTransaction, updateCryptoPrices
 
 # Get current date
 today = datetime.today()

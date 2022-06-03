@@ -1,6 +1,9 @@
-import time
 from selenium.webdriver.common.by import By
-from Functions import updateSpreadsheet, getCryptocurrencyPrice, setDirectory, chromeDriverAsUser, updateCryptoPriceInGnucash,updateCoinQuantityFromStakingInGnuCash
+
+from Functions import (chromeDriverAsUser, getCryptocurrencyPrice,
+                       setDirectory, updateCoinQuantityFromStakingInGnuCash,
+                       updateCryptoPriceInGnucash, updateSpreadsheet)
+
 
 def runEternl(directory, driver):
     driver.execute_script("window.open('https://eternl.io/app/mainnet/wallet/xpub1wxalshqc32m-ml/summary');")

@@ -1,12 +1,13 @@
 from Eternl import runEternl
 from Exodus import runExodus
+from Functions import (chromeDriverAsUser, getGnuCashBalance, openGnuCashBook,
+                       setDirectory)
 from IoPay import runIoPay
 from Kraken import runKraken
 from Midas import runMidas
 from MyConstant import runMyConstant
 from Presearch import runPresearch
 
-from Functions import setDirectory, chromeDriverAsUser, openGnuCashBook, getGnuCashBalance
 
 def runCrypto(directory, driver):
     # directory = setDirectory()

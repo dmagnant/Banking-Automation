@@ -1,8 +1,11 @@
 import time
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-import time
-from Functions import updateSpreadsheet, setDirectory, getCryptocurrencyPrice, chromeDriverAsUser, updateCryptoPriceInGnucash, updateCoinQuantityFromStakingInGnuCash
+
+from Functions import (chromeDriverAsUser, getCryptocurrencyPrice,
+                       setDirectory, updateCoinQuantityFromStakingInGnuCash,
+                       updateCryptoPriceInGnucash, updateSpreadsheet)
 
 
 def claimRewards(driver):

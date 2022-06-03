@@ -1,9 +1,15 @@
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
+import os
 import time
 from datetime import datetime
-import os
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, importGnuTransaction
+
+from selenium.common.exceptions import (ElementClickInterceptedException,
+                                        NoSuchElementException)
+from selenium.webdriver.common.by import By
+
+from Functions import (chromeDriverAsUser, getGnuCashBalance, getPassword,
+                       getUsername, importGnuTransaction, openGnuCashBook,
+                       setDirectory, showMessage, updateSpreadsheet)
+
 
 def login(driver):
     driver.get("https://www.chase.com/")

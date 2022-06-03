@@ -1,4 +1,7 @@
-from Functions import showMessage, updateSpreadsheet, getCryptocurrencyPrice, setDirectory, updateCryptoPriceInGnucash, updateCoinQuantityFromStakingInGnuCash
+from Functions import (getCryptocurrencyPrice, setDirectory, showMessage,
+                       updateCoinQuantityFromStakingInGnuCash,
+                       updateCryptoPriceInGnucash, updateSpreadsheet)
+
 
 def runIoPay(directory):
     showMessage('IOTX balance via IoPay Desktop',"Open IoPay Desktop and Connect Ledger \n"

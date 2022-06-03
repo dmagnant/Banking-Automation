@@ -1,9 +1,14 @@
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException
 import time
 from decimal import Decimal
+
 import pyautogui
-from Functions import showMessage, getUsername, getPassword, getOTP, updateSpreadsheet, getCryptocurrencyPrice, setDirectory, chromeDriverAsUser, updateCryptoPriceInGnucash, updateCoinQuantityFromStakingInGnuCash
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
+
+from Functions import (chromeDriverAsUser, getCryptocurrencyPrice, getOTP,
+                       getPassword, getUsername, setDirectory, showMessage,
+                       updateCoinQuantityFromStakingInGnuCash,
+                       updateCryptoPriceInGnucash, updateSpreadsheet)
 
 
 def login(directory, driver):

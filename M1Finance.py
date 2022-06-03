@@ -1,9 +1,15 @@
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException
-from datetime import datetime
-import time
 import csv
-from Functions import getUsername, getPassword, openGnuCashBook, showMessage, getDateRange, modifyTransactionDescription, compileGnuTransactions, setDirectory, chromeDriverAsUser
+import time
+from datetime import datetime
+
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
+
+from Functions import (chromeDriverAsUser, compileGnuTransactions,
+                       getDateRange, getPassword, getUsername,
+                       modifyTransactionDescription, openGnuCashBook,
+                       setDirectory, showMessage)
+
 
 def login(directory, driver):
     driver.get("https://dashboard.m1finance.com/login")

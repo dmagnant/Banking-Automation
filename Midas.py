@@ -1,7 +1,13 @@
 import time
-from selenium.webdriver.common.by import By
+
 from selenium.common.exceptions import NoSuchElementException
-from Functions import updateSpreadsheet, showMessage, getCryptocurrencyPrice, setDirectory, chromeDriverAsUser, updateCryptoPriceInGnucash, updateCoinQuantityFromStakingInGnuCash
+from selenium.webdriver.common.by import By
+
+from Functions import (chromeDriverAsUser, getCryptocurrencyPrice,
+                       setDirectory, showMessage,
+                       updateCoinQuantityFromStakingInGnuCash,
+                       updateCryptoPriceInGnucash, updateSpreadsheet)
+
 
 def login(directory, driver):
     driver.execute_script("window.open('https://midas.investments/?login=true');")

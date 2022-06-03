@@ -1,22 +1,24 @@
-import gspread
-from pycoingecko import CoinGeckoAPI
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from selenium.common.exceptions import NoSuchElementException
-from pykeepass import PyKeePass
-from datetime import datetime, timedelta
-import time
-import os
-import pyotp
-import psutil
+import csv
 import ctypes
+import os
+import time
+from datetime import datetime, timedelta
+from decimal import Decimal
+
+import gspread
+import piecash
+import psutil
 import pyautogui
 import pygetwindow
-from decimal import Decimal
-import csv
-import piecash
-from piecash import Transaction, Split, GnucashException, Price
+import pyotp
+from piecash import GnucashException, Price, Split, Transaction
+from pycoingecko import CoinGeckoAPI
+from pykeepass import PyKeePass
+from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+
 
 def showMessage(header, body): 
     MessageBox = ctypes.windll.user32.MessageBoxW

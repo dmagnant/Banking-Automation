@@ -1,10 +1,14 @@
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.keys import Keys
 import time
-from decimal import Decimal
 from datetime import datetime
-from Functions import showMessage, chromeDriverAsUser, getStartAndEndOfPreviousMonth
+from decimal import Decimal
+
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+
+from Functions import (chromeDriverAsUser, getStartAndEndOfPreviousMonth,
+                       showMessage)
+
 
 def login(driver):
     driver.execute_script("window.open('https://member.my.healthequity.com/hsa/21895515-010');")

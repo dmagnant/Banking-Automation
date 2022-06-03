@@ -1,8 +1,12 @@
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException
 import time
 from decimal import Decimal
-from Functions import getUsername, getPassword, setDirectory, chromeDriverAsUser
+
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
+
+from Functions import (chromeDriverAsUser, getPassword, getUsername,
+                       setDirectory)
+
 
 def login(directory, driver):
     driver.execute_script("window.open('https://worthy.capital/start');")

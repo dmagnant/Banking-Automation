@@ -1,11 +1,17 @@
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException
-from decimal import Decimal
-from datetime import datetime
-import time
 import os
+import time
+from datetime import datetime
+from decimal import Decimal
+
 import pyautogui
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, getStartAndEndOfPreviousMonth, writeGnuTransaction 
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
+
+from Functions import (chromeDriverAsUser, getGnuCashBalance, getPassword,
+                       getStartAndEndOfPreviousMonth, getUsername,
+                       openGnuCashBook, setDirectory, showMessage,
+                       updateSpreadsheet, writeGnuTransaction)
+
 
 def login(directory, driver):
     driver.get("https://ownyourfuture.vanguard.com/login#/")

@@ -1,7 +1,13 @@
 import time
-from selenium.webdriver.common.by import By
+
 from selenium.common.exceptions import NoSuchElementException
-from Functions import getUsername, getPassword, getOTP, updateSpreadsheet, getCryptocurrencyPrice, setDirectory, chromeDriverAsUser, updateCryptoPriceInGnucash, updateCoinQuantityFromStakingInGnuCash
+from selenium.webdriver.common.by import By
+
+from Functions import (chromeDriverAsUser, getCryptocurrencyPrice, getOTP,
+                       getPassword, getUsername, setDirectory,
+                       updateCoinQuantityFromStakingInGnuCash,
+                       updateCryptoPriceInGnucash, updateSpreadsheet)
+
 
 def login(directory, driver):
     driver.execute_script("window.open('https://www.kraken.com/sign-in');")

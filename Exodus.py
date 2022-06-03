@@ -1,4 +1,7 @@
-from Functions import showMessage, updateSpreadsheet, getCryptocurrencyPrice, setDirectory, updateCryptoPriceInGnucash, updateCoinQuantityFromStakingInGnuCash
+from Functions import (getCryptocurrencyPrice, setDirectory, showMessage,
+                       updateCoinQuantityFromStakingInGnuCash,
+                       updateCryptoPriceInGnucash, updateSpreadsheet)
+
 
 def runExodus(directory):
     showMessage('Cosmos (ATOM) balance via Exodus',"Open Exodus Desktop \n"

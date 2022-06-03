@@ -1,9 +1,15 @@
-import time
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException, ElementClickInterceptedException
 import os
+import time
 from datetime import datetime
-from Functions import setDirectory, chromeDriverAsUser, chromeDriverBlank, getUsername, getPassword, openGnuCashBook, showMessage, importGnuTransaction, getGnuCashBalance, updateSpreadsheet
+
+from selenium.common.exceptions import (ElementClickInterceptedException,
+                                        ElementNotInteractableException,
+                                        NoSuchElementException)
+from selenium.webdriver.common.by import By
+
+from Functions import (chromeDriverAsUser, getGnuCashBalance, getPassword,
+                       getUsername, importGnuTransaction, openGnuCashBook,
+                       setDirectory, showMessage, updateSpreadsheet)
 
 
 def login(directory, driver):

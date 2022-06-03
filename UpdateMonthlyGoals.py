@@ -1,7 +1,11 @@
 import csv
 from datetime import datetime, timedelta
+
 import gspread
-from Functions import openGnuCashBook, setDirectory, getStartAndEndOfPreviousMonth, chromeDriverAsUser, showMessage
+
+from Functions import (chromeDriverAsUser, getStartAndEndOfPreviousMonth,
+                       openGnuCashBook, setDirectory, showMessage)
+
 
 def compileGnuTransactions(account, mybook, directory, dateRange):
     importCSV = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\import.csv"

@@ -1,9 +1,15 @@
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException
-from datetime import datetime
-import time
 import csv
-from Functions import getPassword, closeExpressVPN, openGnuCashBook, getDateRange, modifyTransactionDescription, compileGnuTransactions, showMessage, setDirectory, chromeDriverAsUser
+import time
+from datetime import datetime
+
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
+
+from Functions import (chromeDriverAsUser, closeExpressVPN,
+                       compileGnuTransactions, getDateRange, getPassword,
+                       modifyTransactionDescription, openGnuCashBook,
+                       setDirectory, showMessage)
+
 
 def login(directory, driver):
     closeExpressVPN()

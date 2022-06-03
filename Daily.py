@@ -1,11 +1,13 @@
 import os
 import os.path
-from Ally import runAlly
-from M1Finance import runM1
-from TIAA import runTIAA
-from Presearch import runPresearch
 
-from Functions import setDirectory, chromeDriverAsUser, openGnuCashBook, getGnuCashBalance, showMessage, startExpressVPN, updateCryptoPrices
+from Ally import runAlly
+from Functions import (chromeDriverAsUser, getGnuCashBalance, openGnuCashBook,
+                       setDirectory, showMessage, startExpressVPN,
+                       updateCryptoPrices)
+from M1Finance import runM1
+from Presearch import runPresearch
+from TIAA import runTIAA
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)

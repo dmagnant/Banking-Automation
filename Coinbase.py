@@ -1,17 +1,22 @@
-import gspread
-from pycoingecko import CoinGeckoAPI
-from decimal import Decimal
 from datetime import datetime, timedelta
-from piecash import Transaction, Split, GnucashException, Price
+from decimal import Decimal
+
+import gspread
+from piecash import GnucashException, Price, Split, Transaction
+from pycoingecko import CoinGeckoAPI
 
 from Eternl import runEternl
-from Kraken import runKraken
-from IoPay import runIoPay
 from Exodus import runExodus
+from Functions import (chromeDriverAsUser, getAccountPath,
+                       getCryptocurrencyPrice, getGnuCashBalance,
+                       openGnuCashBook, setDirectory, showMessage,
+                       updateCryptoPrices, updateSpreadsheet)
+from IoPay import runIoPay
+from Kraken import runKraken
 from Midas import runMidas
 from MyConstant import runMyConstant
 from Presearch import runPresearch
-from Functions import setDirectory, chromeDriverAsUser, showMessage, getCryptocurrencyPrice, updateSpreadsheet, openGnuCashBook, getGnuCashBalance, updateCryptoPrices, getAccountPath
+
 # from Crypto import getCryptoInvestmentInDollars
 
 # # write cardano transaction from coinbase

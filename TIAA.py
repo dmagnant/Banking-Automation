@@ -1,7 +1,10 @@
 import time
+
 from selenium.webdriver.common.by import By
-from Functions import closeExpressVPN
-from Functions import getPassword, showMessage, closeExpressVPN, setDirectory, chromeDriverAsUser
+
+from Functions import (chromeDriverAsUser, closeExpressVPN, getPassword,
+                       setDirectory, showMessage)
+
 
 def login(directory, driver):
     closeExpressVPN()

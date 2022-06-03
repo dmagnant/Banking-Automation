@@ -1,10 +1,15 @@
-import pyautogui
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException
-from datetime import datetime
-import time
 import os
-from Functions import setDirectory, chromeDriverAsUser, getUsername, getPassword, openGnuCashBook, showMessage, getGnuCashBalance, updateSpreadsheet, importGnuTransaction
+import time
+from datetime import datetime
+
+import pyautogui
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
+
+from Functions import (chromeDriverAsUser, getGnuCashBalance, getPassword,
+                       getUsername, importGnuTransaction, openGnuCashBook,
+                       setDirectory, showMessage, updateSpreadsheet)
+
 
 def login(directory, driver):
     driver.get("https://www.americanexpress.com/")
