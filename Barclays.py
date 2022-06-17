@@ -15,7 +15,9 @@ def login(directory, driver):
     driver.get("https://www.barclaycardus.com/servicing/home?secureLogin=")
     # Login
     driver.find_element(By.ID, "username").send_keys(getUsername(directory, 'Barclay Card'))
+    time.sleep(2)
     driver.find_element(By.ID, "password").send_keys(getPassword(directory, 'Barclay Card'))
+    time.sleep(2)
     driver.find_element(By.ID, "loginButton").click()
     # handle security questions
     try:
@@ -48,7 +50,7 @@ def login(directory, driver):
         driver.find_element(By.XPATH, "/html/body/div[4]/div/button/span").click()
     except NoSuchElementException:
         exception = "Caught"
-
+    showMessage('confirm login', 'login manually if necessary')
 
 def captureBalance(driver):
     return driver.find_element(By.XPATH, "/html/body/section[2]/div[4]/div[2]/div[1]/section[2]/div/div/div[2]/div/div[2]/div[2]/div[2]/div[2]").text.strip('-').strip('$')

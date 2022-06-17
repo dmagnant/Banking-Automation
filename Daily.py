@@ -13,12 +13,12 @@ directory = setDirectory()
 driver = chromeDriverAsUser(directory)
 driver.implicitly_wait(3)
 m1 = runM1(directory, driver)
-tiaa = runTIAA(directory, driver)
+# tiaa = runTIAA(directory, driver)
 stakedPre = runPresearch(directory, driver)
 preToGo = abs((stakedPre[1] % 2000) - 2000)
 Finance = openGnuCashBook(directory, 'Finance', True, True)
 m1Gnu = getGnuCashBalance(Finance, 'M1')
-tiaaGnu = getGnuCashBalance(Finance, 'TIAA')
+# tiaaGnu = getGnuCashBalance(Finance, 'TIAA')
 updateCryptoPrices()
 cryptoBalance = round(getGnuCashBalance(Finance, 'Crypto'), 2)
 driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1684fQ-gW5A0uOf7s45p9tC4GiEE5s5_fjO5E7dgVI1s/edit#gid=1688093622');")
@@ -28,8 +28,8 @@ if m1[1]:
 showMessage("Balances + Review", 
     f'M1 Spend Balance: {m1[0]} \n' 
     f'GnuCash Balance: {m1Gnu} \n \n'
-    f'TIAA: {tiaa} \n'
-    f'GnuCash Balance: {tiaaGnu} \n \n'
+    # f'TIAA: {tiaa} \n'
+    # f'GnuCash Balance: {tiaaGnu} \n \n'
     f'Crypto Balance: {cryptoBalance} \n \n'
     f'{preToGo} PRE until next Node \n \n'
     f'Review transactions:\n {m1[1]}')
