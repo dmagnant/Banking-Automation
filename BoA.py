@@ -116,9 +116,9 @@ def claimRewards(driver, account):
             driver.find_element(By.ID, "redemption_option").send_keys("v")
             driver.find_element(By.ID, "redemption_option").send_keys(Keys.ENTER)
             # click on Redeem all
-            driver.find_element(By.XPATH, "/html/body/main/div[2]/div/div/div/div/div[1]/div[2]/div[1]/div/div/form/button").click()
+            driver.find_element(By.ID, "redeem-all").click()
             # click Complete Redemption
-            driver.find_element(By.XPATH, "/html/body/div[1]/div/div/div[3]/button[1]").click()
+            driver.find_element(By.ID, "complete-otr-confirm").click()
         except ElementNotInteractableException:
             exception = "caught"
 
@@ -160,7 +160,7 @@ def runBoA(directory, driver, account):
     # startExpressVPN()
 
 if __name__ == '__main__':
-    SET_ACCOUNT_VARIABLE = 'j'
+    SET_ACCOUNT_VARIABLE = 'p'
     directory = setDirectory()
     driver = chromeDriverAsUser()
     driver.implicitly_wait(3)
