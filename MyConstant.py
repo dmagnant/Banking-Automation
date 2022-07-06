@@ -39,14 +39,13 @@ def login(directory, driver):
 
 def getCoinBalance(driver, coin):
         # click dropdown menu
-        driver.find_element(By.XPATH, "//*[@id='layout']/div[2]/div/div/div/div[2]/div/form/div[1]/div[2]/div/div/button/div").click()
+        driver.find_element(By.ID, "react-aria455500536-64").click()
         # search for coin
         driver.find_element(By.ID, 'dropdown-search-selectedSymbol').send_keys(coin)
         # select coin
-        driver.find_element(By.XPATH, "//*[@id='layout']/div[2]/div/div/div/div[2]/div/form/div[1]/div[2]/div/div/div/a/div/div[1]").click()
+        driver.find_element(By.XPATH, "//*[@id='layout']/div[2]/div/div/div/div[2]/div[2]/form/div[1]/div[2]/div/div/div/a/div/div[1]").click()
         time.sleep(6)
-        return driver.find_element(By.XPATH, "//*[@id='layout']/div[2]/div/div/div/div[2]/div/form/div[2]/div[2]/span/span/span").text
-
+        return driver.find_element(By.XPATH, "//*[@id='layout']/div[2]/div/div/div/div[2]/div[2]/form/div[2]/div[2]/span/span/span").text
 
 def captureBalances(driver):
     pyautogui.moveTo(1650, 167)

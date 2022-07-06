@@ -41,6 +41,9 @@ def claimRewards(driver):
                     driver.find_element(By.ID, 'stake_amount').send_keys(Keys.ARROW_UP)
                     stakeAmount -= 1
                 driver.find_element(By.XPATH, "//*[@id='editNodeForm']/div[7]/button").click()
+                time.sleep(1)
+                #click Continue
+                driver.find_element(By.XPATH, "/html/body/div[2]/div[2]/div[2]/div/div/div[2]/div[2]").click()
                 time.sleep(2)
                 driver.get('https://nodes.presearch.org/dashboard')
                 node_found = True
@@ -54,7 +57,8 @@ def captureBalance(driver):
     return [preTotal, stakedTokens]
      
 
-def runPresearch(directory, driver):    
+def runPresearch(directory, driver):
+    driver.implicitly_wait(5)
     claimRewards(driver)
     balances = captureBalance(driver)
     updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'PRE', 1, balances[0], "PRE")

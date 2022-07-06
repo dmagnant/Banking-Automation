@@ -6,7 +6,7 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 
 from Functions import (chromeDriverAsUser, closeExpressVPN,
-                       compileGnuTransactions, getDateRange, getPassword,
+                       importUniqueTransactionsToGnuCash, getDateRange, getPassword,
                        modifyTransactionDescription, openGnuCashBook,
                        setDirectory, showMessage)
 
@@ -76,7 +76,7 @@ def runAlly(directory, driver):
     gnuAllyActivity = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\gnu_ally.csv"
     open(gnuAllyActivity, 'w', newline='').truncate()
     # Compare against existing transactions in GnuCash and import new ones
-    reviewTrans = compileGnuTransactions('Ally', allyActivity, gnuAllyActivity, myBook, driver, directory, dateRange, 0)
+    reviewTrans = importUniqueTransactionsToGnuCash('Ally', allyActivity, gnuAllyActivity, myBook, driver, directory, dateRange, 0)
     return [ally, reviewTrans]
 
 if __name__ == '__main__':

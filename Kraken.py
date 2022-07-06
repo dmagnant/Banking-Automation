@@ -1,6 +1,7 @@
 import time
 
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import (NoSuchElementException,
+                                        StaleElementReferenceException)
 from selenium.webdriver.common.by import By
 
 from Functions import (chromeDriverAsUser, getCryptocurrencyPrice, getOTP,
@@ -24,7 +25,7 @@ def login(directory, driver):
         time.sleep(1)
         driver.find_element(By.ID, 'tfa').send_keys(token)
         driver.find_element(By.XPATH, "/html/body/div/div[2]/div[2]/form/div[1]/div/div/div[2]/button/div/div/div").click()
-    except NoSuchElementException:
+    except (NoSuchElementException, StaleElementReferenceException):
         exception = 'already logged in'
     time.sleep(2)
 
@@ -34,7 +35,6 @@ def captureBalances(driver):
     algoBalance = ''
     dotBalance = ''
     eth2Balance = ''
-    solBalance = ''
     num = 1
     while num < 20:
         balance = driver.find_element(By.XPATH, "//*[@id='__next']/div/main/div/div[2]/div/div/div[3]/div[2]/div/div[" + str(num) + "]/div/div[7]/div/div/span/span/span").text
@@ -45,15 +45,12 @@ def captureBalances(driver):
         elif coin == 'DOT':
             if not dotBalance:
                 dotBalance = float(balance)
-        if coin == 'ETH2':
+        elif coin == 'ETH2':
             if not eth2Balance:
                 eth2Balance = float(balance)
-        elif coin == 'SOL':
-            if not solBalance:
-                solBalance = float(balance)
-        num = 21 if eth2Balance and solBalance and dotBalance and algoBalance else num + 1
+        num = 21 if eth2Balance and dotBalance and algoBalance else num + 1
     
-    return [algoBalance, dotBalance, eth2Balance, solBalance]
+    return [algoBalance, dotBalance, eth2Balance]
 
 def runKraken(directory, driver):    
     login(directory, driver)
@@ -80,12 +77,6 @@ def runKraken(directory, driver):
     updateCryptoPriceInGnucash('ETH', format(eth2Price, ".2f"))
     updateCryptoPriceInGnucash('ETH2', format(eth2Price, ".2f"))
 
-    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'SOL', 1, balances[3], "SOL")
-    updateCoinQuantityFromStakingInGnuCash(balances[3], 'SOL')
-    solPrice = getCryptocurrencyPrice('solana')['solana']['usd']
-    updateSpreadsheet(directory, 'Asset Allocation', 'Cryptocurrency', 'SOL', 2, solPrice, "SOL")
-    updateCryptoPriceInGnucash('SOL', format(solPrice, ".2f"))
-
     return balances
 
 if __name__ == '__main__':
@@ -96,4 +87,3 @@ if __name__ == '__main__':
     print('algo balance: ' + str(response[0]))
     print('dot balance: ' + str(response[1]))
     print('eth2 balance: ' + str(response[2]))
-    print('sol balance: ' + str(response[3]))

@@ -98,7 +98,7 @@ def claimRewards(driver, account):
         time.sleep(5)
         #scroll down to view button
         driver.execute_script("window.scrollTo(0, 300)")
-        time.sleep(2)
+        time.sleep(3)
         # wait for Redeem Cash Rewards button to load, click it
         driver.find_element(By.ID, "rewardsRedeembtn").click()
         # switch to last window
@@ -124,20 +124,20 @@ def claimRewards(driver, account):
 
 
 def locateAndUpdateSpreadsheet(driver, BoA, account, today):
+    BoA = 0.00 if float(BoA) < 0 else float(BoA) * -1
     month = today.month
     year = today.year
     # switch worksheets if running in December (to next year's worksheet)
     if month == 12:
         year = year + 1
-    BoANeg = float(BoA) * -1
 
     if account == 'p':
-        updateSpreadsheet(directory, 'Checking Balance', year, 'BoA', month, BoANeg, 'BoA CC')
-        updateSpreadsheet(directory, 'Checking Balance', year, 'BoA', month, BoANeg, 'BoA CC', True)
+        updateSpreadsheet(directory, 'Checking Balance', year, 'BoA', month, BoA, 'BoA CC')
+        updateSpreadsheet(directory, 'Checking Balance', year, 'BoA', month, BoA, 'BoA CC', True)
         driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1684fQ-gW5A0uOf7s45p9tC4GiEE5s5_fjO5E7dgVI1s/edit#gid=1688093622');")
     else:
-        updateSpreadsheet(directory, 'Home', str(year) + ' Balance', 'BoA-joint', month, BoANeg, 'BoA CC')
-        updateSpreadsheet(directory, 'Home', str(year) + ' Balance', 'BoA-joint', month, BoANeg, 'BoA CC', True)
+        updateSpreadsheet(directory, 'Home', str(year) + ' Balance', 'BoA-joint', month, BoA, 'BoA CC')
+        updateSpreadsheet(directory, 'Home', str(year) + ' Balance', 'BoA-joint', month, BoA, 'BoA CC', True)
         # Display Home spreadsheet
         driver.execute_script("window.open('https://docs.google.com/spreadsheets/d/1oP3U7y8qywvXG9U_zYXgjFfqHrCyPtUDl4zPDftFCdM/edit#gid=317262693');")
 
@@ -160,7 +160,7 @@ def runBoA(directory, driver, account):
     # startExpressVPN()
 
 if __name__ == '__main__':
-    SET_ACCOUNT_VARIABLE = 'j'
+    SET_ACCOUNT_VARIABLE = 'p'
     directory = setDirectory()
     driver = chromeDriverAsUser()
     driver.implicitly_wait(3)

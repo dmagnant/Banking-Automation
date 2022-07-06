@@ -11,7 +11,7 @@ from TIAA import runTIAA
 
 directory = setDirectory()
 driver = chromeDriverAsUser(directory)
-driver.implicitly_wait(3)
+driver.implicitly_wait(5)
 m1 = runM1(directory, driver)
 # tiaa = runTIAA(directory, driver)
 stakedPre = runPresearch(directory, driver)

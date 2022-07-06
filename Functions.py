@@ -134,8 +134,6 @@ def getAccountPath(account):
             return "Assets:Liquid Assets:My Constant"
         case 'PRE':
             return "Assets:Non-Liquid Assets:CryptoCurrency:Presearch"
-        case 'SOL':
-            return "Assets:Non-Liquid Assets:CryptoCurrency:Solana"
         case 'TIAA':
             return "Assets:Liquid Assets:TIAA"
         case 'VanguardPension':
@@ -156,13 +154,14 @@ def getGnuCashBalance(myBook, account):
 def setDirectory():
     return os.environ.get('StorageDirectory')
 
-def chromeDriverAsUser(directory=setDirectory()):
+def chromeDriverAsUser(directory=setDirectory()): # Beta version to obtain v104 (bug exists with <104). Once 104 is standard version, edit/remove beta lines
     chromedriver = Service(directory + r"\Projects\Coding\webdrivers\chromedriver.exe")
     options = webdriver.ChromeOptions()
-    options.add_argument(r"user-data-dir=C:\Users\dmagn\AppData\Local\Google\Chrome\User Data")
+    options.add_argument(r"user-data-dir=C:\Users\dmagn\AppData\Local\Google\Chrome Beta\User Data") # remove beta here
+    options.add_argument("start-maximized")
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     options.add_experimental_option("detach", True)
-    options.add_argument("start-maximized")
+    options.binary_location = "C:/Program Files/Google/Chrome Beta/Application/chrome.exe" # remove this line to revert from "Beta" version
     return webdriver.Chrome(service=chromedriver, options=options)
 
 def chromeDriverBlank(directory):
@@ -238,8 +237,6 @@ def getCell(account, month):
                 return ['H11', 'J11']
             case 'PRE':
                 return ['H13', 'J13']
-            case 'SOL':
-                return ['H14', 'J14']
     cell = (getCellArray(account))[month - 1]
     return cell
 
@@ -383,6 +380,8 @@ def setToAccount(account, row):
         toAccount = "Assets:Non-Liquid Assets:Roth IRA"
     elif "Lending Club" in row[rowNum]:
         toAccount = "Income:Investments:Interest"
+    elif "CASH REWARDS STATEMENT CREDIT" in row[rowNum]:
+        toAccount = "Income:Credit Card Rewards"        
     elif "Chase CC Rewards" in row[rowNum]:
         toAccount = "Income:Credit Card Rewards"
     elif "Chase CC" in row[rowNum]:
@@ -515,7 +514,7 @@ def formatTransactionVariables(account, row):
         reviewTransPath = row[0] + ", " + row[1] + ", " + row[2] + "\n"
     return [postDate, description, amount, ccPayment, fromAccount, reviewTransPath]
 
-def compileGnuTransactions(account, transactionsCSV, gnuCSV, myBook, driver, directory, dateRange, lineStart=1):
+def importUniqueTransactionsToGnuCash(account, transactionsCSV, gnuCSV, myBook, driver, directory, dateRange, lineStart=1):
     importCSV = directory + r"\Projects\Coding\Python\BankingAutomation\Resources\import.csv"
     open(importCSV, 'w', newline='').truncate()
     if account == 'Ally':
@@ -523,7 +522,7 @@ def compileGnuTransactions(account, transactionsCSV, gnuCSV, myBook, driver, dir
     elif account == 'M1':
         gnuAccount = "Assets:Liquid Assets:M1 Spend"
     
-    # retrieve transactions from GnuCash
+    # retrieve transactions from GnuCash for the same date range
     transactions = [tr for tr in myBook.transactions
                     if str(tr.post_date.strftime('%Y-%m-%d')) in dateRange
                     for spl in tr.splits
@@ -559,7 +558,7 @@ def importGnuTransaction(account, transactionsCSV, myBook, driver, directory, li
             if transactionVariables[3]:
                 continue
             else:
-                description = transactionVariables[1]
+                description = modifyTransactionDescription(transactionVariables[1])
                 postDate = transactionVariables[0]
                 fromAccount = transactionVariables[4]
                 amount = transactionVariables[2]
@@ -774,7 +773,7 @@ def updateCoinQuantityFromStakingInGnuCash(coinQuantity, coinSymbol):
     directory = setDirectory()
     myBook = openGnuCashBook(directory, 'Finance', False, False)
     gnuBalance = getGnuCashBalance(myBook, coinSymbol)
-    coinDifference = Decimal(coinQuantity) - gnuBalance
+    coinDifference = Decimal(coinQuantity) - Decimal(gnuBalance)
     if coinDifference > 0:
         myBook = openGnuCashBook(directory, 'Finance', False, False)
         with myBook:

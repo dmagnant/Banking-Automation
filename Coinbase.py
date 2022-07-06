@@ -17,10 +17,11 @@ from Midas import runMidas
 from MyConstant import runMyConstant
 from Presearch import runPresearch
 
+directory = setDirectory()
+
 # from Crypto import getCryptoInvestmentInDollars
 
 # # write cardano transaction from coinbase
-# directory = setDirectory()
 # mybook = openGnuCashBook(directory, 'Finance', False, False)
 # from_account = 'Assets:Liquid Assets:M1 Spend'
 # to_account = 'Assets:Non-Liquid Assets:CryptoCurrency:Cardano'
@@ -39,35 +40,41 @@ from Presearch import runPresearch
 #     book.flush()
 # book.close()
 
-
 # # get total investment (dollars) # # 
-# def sumDollarInvestment(mybook, gnu_account):
-#     sum = 0
-#     # retrieve transactions from GnuCash
-#     transactions = [tr for tr in mybook.transactions
-#                     for spl in tr.splits
-#                     if spl.account.fullname == gnu_account]
-#     for tr in transactions:
-#         for spl in tr.splits:
-#             amount = format(spl.value, ".2f")
-#             if spl.account.fullname == gnu_account:
-#                 if float(amount) > 0:
-#                     sum += float(amount)
-#     return sum
+# mybook = openGnuCashBook(directory, 'Finance', True, True)
+# account = "Assets:Non-Liquid Assets:CryptoCurrency:Cardano"
+def sumDollarInvestment(mybook, gnu_account):
+    sum = 0
+    # retrieve transactions from GnuCash
+    transactions = [tr for tr in mybook.transactions
+                    for spl in tr.splits
+                    if spl.account.fullname == gnu_account]
+    for tr in transactions:
+        for spl in tr.splits:
+            amount = format(spl.value, ".2f")
+            if spl.account.fullname == gnu_account:
+                if float(amount) > 0:
+                    sum += float(amount)
+    print(sum)
+    return sum
 
-# def getCryptoInvestmentInDollars(directory=setDirectory()):
-#     mybook = openGnuCashBook(directory, 'Finance', True, True)
-#     account = "Assets:Non-Liquid Assets:CryptoCurrency"
-#     total = 0
-#     for i in mybook.accounts(fullname=account).children:
-#         if len(i.children) > 1:
-#             for j in i.children:
-#                 gnu_account = "Assets:Non-Liquid Assets:CryptoCurrency:" + i.name + ":" + j.name
-#                 total += sumDollarInvestment(mybook, gnu_account)
-#         else:
-#             gnu_account = "Assets:Non-Liquid Assets:CryptoCurrency:" + i.name
-#             total += sumDollarInvestment(mybook, gnu_account)
-#     print('total: ', total)
-#     return total
+# print(sumDollarInvestment(mybook, account))
 
-# getCryptoInvestmentInDollars()
+def getTotalCryptoInvestmentInDollars(directory=setDirectory()):
+    mybook = openGnuCashBook(directory, 'Finance', True, True)
+    account = "Assets:Non-Liquid Assets:CryptoCurrency"
+    total = 0
+    for i in mybook.accounts(fullname=account).children:
+        print(i.name)
+        if len(i.children) > 1:
+            for j in i.children:
+                print(j.name)
+                gnu_account = account + ":" + i.name + ":" + j.name
+                total += sumDollarInvestment(mybook, gnu_account)
+        else:
+            gnu_account = account + ":" + i.name
+            total += sumDollarInvestment(mybook, gnu_account)
+    print('total: ', total)
+    return total
+
+getTotalCryptoInvestmentInDollars()
