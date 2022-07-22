@@ -590,19 +590,18 @@ def writeGnuTransaction(myBook, description, postDate, amount, fromAccount, toAc
                     Split(value=amount[2], account=myBook.accounts(fullname="Expenses:Utilities:Electricity")),
                     Split(value=amount[3], account=myBook.accounts(fullname="Expenses:Utilities:Gas")),
                     Split(value=amount[4], account=myBook.accounts(fullname=fromAccount))]
-        # elif "NM Paycheck" in description:
-        #     split = [Split(value=round(Decimal(2229.20), 2), memo="scripted",account=myBook.accounts(fullname=fromAccount)),
-        #             Split(value=round(Decimal(206.00), 2), memo="scripted",account=myBook.accounts(fullname="Assets:Non-Liquid Assets:401k")),
-        #             Split(value=round(Decimal(400.00), 2), memo="scripted",account=myBook.accounts(fullname="Assets:Liquid Assets:Promos")),
-        #             Split(value=round(Decimal(5.49), 2), memo="scripted",account=myBook.accounts(fullname="Expenses:Medical:Dental")),
-        #             Split(value=round(Decimal(34.10), 2), memo="scripted",account=myBook.accounts(fullname="Expenses:Medical:Health")),
-        #             Split(value=round(Decimal(2.67), 2), memo="scripted",account=myBook.accounts(fullname="Expenses:Medical:Vision")),
-        #             Split(value=round(Decimal(202.39), 2), memo="scripted",account=myBook.accounts(fullname="Expenses:Income Taxes:Social Security")),
-        #             Split(value=round(Decimal(47.33), 2), memo="scripted",account=myBook.accounts(fullname="Expenses:Income Taxes:Medicare")),
-        #             Split(value=round(Decimal(415.83), 2), memo="scripted",account=myBook.accounts(fullname="Expenses:Income Taxes:Federal Tax")),
-        #             Split(value=round(Decimal(159.07), 2), memo="scripted",account=myBook.accounts(fullname="Expenses:Income Taxes:State Tax")),
-        #             Split(value=round(Decimal(131.25), 2), memo="scripted",account=myBook.accounts(fullname="Assets:Non-Liquid Assets:HSA")),
-        #             Split(value=-round(Decimal(3433.33), 2), memo="scripted",account=myBook.accounts(fullname=toAccount))]
+        elif "NM Paycheck" in description:
+            split = [Split(value=round(Decimal(2229.20), 2), memo="scripted",account=myBook.accounts(fullname=fromAccount)),
+                    Split(value=round(Decimal(206.00), 2), memo="scripted",account=myBook.accounts(fullname="Assets:Non-Liquid Assets:401k")),
+                    Split(value=round(Decimal(5.49), 2), memo="scripted",account=myBook.accounts(fullname="Expenses:Medical:Dental")),
+                    Split(value=round(Decimal(34.10), 2), memo="scripted",account=myBook.accounts(fullname="Expenses:Medical:Health")),
+                    Split(value=round(Decimal(2.67), 2), memo="scripted",account=myBook.accounts(fullname="Expenses:Medical:Vision")),
+                    Split(value=round(Decimal(202.39), 2), memo="scripted",account=myBook.accounts(fullname="Expenses:Income Taxes:Social Security")),
+                    Split(value=round(Decimal(47.33), 2), memo="scripted",account=myBook.accounts(fullname="Expenses:Income Taxes:Medicare")),
+                    Split(value=round(Decimal(415.83), 2), memo="scripted",account=myBook.accounts(fullname="Expenses:Income Taxes:Federal Tax")),
+                    Split(value=round(Decimal(159.07), 2), memo="scripted",account=myBook.accounts(fullname="Expenses:Income Taxes:State Tax")),
+                    Split(value=round(Decimal(131.25), 2), memo="scripted",account=myBook.accounts(fullname="Assets:Non-Liquid Assets:HSA")),
+                    Split(value=-round(Decimal(3433.33), 2), memo="scripted",account=myBook.accounts(fullname=toAccount))]
         else:
             split = [Split(value=-amount, memo="scripted", account=myBook.accounts(fullname=toAccount)),
                     Split(value=amount, memo="scripted", account=myBook.accounts(fullname=fromAccount))]

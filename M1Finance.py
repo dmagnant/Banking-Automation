@@ -10,8 +10,8 @@ from Functions import (chromeDriverAsUser, importUniqueTransactionsToGnuCash,
                        modifyTransactionDescription, openGnuCashBook,
                        setDirectory, showMessage)
 
-BALANCE_ELEMENT_XPATH = "/html/body/div[2]/div/div/div/div[2]/div/div[3]/div[1]/div/div/div[1]/div/h1[2]"
-
+BALANCE_ELEMENT_XPATH = "//*[@id='root']/div/div/div/div[2]/div/div[3]/div[1]/div/div/div[1]/div/h1[2]"
+                          
 def login(directory, driver):
     driver.get("https://dashboard.m1finance.com/login")
     time.sleep(1)

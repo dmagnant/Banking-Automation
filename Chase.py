@@ -22,8 +22,7 @@ def login(driver):
 
 
 def captureBalance(driver):
-    return driver.find_element(By.XPATH, "/html/body/div[2]/div/div[1]/div[2]/main/div[3]/div/div/div/div/div/div/div[1]/section[1]/div[6]/div/div[2]/div/div/div[3]/div/div[2]/ul/li[2]/div/div[2]/span").text.strip('$')
-
+    return driver.find_element(By.ID, "accountCurrentBalanceLinkWithReconFlyoutValue").text.strip('$')
 
 def exportTransactions(driver, today):
     # click on Activity since last statement

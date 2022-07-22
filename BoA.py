@@ -160,7 +160,7 @@ def runBoA(directory, driver, account):
     # startExpressVPN()
 
 if __name__ == '__main__':
-    SET_ACCOUNT_VARIABLE = 'p'
+    SET_ACCOUNT_VARIABLE = 'j'
     directory = setDirectory()
     driver = chromeDriverAsUser()
     driver.implicitly_wait(3)
