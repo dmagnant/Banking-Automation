@@ -12,7 +12,7 @@ from Functions import (chromeDriverAsUser, closeExpressVPN,
 
 
 def login(directory, driver):
-    closeExpressVPN()
+    # closeExpressVPN()
     driver.implicitly_wait(5)
     driver.get("https://secure.ally.com/")
     time.sleep(1)

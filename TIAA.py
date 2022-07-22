@@ -7,7 +7,7 @@ from Functions import (chromeDriverAsUser, closeExpressVPN, getPassword,
 
 
 def login(directory, driver):
-    closeExpressVPN()
+    # closeExpressVPN()
     time.sleep(3)
     # # # TIAA
     driver.execute_script("window.open('https://www.tiaabank.com/');")
